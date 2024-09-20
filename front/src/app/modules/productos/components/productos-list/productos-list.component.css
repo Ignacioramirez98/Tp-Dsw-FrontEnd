@@ -1,0 +1,98 @@
+/* Estilos para la tabla */
+.product-table {
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Estilos para las cards */
+.product-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  width: calc(33% - 20px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* productos-list.component.css */
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.card {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  width: calc(33.333% - 1rem);
+  /* 3 columnas */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-controls {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

@@ -1,0 +1,51 @@
+
+<app-header></app-header>
+
+<h2>Productos</h2>
+
+
+
+<!-- 
+<div class="product-cards">
+  <div class="card" *ngFor="let producto of productos">
+    <img src="URL_IMAGEN" alt="{{ producto.nombre }}" class="product-image">
+    <div class="card-content">
+      <h3>{{ producto.nombre }}</h3>
+      <p>{{ producto.descripcion }}</p>
+      <p><strong>Costo:</strong> {{ producto.importe_compra }}</p>
+      <p><strong>Importe Venta:</strong> {{ producto.importe_venta }}</p>
+      <p><strong>Stock:</strong> {{ producto.stock }}</p>
+    </div>
+  </div>
+</div>
+-->
+      <!-- Botones de acción dentro de las cards 
+            <button (click)="editarProducto(producto.id)">Editar</button>
+            <button (click)="eliminarProducto(producto.id)">Eliminar</button>
+            -->
+
+<!-- Mostrar productos paginados -->
+<div class="card-container">
+  <div class="card" *ngFor="let producto of paginatedProductos">
+    <h3>{{ producto.nombre }}</h3>
+    <p>{{ producto.descripcion }}</p>
+    <p>Importe Compra: {{ producto.importe_compra }}</p>
+    <p>Importe Venta: {{ producto.importe_venta }}</p>
+    <p>Stock: {{ producto.stock }}</p>
+    <!-- Aquí podrías añadir más información de cada producto o botones de acción -->
+  </div>
+</div>
+
+<!-- Controles de Paginación -->
+<div class="pagination-controls">
+  <button (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+
+  <!-- Muestra los números de página -->
+  <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i + 1)">
+    {{ i + 1 }}
+  </button>
+
+  <button (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente</button>
+</div>
+
+<app-footer></app-footer>
