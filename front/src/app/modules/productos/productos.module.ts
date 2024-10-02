@@ -7,6 +7,7 @@ import { ProductoDetailComponent } from './components/producto-detail/producto-d
 import { ProductoFormComponent } from './components/producto-form/producto-form.component';
 import { HeaderModule } from '../../shared/components/header/header.module.js';
 import { FooterComponent } from "../../shared/components/footer/footer.component";
+import { NgxPaginationModule } from 'ngx-pagination';
 
 // Define las rutas para el módulo
 const routes: Routes = [
@@ -25,7 +26,8 @@ const routes: Routes = [
     CommonModule,
     RouterModule.forChild(routes),
     HeaderModule,
-    FooterComponent
+    FooterComponent,
+    NgxPaginationModule
 ]
 })
 export class ProductosModule { }
