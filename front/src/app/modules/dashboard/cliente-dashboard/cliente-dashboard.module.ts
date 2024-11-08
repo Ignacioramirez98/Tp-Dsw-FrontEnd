@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ClienteDashboardComponent } from './cliente-dashboard.component';
 import { RouterModule } from '@angular/router';
+import { ClienteDashboardComponent } from './cliente-dashboard.component';
+import { FooterComponent } from "../../../shared/components/footer/footer.module.js";
 
 @NgModule({
   declarations: [
@@ -9,7 +10,8 @@ import { RouterModule } from '@angular/router';
   ],
   imports: [
     CommonModule,
-    RouterModule.forChild([{ path: '', component: ClienteDashboardComponent }]) // Configura la ruta para el componente
+    RouterModule.forChild([{ path: '', component: ClienteDashboardComponent }]),
+    FooterComponent
   ]
 })
-export class ClienteDashboardModule { }
+export class ClienteDashboardModule {}

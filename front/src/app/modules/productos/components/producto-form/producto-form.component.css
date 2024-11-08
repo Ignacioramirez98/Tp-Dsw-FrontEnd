@@ -1,0 +1,19 @@
+.producto-form .form-label {
+  font-weight: bold;
+}
+
+.producto-form .form-control {
+  border-radius: 0.375rem;
+  /* Bordes redondeados */
+}
+
+.producto-form .invalid-feedback {
+  font-size: 0.875rem;
+  color: #dc3545;
+  /* Rojo de Bootstrap */
+}
+
+.producto-form button {
+  width: 100%;
+  padding: 10px;
+}
