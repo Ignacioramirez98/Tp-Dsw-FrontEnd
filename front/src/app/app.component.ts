@@ -1,19 +1,13 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router'; // Importa RouterModule
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports : [RouterOutlet, CommonModule],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  templateUrl: './app.component.html', // Tu template HTML
+  styleUrls: ['./app.component.css'], // Tus estilos CSS
+  standalone: true, // Marca el componente como standalone
+  imports: [RouterModule], // Asegúrate de importar RouterModule aquí
 })
 export class AppComponent {
-  title = 'hola';
-  tasks = [
-    'paso 1',
-    'paso 2',
-    'paso 3 '
-  ];
+  title = 'Mi Aplicación Angular';
 }

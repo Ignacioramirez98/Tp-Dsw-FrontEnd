@@ -8,11 +8,14 @@ import { ProductoFormComponent } from './components/producto-form/producto-form.
 import { HeaderModule } from '../../shared/components/header/header.module.js';
 import { FooterComponent } from "../../shared/components/footer/footer.component";
 import { NgxPaginationModule } from 'ngx-pagination';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
+
 
 // Define las rutas para el módulo
 const routes: Routes = [
   { path: '', component: ProductosListComponent },
-  { path: ':id', component: ProductoDetailComponent },
+  { path: 'nuevo', component: ProductoFormComponent },
   { path: 'edit/:id', component: ProductoFormComponent }
 ];
 
@@ -27,7 +30,9 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     HeaderModule,
     FooterComponent,
-    NgxPaginationModule
+    NgxPaginationModule,
+    FormsModule,
+    ReactiveFormsModule
 ]
 })
 export class ProductosModule { }

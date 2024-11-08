@@ -59,3 +59,17 @@ nav {
   font-size: 14px;
   margin-left: 5px;
 }
+
+/* Estilo básico para el desplegable */
+.nav-menu .dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #333;
+  border-radius: 4px;
+  padding: 5px 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nav-menu .dropdown:hover .dropdown-menu {
+  display: block;
+}

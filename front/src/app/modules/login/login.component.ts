@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginService } from './login.service.js'; // Asegúrate de que la ruta sea correcta
+import { LoginService } from './login.service';
 
 @Component({
   selector: 'app-login',
@@ -8,16 +8,22 @@ import { LoginService } from './login.service.js'; // Asegúrate de que la ruta 
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  email: string = '';
+  usuario: string = '';
   password: string = '';
   userType: string = 'cliente'; // Por defecto, el tipo de usuario es cliente
 
-  constructor(private loginsevice: LoginService, private router: Router) {}
+  constructor(private loginService: LoginService, private router: Router) {}
 
   login() {
-    this.loginsevice.login(this.email, this.password, this.userType).subscribe(
+    this.loginService.login(this.usuario, this.password, this.userType).subscribe(
       (response) => {
         console.log('Inicio de sesión exitoso:', response);
+        
+        // Guardar el token en el localStorage
+        if (response.token) {
+          this.loginService.saveToken(response.token);
+        }
+
         // Redirigir según el tipo de usuario
         if (this.userType === 'cliente') {
           this.router.navigate(['/cliente-dashboard']);
@@ -32,4 +38,3 @@ export class LoginComponent {
     );
   }
 }
-

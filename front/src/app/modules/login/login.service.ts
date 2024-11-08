@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -12,5 +12,20 @@ export class LoginService {
 
   login(email: string, password: string, userType: string): Observable<any> {
     return this.http.post<any>(this.apiUrl, { email, password, userType });
+  }
+
+  // Método para guardar el token en el almacenamiento local del navegador
+  saveToken(token: string): void {
+    localStorage.setItem('authToken', token);
+  }
+
+  // Método para obtener el token guardado en el almacenamiento local
+  getToken(): string | null {
+    return localStorage.getItem('authToken');
+  }
+
+  // Método para verificar si el usuario está autenticado
+  isAuthenticated(): boolean {
+    return !!this.getToken(); // Si hay un token, está autenticado
   }
 }

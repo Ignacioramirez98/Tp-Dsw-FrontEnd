@@ -6,6 +6,10 @@
 <div class="container mt-5">
   <h2 class="text-center mb-4">Lista de Productos</h2>
 
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="nuevoProducto()">Nuevo</button>
+  </div>
+
   <table class="table table-striped table-bordered">
     <thead class="thead-dark">
       <tr>
@@ -20,15 +24,15 @@
     </thead>
     <tbody>
       <tr *ngFor="let producto of paginatedProductos">
-        <td>{{ producto.id }}</td>
+        <td>{{ producto._id }}</td>
         <td>{{ producto.nombre }}</td>
         <td>{{ producto.descripcion }}</td>
         <td>{{ producto.importe_compra }}</td>
         <td>{{ producto.importe_venta }}</td>
         <td>{{ producto.stock }}</td>
         <td>
-          <button class="btn btn-success btn-sm">Editar</button>
-          <button class="btn btn-danger btn-sm">Eliminar</button>
+          <button class="btn btn-success btn-sm" (click)="editProducto(producto._id)">Editar</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteProducto(producto._id)">Eliminar</button>
         </td>
       </tr>
     </tbody>

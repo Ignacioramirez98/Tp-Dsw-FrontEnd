@@ -1,23 +1,28 @@
 // src/app/modules/productos/components/productos-list/productos-list.component.ts
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ProductosService } from '../../producto.service.js';
 import { Producto } from '../../../../shared/models/producto.model.js';
-import { HeaderComponent } from '../../../../shared/components/header/header.component.js';
-import { FooterComponent } from '../../../../shared/components/footer/footer.component.js';
+import { HttpErrorResponse } from '@angular/common/http';  // Asegúrate de importar HttpErrorResponse
+
 
 @Component({
   selector: 'app-productos-list',
   templateUrl: './productos-list.component.html',
   styleUrls: ['./productos-list.component.css'],
+  standalone: false
 })
 export class ProductosListComponent implements OnInit {
-    productos: Producto[] = [];
-    paginatedProductos: Producto[] = [];
-    currentPage: number = 1;
-    itemsPerPage: number = 5; 
-    totalPages: number = 0;
+  productos: Producto[] = [];
+  paginatedProductos: Producto[] = [];
+  currentPage: number = 1;
+  itemsPerPage: number = 5; 
+  totalPages: number = 0;
 
- constructor(private productoService: ProductosService) {}
+  constructor(
+    private productoService: ProductosService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.getProductos();
@@ -25,17 +30,26 @@ export class ProductosListComponent implements OnInit {
 
 getProductos(): void {
   this.productoService.getProductos().subscribe(
-    (response) => {
-      console.log('Productos desde API:', response); // Verifica la estructura de la respuesta
-      this.productos = response.data; // Accede a la propiedad 'data' que contiene el array de productos
+    (response: { data: Producto[] }) => {
+      console.log('Productos desde API:', response);
+      this.productos = response.data;
       this.totalPages = Math.ceil(this.productos.length / this.itemsPerPage);
       this.updatePaginatedProductos();
     },
-    (error) => {
+    (error: HttpErrorResponse) => {  // Especificamos el tipo de error
       console.error('Error al obtener productos:', error);
+      if (error.error instanceof ErrorEvent) {
+        // Error ocurrido en el lado del cliente
+        console.error('Error en el cliente:', error.error.message);
+      } else {
+        // Error en la respuesta del servidor
+        console.error(`Código de error ${error.status}, mensaje: ${error.message}`);
+      }
     }
   );
 }
+
+
 
   // Método para actualizar la lista paginada
   updatePaginatedProductos(): void {
@@ -63,5 +77,30 @@ getProductos(): void {
     }
   }
 
+  // Método para redirigir al formulario de edición del producto
+editProducto(id: string): void {
+  console.log('Editar producto con ID:', id); // Asegúrate de que se esté imprimiendo correctamente el id
+  this.router.navigate(['/productos/edit', id]);
+}
 
+
+  // Método para eliminar un producto
+  deleteProducto(id: string): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+      this.productoService.deleteProducto(id).subscribe(
+        () => {
+          alert('Producto eliminado exitosamente.');
+          this.getProductos(); // Recarga la lista después de eliminar
+        },
+        (error) => {
+          console.error('Error al eliminar el producto:', error);
+          alert('Hubo un error al eliminar el producto.');
+        }
+      );
+    }
+  }
+
+  nuevoProducto(): void {
+  this.router.navigate(['/productos/nuevo']);
+}
 }

@@ -1,1 +1,62 @@
-<p>producto-form works!</p>
+<app-header></app-header>
+<div class="producto-form container mt-5">
+  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
+
+  <form [formGroup]="productoForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <!-- Nombre -->
+      <div class="col-12 col-md-6 mb-3">
+        <label for="nombre" class="form-label">Nombre:</label>
+        <input type="text" id="nombre" formControlName="nombre" class="form-control" placeholder="Nombre del producto"
+          required />
+        <div *ngIf="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched"
+          class="invalid-feedback">
+          El nombre es requerido.
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="col-12 col-md-6 mb-3">
+        <label for="descripcion" class="form-label">Descripción:</label>
+        <input type="text" id="descripcion" formControlName="descripcion" class="form-control"
+          placeholder="Descripción del producto" required />
+        <div *ngIf="productoForm.get('descripcion')?.invalid && productoForm.get('descripcion')?.touched"
+          class="invalid-feedback">
+          La descripción es requerida.
+        </div>
+      </div>
+
+      <!-- Importe Compra -->
+      <div class="col-12 col-md-6 mb-3">
+        <label for="importe_compra" class="form-label">Importe Compra:</label>
+        <input type="number" id="importe_compra" formControlName="importe_compra" class="form-control"
+          placeholder="Precio de compra" required />
+      </div>
+
+      <!-- Importe Venta -->
+      <div class="col-12 col-md-6 mb-3">
+        <label for="importe_venta" class="form-label">Importe Venta:</label>
+        <input type="number" id="importe_venta" formControlName="importe_venta" class="form-control"
+          placeholder="Precio de venta" required />
+      </div>
+
+      <!-- Stock -->
+      <div class="col-12 col-md-6 mb-3">
+        <label for="stock" class="form-label">Stock:</label>
+        <input type="number" id="stock" formControlName="stock" class="form-control" placeholder="Cantidad disponible"
+          required />
+      </div>
+
+      <!-- Botones de aceptar y cancelar -->
+      <div class="col-12 d-flex justify-content-between">
+        <button type="submit" [disabled]="productoForm.invalid" class="btn btn-primary btn-sm mx-2">
+          Aceptar
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm mx-2" (click)="onCancel()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+<app-footer></app-footer>
