@@ -1,0 +1,186 @@
+/* Estilos Generales */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Títulos */
+h2 {
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+/* Cabecera de la tabla */
+.table th {
+  background-color: #e3f2fd;
+  /* Color de fondo igual al del botón */
+  color: #1976d2;
+  /* Color del texto igual al del botón */
+  font-weight: 600;
+  text-align: center;
+  border-bottom: 1px solid #bbdefb;
+  /* Borde suave similar al borde del botón */
+}
+
+/* Asegurarse de que el color se mantenga al pasar el ratón (hover) */
+.table th:hover {
+  background-color: #bbdefb;
+  /* Un tono más oscuro en hover, igual que en el botón */
+  color: #0d47a1;
+  /* Color más oscuro en hover, similar al texto del botón */
+}
+
+/* Efecto hover en las filas */
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* Columnas de la tabla más anchas */
+.table th,
+.table td {
+  width: auto;
+}
+
+.table td {
+  color: #555;
+}
+
+.table td:first-child,
+.table th:first-child {
+  width: 10%;
+}
+
+/* Estilo de los botones de acción */
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-primary {
+  font-weight: 600;
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Colores de los botones */
+.btn-outline-success {
+  color: #28a745;
+  border-color: #28a745;
+}
+
+.btn-outline-success:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-outline-primary {
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-outline-primary:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Botón Nuevo Producto */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border-radius: 25px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-primary i {
+  margin-right: 8px;
+}
+
+/* Controles de paginación */
+.pagination-controls {
+  font-size: 1.1rem;
+}
+
+.pagination-controls button {
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 600;
+}
+
+/* Ajustes de responsividad */
+@media (max-width: 768px) {
+
+  .table th,
+  .table td {
+    font-size: 0.9rem;
+  }
+
+  .pagination-controls button {
+    padding: 8px 12px;
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+}
+
+.btn-nuevo-servicio {
+  background-color: #e3f2fd;
+  /* Un tono suave de azul */
+  border: 1px solid #bbdefb;
+  /* Borde suave */
+  color: #1976d2;
+  /* Texto en un tono más oscuro */
+  border-radius: 5px;
+  padding: 8px 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-weight: bold;
+}
+
+.btn-nuevo-servicio:hover {
+  background-color: #bbdefb;
+  /* Un poco más oscuro en hover */
+  color: #0d47a1;
+  /* Texto más oscuro en hover */
+}
+
+.btn-nuevo-servicio:disabled {
+  background-color: #e0e0e0;
+  /* Color apagado cuando está deshabilitado */
+  color: #9e9e9e;
+  border: 1px solid #cfd8dc;
+  cursor: not-allowed;
+}
+
+.container {
+  max-width: 1400px;
+  /* Ampliamos el contenedor */
+  margin: 0 auto;
+  width: 100%;
+}

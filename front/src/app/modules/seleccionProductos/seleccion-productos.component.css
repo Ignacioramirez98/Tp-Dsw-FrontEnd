@@ -44,3 +44,68 @@
 .btn-danger:hover {
   opacity: 0.9;
 }
+
+.card .btn {
+  background-color: #e0f7fa;
+  /* Un tono claro de azul */
+  border: 1px solid #b2ebf2;
+  /* Borde de color suave */
+  color: #00796b;
+  /* Texto en un tono más oscuro */
+  border-radius: 5px;
+  /* Bordes redondeados */
+  padding: 6px 12px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card .btn:hover {
+  background-color: #b2ebf2;
+  /* Un poco más oscuro en hover */
+  color: #004d40;
+  /* Color de texto más oscuro */
+}
+
+.card .btn:disabled {
+  background-color: #e0f2f1;
+  /* Fondo claro cuando está deshabilitado */
+  color: #a7a7a7;
+  /* Color de texto apagado */
+  cursor: not-allowed;
+  border: 1px solid #cfd8dc;
+}
+
+.card-footer .cantidad {
+  font-weight: bold;
+  color: #00796b;
+  /* Alineado con el color de los botones */
+  margin: 0 10px;
+  /* Espacio alrededor del número */
+}
+
+.btn-nueva-compra {
+  background-color: #e3f2fd;
+  /* Un tono suave de azul */
+  border: 1px solid #bbdefb;
+  /* Borde suave */
+  color: #1976d2;
+  /* Texto en un tono más oscuro */
+  border-radius: 5px;
+  padding: 8px 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-weight: bold;
+}
+
+.btn-nueva-compra:hover {
+  background-color: #bbdefb;
+  /* Un poco más oscuro en hover */
+  color: #0d47a1;
+  /* Texto más oscuro en hover */
+}
+
+.btn-nueva-compra:disabled {
+  background-color: #e0e0e0;
+  /* Color apagado cuando está deshabilitado */
+  color: #9e9e9e;
+  border: 1px solid #cfd8dc;
+  cursor: not-allowed;
+}

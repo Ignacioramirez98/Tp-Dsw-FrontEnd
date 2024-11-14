@@ -1,25 +1,23 @@
 <header>
   <div class="header-container">
     <div class="logo">
-    <img src="../../../assets/img/logos/microsoft.svg" alt="Logo" />
+      <img src="..." alt="Logo" />
     </div>
     <nav>
       <ul class="nav-menu">
-        <li><a href="/vendedor-dashboard">Inicio</a></li>
-        <li><a href="/productos">Productos</a></li>
+        <li><a href="/cliente-dashboard">Inicio</a></li>
+        <li><a href="/seleccion-productos">Productos</a></li>
         <li><a href="/servicios">Servicios</a></li>
-        <li><a href="/ventas">Ventas</a></li>
-        <li><a href="/clientes">Clientes</a></li>
-        <li><a href="/localidades">Localidades</a></li>
-        <li><a href="/operarios">Operarios</a></li>
+        <li><a href="/ventas">Mis Compras</a></li>
         <li><a href="/contacto">Contacto</a></li>
 
-        <!-- desplegable de perfil -->
+        <!-- Menú desplegable de Perfil -->
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
             aria-expanded="false">Perfil</a>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="/mis-datos">Mis Datos</a>
+            <!-- Vinculamos el método de cerrar sesión -->
             <a class="dropdown-item" href="#" (click)="cerrarSesion()">Cerrar Sesión</a>
           </div>
         </li>

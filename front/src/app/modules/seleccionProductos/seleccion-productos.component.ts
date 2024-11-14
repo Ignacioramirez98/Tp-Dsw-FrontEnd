@@ -17,7 +17,7 @@ export class SeleccionProductosComponent implements OnInit {
   paginatedProductos: Producto[] = [];    // Productos en la página actual
   cantidades: { [key: string]: number } = {};  // Cantidades seleccionadas por producto
   currentPage: number = 1;
-  itemsPerPage: number = 10;               // Cantidad de productos por página
+  itemsPerPage: number = 12;               // Cantidad de productos por página
   totalPages: number = 1;
 
   constructor(private productoService: ProductosService, private router: Router, private dialog: MatDialog ) {}

@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { SeleccionProductosComponent } from './seleccion-productos.component.js';
-import { HeaderModule } from '../../shared/components/header/header.module.js';
+import { HeaderClienteModule } from '../../shared/components/header-cliente/header-cliente.module.js';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { WarningModule } from '../../shared/components/warning/warning.module.js';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -21,7 +21,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    HeaderModule,
+    HeaderClienteModule,
     FooterComponent,
     WarningModule,
     NgxPaginationModule,

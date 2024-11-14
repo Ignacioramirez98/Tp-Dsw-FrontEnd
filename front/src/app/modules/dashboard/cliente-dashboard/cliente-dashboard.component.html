@@ -1,24 +1,27 @@
-<app-header></app-header>
-<div class="container mt-5">
-  <h1 class="text-center">Dashboard Cliente</h1>
-  <div class="row mt-4">
-    <div class="col-md-6 mb-4">
-      <div class="card">
-        <img src="assets/images/productos.jpg" class="card-img-top" alt="Productos">
-        <div class="card-body">
-          <h5 class="card-title">Productos</h5>
+<app-header-cliente></app-header-cliente>
+
+<div class="container mt-5 cliente-dashboard">
+  <h1 class="text-center mb-4">Bienvenido!</h1>
+
+  <div class="row justify-content-center">
+    <div class="col-md-5 mb-4">
+      <div class="card shadow-sm h-100">
+        <img src="../../../assets/img/logos/logo.jpg" class="card-img-top" alt="Productos">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Nuestros Productos</h5>
           <p class="card-text">Explora nuestra amplia gama de productos disponibles para ti.</p>
-          <a routerLink="/seleccion-productos" class="btn btn-primary">Ver Productos</a>
+          <a routerLink="/seleccion-productos" class="btn btn-primary mt-auto">Ver Productos</a>
         </div>
       </div>
     </div>
-    <div class="col-md-6 mb-4">
-      <div class="card">
+
+    <div class="col-md-5 mb-4">
+      <div class="card shadow-sm h-100">
         <img src="assets/images/servicios.jpg" class="card-img-top" alt="Servicios">
-        <div class="card-body">
-          <h5 class="card-title">Servicios</h5>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Nuestros Servicios</h5>
           <p class="card-text">Descubre los servicios que ofrecemos para mejorar tu experiencia.</p>
-          <a routerLink="/servicios" class="btn btn-primary">Ver Servicios</a>
+          <a routerLink="/servicios" class="btn btn-primary mt-auto">Ver Servicios</a>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ClienteDashboardComponent } from './cliente-dashboard.component';
 import { FooterComponent } from "../../../shared/components/footer/footer.module.js";
-import { HeaderModule } from "../../../shared/components/header/header.module";
+import { HeaderClienteModule } from "../../../shared/components/header-cliente/header-cliente.module.js";
 
 @NgModule({
   declarations: [
@@ -13,7 +13,7 @@ import { HeaderModule } from "../../../shared/components/header/header.module";
     CommonModule,
     RouterModule.forChild([{ path: '', component: ClienteDashboardComponent }]),
     FooterComponent,
-    HeaderModule
+    HeaderClienteModule
 ]
 })
 export class ClienteDashboardModule {}

@@ -1,1 +1,43 @@
-<p>servicio-form works!</p>
+<app-header></app-header>
+
+<div class="servicio-form container mt-5">
+  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form [formGroup]="ServicioForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Descripción -->
+          <div class="col-12 col-md-6 mb-4">
+            <label for="descripcion" class="form-label">Descripción del Servicio:</label>
+            <textarea id="descripcion" formControlName="descripcion" class="form-control"
+              placeholder="Ingrese la descripción del servicio" rows="4" required></textarea>
+            <div *ngIf="ServicioForm.get('descripcion')?.invalid && ServicioForm.get('descripcion')?.touched"
+              class="invalid-feedback">
+              La descripción es requerida.
+            </div>
+          </div>
+
+          <!-- Importe por Hora -->
+          <div class="col-12 col-md-6 mb-4">
+            <label for="importe_por_hora" class="form-label">Importe por Hora:</label>
+            <input type="number" id="importe_por_hora" formControlName="importe_por_hora" class="form-control"
+              placeholder="Precio por hora" required />
+          </div>
+
+          <!-- Botones de aceptar y cancelar -->
+          <div class="col-12 d-flex justify-content-end">
+            <button type="submit" [disabled]="ServicioForm.invalid" class="btn btn-primary btn-lg mx-2">
+              <i class="bi bi-check-circle"></i> Aceptar
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
+              <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

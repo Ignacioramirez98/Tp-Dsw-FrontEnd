@@ -12,6 +12,17 @@ export class VentasService {
   constructor(private http: HttpClient) {}
 
   crearVenta(venta: Venta): Observable<any> {
+    console.log(venta);
     return this.http.post<any>(this.apiUrl, venta);
+  }
+
+    // Obtener todos los Ventas desde la API
+  getVentas(): Observable<{ data: Venta[] }> {
+    return this.http.get<{ data: Venta[] }>(this.apiUrl);
+  }
+
+    // Eliminar un producto por su ID
+  deleteVenta(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

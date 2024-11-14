@@ -1,4 +1,4 @@
-<app-header></app-header>
+<app-header-cliente></app-header-cliente>
 
 <div class="container mt-5">
   <div class="row justify-content-center">
@@ -9,8 +9,8 @@
           <h2 class="text-center mb-4">Confirmar Compra</h2>
 
           <!-- Información del Cliente -->
-          <div class="mb-4">
-            <h5 class="text-dark">Cliente: <span class="text-muted">{{ clienteNombre }} {{ apellidoCliente }}</span>
+          <div *ngIf="cliente" class="mb-4">
+            <h5 class="text-dark">Cliente: <span class="text-muted">{{ cliente.nombre }} {{ cliente.apellido }}</span>
             </h5>
           </div>
 

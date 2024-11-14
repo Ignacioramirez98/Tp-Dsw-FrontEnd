@@ -1,5 +1,6 @@
 import {Producto} from "./producto.model.js"
 import {Servicio} from "./servicio.model.js"
+import {Cliente} from "./cliente.model.js"
 
 export class Venta {
   _id?: string;
@@ -8,6 +9,7 @@ export class Venta {
   fechaDeVenta: Date;
   fechaEntrega: Date;
   fechaCancelacion: Date | null;
+  cliente: Cliente;
   productos: Producto[];
   servicios: Servicio[];
 
@@ -17,6 +19,7 @@ export class Venta {
     fechaDeVenta: Date = new Date(),
     fechaEntrega: Date = new Date(),
     fechaCancelacion: Date | null = null,
+    cliente: Cliente,
     productos: Producto[] = [],
     servicios: Servicio[] = []
   ) {
@@ -25,6 +28,7 @@ export class Venta {
     this.fechaDeVenta = fechaDeVenta;
     this.fechaEntrega = fechaEntrega;
     this.fechaCancelacion = fechaCancelacion;
+    this.cliente = cliente;
     this.productos = productos;
     this.servicios = servicios;
   }

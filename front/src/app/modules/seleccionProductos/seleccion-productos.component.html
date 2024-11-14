@@ -1,51 +1,42 @@
-<app-header></app-header>
+<app-header-cliente></app-header-cliente>
 
 <div class="container mt-5">
   <h2 class="text-center mb-4">Productos Disponibles</h2>
 
   <!-- Botón Nueva Compra -->
   <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary" (click)="nuevaCompra()">
+    <button class="btn btn-nueva-compra" (click)="nuevaCompra()">
       Nueva Compra
     </button>
   </div>
 
-  <!-- Lista de Productos en una tarjeta -->
-  <div class="table-responsive">
-    <table class="table table-hover align-middle text-center border rounded shadow-sm">
-      <thead class="table-dark">
-        <tr>
-          <th scope="col">Nombre</th>
-          <th scope="col">Descripción</th>
-          <th scope="col">Precio</th>
-          <th scope="col">Stock</th>
-          <th scope="col">Cantidad</th>
-          <th scope="col">Selección</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let producto of paginatedProductos" class="align-middle">
-          <td>{{ producto.nombre }}</td>
-          <td class="text-truncate descripcion-cell">{{ producto.descripcion }}</td>
-          <td>{{ producto.importe_venta | currency }}</td>
-          <td>{{ producto.stock }}</td>
-          <td>{{ cantidades[producto._id] || 0 }}</td>
-          <td>
-            <button class="btn btn-success btn-sm mx-1" (click)="incrementarCantidad(producto._id)"
+  <!-- Grid de Productos en Cards -->
+  <div class="row">
+    <div class="col-md-3 mb-4" *ngFor="let producto of paginatedProductos">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ producto.nombre }}</h5>
+          <p class="card-text text-truncate">{{ producto.descripcion }}</p>
+          <p class="card-text"><strong>Precio:</strong> {{ producto.importe_venta | currency }}</p>
+          <p class="card-text"><strong>En Stock:</strong> {{ producto.stock }}</p>
+
+          <!-- Controles de cantidad centrados -->
+          <div class="mt-auto d-flex justify-content-center align-items-center">
+            <button class="btn btn-success btn-sm me-1" (click)="incrementarCantidad(producto._id)"
               [disabled]="cantidades[producto._id] >= producto.stock">
               +
             </button>
-            <button class="btn btn-danger btn-sm mx-1" (click)="decrementarCantidad(producto._id)"
+            <span class="mx-2 fw-bold fs-4">{{ cantidades[producto._id] || 0 }}</span>
+            <button class="btn btn-danger btn-sm ms-1" (click)="decrementarCantidad(producto._id)"
               [disabled]="cantidades[producto._id] <= 0">
-              -
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              -</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Controles de paginación con un diseño más atractivo -->
+  <!-- Controles de paginación -->
   <div class="d-flex justify-content-center mt-4">
     <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
       <i class="bi bi-arrow-left"></i> Anterior

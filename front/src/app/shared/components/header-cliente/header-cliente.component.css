@@ -1,0 +1,104 @@
+/* General del Header */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+}
+
+.logo img {
+  height: 50px;
+  /* Ajusta el tamaño del logo */
+}
+
+/* Menú de navegación */
+.nav-menu {
+  list-style-type: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-menu li {
+  margin: 0 15px;
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.nav-menu a:hover {
+  background-color: #f0a500;
+}
+
+/* Menú desplegable */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #444;
+  top: 100%;
+  left: 0;
+  min-width: 160px;
+  padding: 10px 0;
+  border-radius: 5px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-menu a {
+  color: white;
+  padding: 8px 20px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0a500;
+}
+
+/* Mostrar el desplegable cuando se hace hover */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Ajustar el menú desplegable para evitar que se corte cuando está cerca del borde derecho */
+.dropdown:hover .dropdown-menu {
+  left: -50px;
+  /* Mover el menú hacia la izquierda si está cerca del borde */
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .nav-menu {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-menu li {
+    margin: 10px 0;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.logo img {
+  width: 150px;
+  height: auto;
+}

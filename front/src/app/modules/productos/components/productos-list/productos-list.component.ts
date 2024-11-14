@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductosService } from '../../producto.service.js';
 import { Producto } from '../../../../shared/models/producto.model.js';
-import { HttpErrorResponse } from '@angular/common/http';  // Asegúrate de importar HttpErrorResponse
+import { HttpErrorResponse } from '@angular/common/http'; 
 
 
 @Component({
@@ -16,7 +16,7 @@ export class ProductosListComponent implements OnInit {
   productos: Producto[] = [];
   paginatedProductos: Producto[] = [];
   currentPage: number = 1;
-  itemsPerPage: number = 5; 
+  itemsPerPage: number = 10; 
   totalPages: number = 0;
 
   constructor(
