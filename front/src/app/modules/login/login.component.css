@@ -1,14 +1,54 @@
-.card {
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Login container to center the form */
+.login-container {
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  padding: 20px;
 }
 
+/* Card styling for the login form */
+.card {
+  border-radius: 15px;
+}
+
+/* Title styling */
+h2 {
+  font-size: 2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Error message styling */
+.error-message {
+  font-size: 0.9rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+/* Button custom styling */
 .btn-primary {
   background-color: #007bff;
   border-color: #007bff;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .btn-primary:hover {
   background-color: #0056b3;
-  border-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* Link below the form */
+.text-center a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.text-center a:hover {
+  text-decoration: underline;
 }

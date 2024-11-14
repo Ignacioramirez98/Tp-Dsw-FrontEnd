@@ -1,0 +1,34 @@
+/* Fondo suave y separación entre secciones */
+.container {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 30px;
+}
+
+/* Card - Sombra más fuerte */
+.card {
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Bordes redondeados en botones */
+.btn {
+  border-radius: 25px;
+}
+
+/* Texto destacado */
+.text-muted {
+  font-weight: normal;
+  color: #6c757d;
+}
+
+/* Mejorar la separación entre elementos dentro de la tarjeta */
+.card-body {
+  padding: 2rem;
+}
+
+/* Títulos de secciones */
+h5,
+h6 {
+  font-weight: 500;
+}

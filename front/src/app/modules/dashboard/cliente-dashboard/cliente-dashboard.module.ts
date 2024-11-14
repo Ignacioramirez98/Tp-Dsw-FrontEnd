@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ClienteDashboardComponent } from './cliente-dashboard.component';
 import { FooterComponent } from "../../../shared/components/footer/footer.module.js";
+import { HeaderModule } from "../../../shared/components/header/header.module";
 
 @NgModule({
   declarations: [
@@ -11,7 +12,8 @@ import { FooterComponent } from "../../../shared/components/footer/footer.module
   imports: [
     CommonModule,
     RouterModule.forChild([{ path: '', component: ClienteDashboardComponent }]),
-    FooterComponent
-  ]
+    FooterComponent,
+    HeaderModule
+]
 })
 export class ClienteDashboardModule {}

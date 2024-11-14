@@ -1,0 +1,46 @@
+.table {
+  font-size: 1rem;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+  padding: 1rem;
+  /* Aumenta el espacio entre celdas */
+}
+
+.table th {
+  background-color: #343a40;
+  color: white;
+}
+
+.descripcion-cell {
+  max-width: 250px;
+  /* Aumenta el ancho para la descripción */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+.pagination-controls {
+  margin-top: 20px;
+}
+
+.btn-success,
+.btn-danger {
+  width: 2.5rem;
+  /* Aumenta el tamaño de los botones */
+  height: 2.5rem;
+  font-size: 1.25rem;
+  /* Aumenta el tamaño del texto */
+  padding: 0;
+}
+
+.btn-success:hover,
+.btn-danger:hover {
+  opacity: 0.9;
+}

@@ -1,5 +1,5 @@
 // login.service.ts (Angular)
-import { Injectable } from '@angular/core';
+/*import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -15,3 +15,4 @@ export class LoginService {
     return this.http.post<any>(this.apiUrl, { usuario, password, userType });
   }
 }
+*/

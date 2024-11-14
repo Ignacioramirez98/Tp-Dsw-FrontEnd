@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service.js';  // Asegúrate de importar el AuthService correctamente
+
 
 @Component({
   selector: 'app-header',
@@ -7,5 +10,14 @@ import { Component } from '@angular/core';
   standalone : false
 })
 export class HeaderComponent {
-  // Tu lógica aquí
+  
+  constructor(private authService: AuthService, private router: Router) {}
+
+  // Método para cerrar sesión
+  cerrarSesion(): void {
+    // Llamamos al servicio de autenticación para eliminar los datos
+    this.authService.logout();
+    // Redirigimos al usuario a la página de login
+    this.router.navigate(['/login']);
+  }
 }
