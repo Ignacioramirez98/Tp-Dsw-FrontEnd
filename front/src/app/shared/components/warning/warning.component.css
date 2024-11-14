@@ -1,0 +1,43 @@
+.warning-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Para centrar el mensaje */
+  padding: 15px 30px;
+  border-radius: 12px;
+  /* Bordes más suaves */
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  /* Para que el texto resalte más */
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Sombra ligera para darle profundidad */
+  transition: all 0.3s ease;
+  /* Transición suave cuando aparezca */
+}
+
+/* Estilo para el verde suave */
+.warning-green {
+  background-color: #a8e6cf;
+  /* Verde suave */
+  color: #2e7d32;
+  /* Verde oscuro para el texto */
+  border: 2px solid #4caf50;
+  /* Borde de color verde oscuro */
+  box-shadow: 0 4px 12px rgba(0, 150, 136, 0.2);
+  /* Sombra más suave */
+}
+
+/* Estilo para el rojo suave */
+.warning-red {
+  background-color: #ffcccb;
+  /* Rojo claro */
+  color: #b71c1c;
+  /* Rojo oscuro para el texto */
+  border: 2px solid #f44336;
+  /* Borde de color rojo oscuro */
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+  /* Sombra más suave */
+}

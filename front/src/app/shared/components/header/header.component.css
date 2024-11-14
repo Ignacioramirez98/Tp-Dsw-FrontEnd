@@ -1,29 +1,22 @@
-/* Estilos para el Header */
-header {
-  background-color: #333;
-  color: #fff;
-  padding: 10px 20px;
-}
-
+/* General del Header */
 .header-container {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
 }
 
 .logo img {
   height: 50px;
+  /* Ajusta el tamaño del logo */
 }
 
-nav {
-  flex: 1;
-  margin: 0 20px;
-}
-
+/* Menú de navegación */
 .nav-menu {
-  list-style: none;
+  list-style-type: none;
   display: flex;
-  justify-content: center;
   margin: 0;
   padding: 0;
 }
@@ -33,43 +26,74 @@ nav {
 }
 
 .nav-menu a {
-  color: #fff;
   text-decoration: none;
+  color: white;
   font-size: 16px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
 }
 
 .nav-menu a:hover {
-  text-decoration: underline;
+  background-color: #f0a500;
 }
 
-.cart {
-  display: flex;
-  align-items: center;
+/* Menú desplegable */
+.dropdown {
+  position: relative;
 }
 
-.cart img {
-  height: 30px;
+.dropdown-toggle {
+  cursor: pointer;
 }
 
-.cart-count {
-  background-color: #f00;
-  color: #fff;
-  border-radius: 50%;
-  padding: 2px 8px;
-  font-size: 14px;
-  margin-left: 5px;
-}
-
-/* Estilo básico para el desplegable */
-.nav-menu .dropdown-menu {
+.dropdown-menu {
   display: none;
   position: absolute;
-  background-color: #333;
-  border-radius: 4px;
-  padding: 5px 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #444;
+  top: 100%;
+  left: 0;
+  min-width: 160px;
+  padding: 10px 0;
+  border-radius: 5px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.nav-menu .dropdown:hover .dropdown-menu {
+.dropdown-menu a {
+  color: white;
+  padding: 8px 20px;
+  text-decoration: none;
   display: block;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0a500;
+}
+
+/* Mostrar el desplegable cuando se hace hover */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Ajustar el menú desplegable para evitar que se corte cuando está cerca del borde derecho */
+.dropdown:hover .dropdown-menu {
+  left: -50px;
+  /* Mover el menú hacia la izquierda si está cerca del borde */
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .nav-menu {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-menu li {
+    margin: 10px 0;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: center;
+  }
 }
