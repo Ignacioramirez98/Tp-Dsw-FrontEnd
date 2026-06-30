@@ -184,3 +184,13 @@ h2 {
   margin: 0 auto;
   width: 100%;
 }
+
+.servicio-card {
+  border: none;
+}
+
+.servicio-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}

@@ -1,9 +1,6 @@
 <div class="login-container d-flex justify-content-center align-items-center">
   <div class="card p-4 shadow-sm" style="width: 100%; max-width: 400px;">
     <h2 class="text-center mb-4">Iniciar sesión</h2>
-    <div class="d-flex justify-content-center mb-3">
-      <app-role-badge [role]="rolPreview" (roleClick)="onRoleBadgeClick($event)"></app-role-badge>
-    </div>
     <form (ngSubmit)="onLogin()">
       <div class="mb-3">
         <label for="usuario" class="form-label">Usuario</label>

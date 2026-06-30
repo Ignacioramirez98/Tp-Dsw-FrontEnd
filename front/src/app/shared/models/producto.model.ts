@@ -5,6 +5,7 @@ export class Producto {
   importe_compra: number;
   importe_venta: number;
   stock: number;
+  imagenUrl?: string;
 
   constructor(
     _id: string = '',
@@ -12,7 +13,8 @@ export class Producto {
     descripcion: string = '',
     importe_compra: number = 0,
     importe_venta: number = 0,
-    stock: number = 0
+    stock: number = 0,
+    imagenUrl?: string
   ) {
     this._id = _id;
     this.nombre = nombre;
@@ -20,5 +22,6 @@ export class Producto {
     this.importe_compra = importe_compra;
     this.importe_venta = importe_venta;
     this.stock = stock;
+    this.imagenUrl = imagenUrl;
   }
 }

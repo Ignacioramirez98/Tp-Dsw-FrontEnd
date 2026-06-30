@@ -1,21 +1,45 @@
-<app-header></app-header>
+<app-header-cliente *ngIf="isCliente"></app-header-cliente>
+<app-header *ngIf="!isCliente"></app-header>
 
 <div class="container mt-5">
   <h2 class="text-center mb-4">Servicios</h2>
 
+  <div *ngIf="errorCarga" class="alert alert-warning text-center">
+    {{ errorCarga }}
+  </div>
+
   <!-- Botón Nuevo Servicio -->
-  <div class="d-flex justify-content-end mb-3">
+  <div *ngIf="!isCliente" class="d-flex justify-content-end mb-3">
     <button class="btn btn-nuevo-servicio" (click)="nuevoServicio()">
       Nuevo Servicio
     </button>
   </div>
 
-  <!-- Tabla de Servicios -->
-  <div class="table-responsive">
+  <!-- Vista de cliente en cards -->
+  <div *ngIf="isCliente" class="row">
+    <div class="col-md-4 mb-4" *ngFor="let servicio of paginatedServicios">
+      <div class="card h-100 shadow-sm servicio-card">
+        <img
+          *ngIf="servicio.imagenUrl"
+          [src]="'http://localhost:3000' + servicio.imagenUrl"
+          alt="Imagen servicio"
+          class="card-img-top servicio-img"
+        />
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ servicio.nombre || 'Servicio' }}</h5>
+          <p class="card-text">{{ servicio.descripcion }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Servicios para gestion -->
+  <div *ngIf="!isCliente" class="table-responsive">
     <table class="table table-hover table-bordered">
       <thead>
         <tr>
           <th>ID</th>
+          <th>Imagen</th>
           <th>Descripción</th>
           <th class="precio-col">Importe / Hora</th> <!-- Solo esta columna -->
           <th>Acciones</th>
@@ -24,6 +48,14 @@
       <tbody>
         <tr *ngFor="let servicio of paginatedServicios">
           <td>{{ servicio._id }}</td>
+          <td>
+            <img
+              *ngIf="servicio.imagenUrl"
+              [src]="'http://localhost:3000' + servicio.imagenUrl"
+              alt="Imagen servicio"
+              style="width: 64px; height: 64px; object-fit: cover; border-radius: 6px;"
+            />
+          </td>
           <td>{{ servicio.descripcion }}</td>
           <td>{{ servicio.importe_por_hora | currency }}</td>
           <td class="d-flex justify-content-center align-items-center">

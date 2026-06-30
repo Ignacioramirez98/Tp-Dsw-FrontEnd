@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Servicio } from '../../shared/models/servicio.model.js';
 import { environment } from '../../../environments/environment';
 
@@ -21,6 +22,50 @@ export class ServiciosService {
     return this.http.get<{ data: Servicio[] }>(this.apiUrl);
   }
 
+  private normalizarRespuestaServicios(response: any): { data: Servicio[] } {
+    if (Array.isArray(response)) {
+      return { data: response as Servicio[] };
+    }
+
+    if (Array.isArray(response?.data)) {
+      return { data: response.data as Servicio[] };
+    }
+
+    if (Array.isArray(response?.servicios)) {
+      return { data: response.servicios as Servicio[] };
+    }
+
+    return { data: [] };
+  }
+
+  // Catalogo para compra: evita enviar Authorization para no heredar permisos de gestion.
+  getServiciosCatalogo(): Observable<{ data: Servicio[] }> {
+    const headers = new HttpHeaders({ 'X-Skip-Auth': 'true' });
+    return this.http.get<{ data: Servicio[] }>(this.apiUrl, { headers });
+  }
+
+  // Flujo robusto para compra:
+  // 1) /servicios/catalogo sin auth
+  // 2) /servicios sin auth
+  // 3) /servicios con auth (silencioso para 403)
+  getServiciosParaCompra(): Observable<{ data: Servicio[] }> {
+    const publicHeaders = new HttpHeaders({
+      'X-Skip-Auth': 'true',
+      'X-Suppress-Forbidden-Alert': 'true'
+    });
+    const authHeaders = new HttpHeaders({ 'X-Suppress-Forbidden-Alert': 'true' });
+
+    return this.http.get<any>(`${this.apiUrl}/catalogo`, { headers: publicHeaders }).pipe(
+      map((response) => this.normalizarRespuestaServicios(response)),
+      catchError(() => this.http.get<any>(this.apiUrl, { headers: publicHeaders }).pipe(
+        map((response) => this.normalizarRespuestaServicios(response)),
+        catchError(() => this.http.get<any>(this.apiUrl, { headers: authHeaders }).pipe(
+          map((response) => this.normalizarRespuestaServicios(response))
+        ))
+      ))
+    );
+  }
+
   // Obtener un servicio por su ID
   getServicio(id: string): Observable<Servicio> {
     return this.http.get<Servicio>(`${this.apiUrl}/${id}`);
@@ -29,6 +74,12 @@ export class ServiciosService {
   // Crear un nuevo servicio en la API
   addServicio(servicio: Servicio): Observable<Servicio> {
     return this.http.post<Servicio>(this.apiUrl, servicio);
+  }
+
+  // Crear servicio con imagen multipart/form-data.
+  crearServicioConImagen(formData: FormData, token: string): Observable<Servicio> {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.post<Servicio>(this.apiUrl, formData, { headers });
   }
 
   // Actualizar un servicio existente en la API

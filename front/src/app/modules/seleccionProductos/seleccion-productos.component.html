@@ -3,6 +3,10 @@
 <div class="container mt-5">
   <h2 class="text-center mb-4">Productos Disponibles</h2>
 
+  <div *ngIf="errorCarga" class="alert alert-warning text-center">
+    {{ errorCarga }}
+  </div>
+
   <!-- Botón Nueva Compra -->
   <div class="d-flex justify-content-end mb-3">
     <button class="btn btn-nueva-compra" (click)="nuevaCompra()">
@@ -22,13 +26,13 @@
 
           <!-- Controles de cantidad centrados -->
           <div class="mt-auto d-flex justify-content-center align-items-center">
-            <button class="btn btn-success btn-sm me-1" (click)="incrementarCantidad(producto._id)"
-              [disabled]="cantidades[producto._id] >= producto.stock">
+            <button class="btn btn-success btn-sm me-1" (click)="incrementarCantidad(obtenerProductoId(producto))"
+              [disabled]="cantidades[obtenerProductoId(producto)] >= producto.stock">
               +
             </button>
-            <span class="mx-2 fw-bold fs-4">{{ cantidades[producto._id] || 0 }}</span>
-            <button class="btn btn-danger btn-sm ms-1" (click)="decrementarCantidad(producto._id)"
-              [disabled]="cantidades[producto._id] <= 0">
+            <span class="mx-2 fw-bold fs-4">{{ cantidades[obtenerProductoId(producto)] || 0 }}</span>
+            <button class="btn btn-danger btn-sm ms-1" (click)="decrementarCantidad(obtenerProductoId(producto))"
+              [disabled]="cantidades[obtenerProductoId(producto)] <= 0">
               -</button>
           </div>
         </div>

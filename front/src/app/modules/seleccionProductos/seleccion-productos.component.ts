@@ -16,11 +16,16 @@ export class SeleccionProductosComponent implements OnInit {
   productos: Producto[] = [];             // Lista completa de productos
   paginatedProductos: Producto[] = [];    // Productos en la página actual
   cantidades: { [key: string]: number } = {};  // Cantidades seleccionadas por producto
+  errorCarga: string = '';
   currentPage: number = 1;
   itemsPerPage: number = 12;               // Cantidad de productos por página
   totalPages: number = 1;
 
   constructor(private productoService: ProductosService, private router: Router, private dialog: MatDialog ) {}
+
+  obtenerProductoId(producto: any): string {
+    return String(producto?._id ?? producto?.id ?? '').trim();
+  }
 
   ngOnInit(): void {
     this.cargarProductos();
@@ -28,13 +33,20 @@ export class SeleccionProductosComponent implements OnInit {
   }
 
   cargarProductos(): void {
-    this.productoService.getProductos().subscribe({
+    this.errorCarga = '';
+    this.productoService.getProductosParaCompra().subscribe({
       next: (response) => {
-        this.productos = response.data;
+        this.productos = (response.data || []).map((producto: any) => ({
+          ...producto,
+          _id: this.obtenerProductoId(producto)
+        }));
         this.totalPages = Math.ceil(this.productos.length / this.itemsPerPage);
         this.updatePaginatedProductos();
       },
-      error: () => {}
+      error: (error) => {
+        const status = error?.status ? ` (HTTP ${error.status})` : '';
+        this.errorCarga = `No se pudo cargar el catalogo de productos${status}.`;
+      }
     });
   }
 
@@ -42,7 +54,11 @@ export class SeleccionProductosComponent implements OnInit {
     // Cargar las cantidades de los productos seleccionados desde el servicio
     const productosSeleccionados = this.productoService.getProductosSeleccionados();
     productosSeleccionados.forEach(producto => {
-      this.cantidades[producto._id] = this.productoService.getCantidades()[producto._id] || 0;
+      const productId = this.obtenerProductoId(producto);
+      if (!productId) {
+        return;
+      }
+      this.cantidades[productId] = this.productoService.getCantidades()[productId] || 0;
     });
   }
 
@@ -52,30 +68,36 @@ export class SeleccionProductosComponent implements OnInit {
   }
 
 incrementarCantidad(productId: string): void {
+  if (!productId) {
+    return;
+  }
   if (!this.cantidades[productId]) {
     this.cantidades[productId] = 0;
   }
   this.cantidades[productId]++;
   // Guardar la cantidad actualizada en el servicio
-  const producto = this.productos.find(p => p._id === productId);
+  const producto = this.productos.find(p => this.obtenerProductoId(p) === productId);
   if (producto) {
     this.productoService.setProductoSeleccionado(producto, this.cantidades[productId]);
   }
 }
 
 decrementarCantidad(productId: string): void {
+  if (!productId) {
+    return;
+  }
   if (this.cantidades[productId] > 0) {
     this.cantidades[productId]--;
     // Si la cantidad llega a 0, eliminamos el producto
     if (this.cantidades[productId] === 0) {
       delete this.cantidades[productId];
-      const producto = this.productos.find(p => p._id === productId);
+      const producto = this.productos.find(p => this.obtenerProductoId(p) === productId);
       if (producto) {
         this.productoService.setProductoSeleccionado(producto, 0); // Eliminar producto cuando cantidad es 0
       }
     } else {
       // Si no es 0, simplemente actualizamos la cantidad
-      const producto = this.productos.find(p => p._id === productId);
+      const producto = this.productos.find(p => this.obtenerProductoId(p) === productId);
       if (producto) {
         this.productoService.setProductoSeleccionado(producto, this.cantidades[productId]);
       }
@@ -107,8 +129,9 @@ decrementarCantidad(productId: string): void {
     } else {
       // Guardar los productos seleccionados y sus cantidades en el servicio
       this.productos.forEach(producto => {
-        if (this.cantidades[producto._id] > 0) {
-          this.productoService.setProductoSeleccionado(producto, this.cantidades[producto._id]);
+        const productId = this.obtenerProductoId(producto);
+        if (productId && this.cantidades[productId] > 0) {
+          this.productoService.setProductoSeleccionado(producto, this.cantidades[productId]);
         }
       });
 

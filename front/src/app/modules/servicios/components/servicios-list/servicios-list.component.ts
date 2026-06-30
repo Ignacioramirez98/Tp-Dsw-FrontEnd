@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ServiciosService } from '../../servicio.service.js';
 import { Servicio } from '../../../../shared/models/servicio.model.js';
 import { HttpErrorResponse } from '@angular/common/http';  // Asegúrate de importar HttpErrorResponse
+import { AuthService } from '../../../../shared/services/auth.service.js';
 
 
 @Component({
@@ -18,24 +19,36 @@ export class ServiciosListComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10; 
   totalPages: number = 0;
+  isCliente: boolean = false;
+  errorCarga: string = '';
 
   constructor(
     private servicioservice: ServiciosService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isCliente = (this.authService.getRol() || '').trim().toLowerCase() === 'cliente';
     this.getServicios();
   }
 
 getServicios(): void {
-  this.servicioservice.getServicios().subscribe(
+  this.errorCarga = '';
+  const request$ = this.isCliente
+    ? this.servicioservice.getServiciosParaCompra()
+    : this.servicioservice.getServicios();
+
+  request$.subscribe(
     (response: { data: Servicio[] }) => {
       this.Servicios = response.data;
       this.totalPages = Math.ceil(this.Servicios.length / this.itemsPerPage);
       this.updatePaginatedServicios();
     },
-    (_error: HttpErrorResponse) => {}
+    (error: HttpErrorResponse) => {
+      const status = error?.status ? ` (HTTP ${error.status})` : '';
+      this.errorCarga = `No se pudo cargar el catalogo de servicios${status}.`;
+    }
   );
 }
 
@@ -69,12 +82,18 @@ getServicios(): void {
 
   // Método para redirigir al formulario de edición del Servicio
 editServicio(id: string): void {
+  if (this.isCliente) {
+    return;
+  }
   this.router.navigate(['/servicios/edit', id]);
 }
 
 
   // Método para eliminar un Servicio
   deleteServicio(id: string): void {
+    if (this.isCliente) {
+      return;
+    }
     if (confirm('¿Estás seguro de que deseas eliminar este Servicio?')) {
       this.servicioservice.deleteServicio(id).subscribe(
         () => {
@@ -89,6 +108,9 @@ editServicio(id: string): void {
   }
 
   nuevoServicio(): void {
+  if (this.isCliente) {
+    return;
+  }
   this.router.navigate(['/servicios/nuevo']);
 }
 }

@@ -5,7 +5,7 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <form [formGroup]="ServicioForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="ServicioForm" (ngSubmit)="crear()">
         <div class="row">
           <!-- Descripción -->
           <div class="col-12 col-md-6 mb-4">
@@ -23,6 +23,25 @@
             <label for="importe_por_hora" class="form-label">Importe por Hora:</label>
             <input type="number" id="importe_por_hora" formControlName="importe_por_hora" class="form-control"
               placeholder="Precio por hora" required />
+          </div>
+
+          <!-- Imagen -->
+          <div class="col-12 col-md-6 mb-4">
+            <label for="imagen" class="form-label">Imagen del Servicio:</label>
+            <input
+              type="file"
+              id="imagen"
+              class="form-control"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              (change)="onFileSelected($event)"
+            />
+            <small class="text-muted d-block mt-1">Formatos: JPEG, PNG, WEBP, GIF. Maximo 5MB.</small>
+            <div *ngIf="imageError" class="text-danger mt-2">{{ imageError }}</div>
+          </div>
+
+          <div class="col-12 mb-4" *ngIf="imagePreview">
+            <label class="form-label d-block">Preview:</label>
+            <img [src]="imagePreview" alt="Preview imagen servicio" style="max-width: 240px; border-radius: 8px;" />
           </div>
 
           <!-- Botones de aceptar y cancelar -->

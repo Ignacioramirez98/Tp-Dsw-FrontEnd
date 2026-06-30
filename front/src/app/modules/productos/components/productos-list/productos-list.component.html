@@ -16,6 +16,7 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Imagen</th>
           <th>Nombre</th>
           <th>Descripción</th>
           <th class="precio-col">Precio Compra</th> <!-- Solo esta columna -->
@@ -27,6 +28,14 @@
       <tbody>
         <tr *ngFor="let producto of paginatedProductos">
           <td>{{ producto._id }}</td>
+          <td>
+            <img
+              *ngIf="producto.imagenUrl"
+              [src]="'http://localhost:3000' + producto.imagenUrl"
+              alt="Imagen producto"
+              style="width: 64px; height: 64px; object-fit: cover; border-radius: 6px;"
+            />
+          </td>
           <td>{{ producto.nombre }}</td>
           <td>{{ producto.descripcion }}</td>
           <td>{{ producto.importe_compra | currency }}</td>

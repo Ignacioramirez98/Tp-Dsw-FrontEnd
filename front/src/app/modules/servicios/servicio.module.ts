@@ -6,6 +6,7 @@ import { ServiciosListComponent } from './components/servicios-list/servicios-li
 import { ServicioDetailComponent } from './components/servicio-detail/servicio-detail.component';
 import { ServicioFormComponent } from './components/servicio-form/servicio-form.component';
 import { HeaderModule } from '../../shared/components/header/header.module.js';
+import { HeaderClienteModule } from '../../shared/components/header-cliente/header-cliente.module.js';
 import { FooterComponent } from "../../shared/components/footer/footer.component";
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +30,7 @@ const routes: Routes = [
     CommonModule,
     RouterModule.forChild(routes),
     HeaderModule,
+    HeaderClienteModule,
     FooterComponent,
     NgxPaginationModule,
     FormsModule,

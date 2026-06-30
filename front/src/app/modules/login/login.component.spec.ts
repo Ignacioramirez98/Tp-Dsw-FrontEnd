@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
-import { RoleBadgeComponent } from '../../shared/components/role-badge/role-badge.component';
 import { AuthService } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
 import { LoginComponent } from './login.component';
@@ -17,7 +16,10 @@ describe('LoginComponent', () => {
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', [
       'login',
       'saveToken',
+      'saveUsuarioId',
       'saveCliente',
+      'saveVendedorId',
+      'saveOperarioId',
       'saveRol'
     ]);
 
@@ -25,7 +27,7 @@ describe('LoginComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
-      imports: [CommonModule, FormsModule, RoleBadgeComponent],
+      imports: [CommonModule, FormsModule],
       providers: [
         { provide: AuthService, useValue: authServiceSpy },
         { provide: Router, useValue: routerSpy }
@@ -41,8 +43,12 @@ describe('LoginComponent', () => {
     authServiceSpy.login.and.returnValue(of({
       message: 'Login exitoso',
       token: 'jwt-token',
-      clienteId: 'cliente-1',
-      rol: 'cliente'
+      data: {
+        usuarioId: 'usuario-1',
+        clienteId: 'cliente-1',
+        rol: 'cliente',
+        activo: true
+      }
     }));
 
     component.usuario = 'usuario';
@@ -51,6 +57,7 @@ describe('LoginComponent', () => {
     component.onLogin();
 
     expect(authServiceSpy.saveToken).toHaveBeenCalledWith('jwt-token');
+    expect(authServiceSpy.saveUsuarioId).toHaveBeenCalledWith('usuario-1');
     expect(authServiceSpy.saveCliente).toHaveBeenCalledWith('cliente-1');
     expect(authServiceSpy.saveRol).toHaveBeenCalledWith('cliente');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/cliente-dashboard']);

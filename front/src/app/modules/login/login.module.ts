@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login.component';
 import { FormsModule } from '@angular/forms'; 
-import { RoleBadgeComponent } from '../../shared/components/role-badge/role-badge.component';
 
 
 const routes: Routes = [
@@ -17,8 +16,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes), 
-    FormsModule,
-    RoleBadgeComponent
+    FormsModule
   ],
 })
 export class LoginModule { }

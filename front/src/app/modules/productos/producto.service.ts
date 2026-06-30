@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Producto } from '../../shared/models/producto.model.js';
 import { environment } from '../../../environments/environment';
 
@@ -21,6 +22,56 @@ export class ProductosService {
     return this.http.get<{ data: Producto[] }>(this.apiUrl);
   }
 
+  private normalizarRespuestaProductos(response: any): { data: Producto[] } {
+    if (Array.isArray(response)) {
+      return { data: response as Producto[] };
+    }
+
+    if (Array.isArray(response?.data)) {
+      return { data: response.data as Producto[] };
+    }
+
+    if (Array.isArray(response?.productos)) {
+      return { data: response.productos as Producto[] };
+    }
+
+    return { data: [] };
+  }
+
+  // Catalogo para compra: evita enviar Authorization para no heredar permisos de gestion.
+  getProductosCatalogo(): Observable<{ data: Producto[] }> {
+    const headers = new HttpHeaders({ 'X-Skip-Auth': 'true' });
+    return this.http.get<{ data: Producto[] }>(this.apiUrl, { headers });
+  }
+
+  // Fallback de compra: usa JWT pero evita alert global de 403 en cliente.
+  getProductosCatalogoAutenticado(): Observable<{ data: Producto[] }> {
+    const headers = new HttpHeaders({ 'X-Suppress-Forbidden-Alert': 'true' });
+    return this.http.get<{ data: Producto[] }>(this.apiUrl, { headers });
+  }
+
+  // Flujo robusto para compra:
+  // 1) /productos/catalogo sin auth
+  // 2) /productos sin auth
+  // 3) /productos con auth (silencioso para 403)
+  getProductosParaCompra(): Observable<{ data: Producto[] }> {
+    const publicHeaders = new HttpHeaders({
+      'X-Skip-Auth': 'true',
+      'X-Suppress-Forbidden-Alert': 'true'
+    });
+    const authHeaders = new HttpHeaders({ 'X-Suppress-Forbidden-Alert': 'true' });
+
+    return this.http.get<any>(`${this.apiUrl}/catalogo`, { headers: publicHeaders }).pipe(
+      map((response) => this.normalizarRespuestaProductos(response)),
+      catchError(() => this.http.get<any>(this.apiUrl, { headers: publicHeaders }).pipe(
+        map((response) => this.normalizarRespuestaProductos(response)),
+        catchError(() => this.http.get<any>(this.apiUrl, { headers: authHeaders }).pipe(
+          map((response) => this.normalizarRespuestaProductos(response))
+        ))
+      ))
+    );
+  }
+
   // Obtener un producto por su ID
   getProducto(id: string): Observable<Producto> {
     return this.http.get<Producto>(`${this.apiUrl}/${id}`);
@@ -29,6 +80,12 @@ export class ProductosService {
   // Crear un nuevo producto en la API
   addProducto(producto: Producto): Observable<Producto> {
     return this.http.post<Producto>(this.apiUrl, producto);
+  }
+
+  // Crear producto con imagen multipart/form-data.
+  crearProductoConImagen(formData: FormData, token: string): Observable<Producto> {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.post<Producto>(this.apiUrl, formData, { headers });
   }
 
   // Actualizar un producto existente en la API
