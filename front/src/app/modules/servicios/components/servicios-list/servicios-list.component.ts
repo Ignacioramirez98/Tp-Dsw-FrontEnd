@@ -31,21 +31,11 @@ export class ServiciosListComponent implements OnInit {
 getServicios(): void {
   this.servicioservice.getServicios().subscribe(
     (response: { data: Servicio[] }) => {
-      console.log('Servicios desde API:', response);
       this.Servicios = response.data;
       this.totalPages = Math.ceil(this.Servicios.length / this.itemsPerPage);
       this.updatePaginatedServicios();
     },
-    (error: HttpErrorResponse) => {  // Especificamos el tipo de error
-      console.error('Error al obtener Servicios:', error);
-      if (error.error instanceof ErrorEvent) {
-        // Error ocurrido en el lado del cliente
-        console.error('Error en el cliente:', error.error.message);
-      } else {
-        // Error en la respuesta del servidor
-        console.error(`Código de error ${error.status}, mensaje: ${error.message}`);
-      }
-    }
+    (_error: HttpErrorResponse) => {}
   );
 }
 
@@ -79,7 +69,6 @@ getServicios(): void {
 
   // Método para redirigir al formulario de edición del Servicio
 editServicio(id: string): void {
-  console.log('Editar Servicio con ID:', id); // Asegúrate de que se esté imprimiendo correctamente el id
   this.router.navigate(['/servicios/edit', id]);
 }
 
@@ -92,8 +81,7 @@ editServicio(id: string): void {
           alert('Servicio eliminado exitosamente.');
           this.getServicios(); // Recarga la lista después de eliminar
         },
-        (error) => {
-          console.error('Error al eliminar el Servicio:', error);
+        () => {
           alert('Hubo un error al eliminar el Servicio.');
         }
       );

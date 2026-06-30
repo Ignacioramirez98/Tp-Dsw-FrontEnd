@@ -31,21 +31,11 @@ export class ProductosListComponent implements OnInit {
 getProductos(): void {
   this.productoService.getProductos().subscribe(
     (response: { data: Producto[] }) => {
-      console.log('Productos desde API:', response);
       this.productos = response.data;
       this.totalPages = Math.ceil(this.productos.length / this.itemsPerPage);
       this.updatePaginatedProductos();
     },
-    (error: HttpErrorResponse) => {  // Especificamos el tipo de error
-      console.error('Error al obtener productos:', error);
-      if (error.error instanceof ErrorEvent) {
-        // Error ocurrido en el lado del cliente
-        console.error('Error en el cliente:', error.error.message);
-      } else {
-        // Error en la respuesta del servidor
-        console.error(`Código de error ${error.status}, mensaje: ${error.message}`);
-      }
-    }
+    (_error: HttpErrorResponse) => {}
   );
 }
 
@@ -79,7 +69,6 @@ getProductos(): void {
 
   // Método para redirigir al formulario de edición del producto
 editProducto(id: string): void {
-  console.log('Editar producto con ID:', id); // Asegúrate de que se esté imprimiendo correctamente el id
   this.router.navigate(['/productos/edit', id]);
 }
 
@@ -92,8 +81,7 @@ editProducto(id: string): void {
           alert('Producto eliminado exitosamente.');
           this.getProductos(); // Recarga la lista después de eliminar
         },
-        (error) => {
-          console.error('Error al eliminar el producto:', error);
+        () => {
           alert('Hubo un error al eliminar el producto.');
         }
       );

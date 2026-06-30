@@ -43,7 +43,6 @@ loadProduct(): void {
   this.productoService.getProducto(this.productoId!).subscribe(
     (response: any) => {
       const producto = response.data as Producto; // Asegúrate de que 'data' es el producto
-      console.log('Producto cargado:', producto);
       this.productoForm.patchValue({
         nombre: producto.nombre,
         descripcion: producto.descripcion,
@@ -52,8 +51,7 @@ loadProduct(): void {
         stock: producto.stock,
       });
     },
-    (error) => {
-      console.error('Error al cargar producto:', error);
+    () => {
       this.router.navigate(['/productos']);
     }
   );
@@ -71,22 +69,16 @@ onSubmit(): void {
   if (this.isEditMode) {
     this.productoService.updateProducto(producto).subscribe(
       () => {
-        console.log('Producto actualizado');
         this.router.navigate(['/productos']);
       },
-      (error) => {
-        console.error('Error al actualizar producto:', error);
-      }
+      () => {}
     );
   } else {
     this.productoService.addProducto(producto).subscribe(
       () => {
-        console.log('Producto creado');
         this.router.navigate(['/productos']);
       },
-      (error) => {
-        console.error('Error al crear producto:', error);
-      }
+      () => {}
     );
   }
 }

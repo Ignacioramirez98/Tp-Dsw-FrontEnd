@@ -41,9 +41,7 @@ export class ConfirmarCompraComponent implements OnInit {
       (response) => {
         this.cliente = response.data;  // Almacenar el objeto completo del cliente
       },
-      (error) => {
-        console.error('Error al cargar el cliente:', error);
-      }
+      () => {}
     );
   }
 
@@ -63,20 +61,28 @@ export class ConfirmarCompraComponent implements OnInit {
   }
 
   confirmarCompra() {
+    const clienteId = this.authService.getClienteId();
+    if (!clienteId) {
+      this.openWarningMessage('No se pudo identificar al cliente autenticado.', 'red');
+      return;
+    }
+
+    const productoIds = this.productosSeleccionados.map((producto) => producto._id);
+    const servicioIds = this.serviciosSeleccionados.map((servicio) => servicio._id);
+
     const nuevaVenta = new Venta(
       'pendiente',
       new Date(),
       new Date(),
       new Date(),
       null,
-      this.cliente,
-      this.productosSeleccionados,
-      this.serviciosSeleccionados  // Pasamos el objeto cliente completo
+      clienteId,
+      productoIds,
+      servicioIds
     );
 
     this.ventasService.crearVenta(nuevaVenta).subscribe({
-      next: (response) => {
-        console.log('Venta creada exitosamente:', response);
+      next: () => {
         const dialogRef = this.openWarningMessage('¡Su venta fue procesada exitosamente!', 'green');
         this.productosService.limpiarProductosSeleccionados();
 

@@ -9,9 +9,13 @@ export class Venta {
   fechaDeVenta: Date;
   fechaEntrega: Date;
   fechaCancelacion: Date | null;
-  cliente: Cliente;
-  productos: Producto[];
-  servicios: Servicio[];
+  clienteId: string;
+  productoIds: string[];
+  servicioIds: string[];
+  // Compatibilidad para respuestas viejas o parcialmente pobladas.
+  cliente?: Cliente;
+  productos?: Producto[];
+  servicios?: Servicio[];
 
   constructor(
     estado: string = '',
@@ -19,17 +23,17 @@ export class Venta {
     fechaDeVenta: Date = new Date(),
     fechaEntrega: Date = new Date(),
     fechaCancelacion: Date | null = null,
-    cliente: Cliente,
-    productos: Producto[] = [],
-    servicios: Servicio[] = []
+    clienteId: string = '',
+    productoIds: string[] = [],
+    servicioIds: string[] = []
   ) {
     this.estado = estado;
     this.fechaContacto = fechaContacto;
     this.fechaDeVenta = fechaDeVenta;
     this.fechaEntrega = fechaEntrega;
     this.fechaCancelacion = fechaCancelacion;
-    this.cliente = cliente;
-    this.productos = productos;
-    this.servicios = servicios;
+    this.clienteId = clienteId;
+    this.productoIds = productoIds;
+    this.servicioIds = servicioIds;
   }
 }

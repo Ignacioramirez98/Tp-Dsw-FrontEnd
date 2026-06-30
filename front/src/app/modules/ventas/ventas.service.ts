@@ -12,7 +12,6 @@ export class VentasService {
   constructor(private http: HttpClient) {}
 
   crearVenta(venta: Venta): Observable<any> {
-    console.log(venta);
     return this.http.post<any>(this.apiUrl, venta);
   }
 

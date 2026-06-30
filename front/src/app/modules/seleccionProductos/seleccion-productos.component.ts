@@ -34,9 +34,7 @@ export class SeleccionProductosComponent implements OnInit {
         this.totalPages = Math.ceil(this.productos.length / this.itemsPerPage);
         this.updatePaginatedProductos();
       },
-      error: (error) => {
-        console.error('Error al cargar productos:', error);
-      }
+      error: () => {}
     });
   }
 

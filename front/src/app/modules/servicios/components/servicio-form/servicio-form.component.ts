@@ -7,7 +7,6 @@ import { Servicio } from '../../../../shared/models/servicio.model.js';
 @Component({
   selector: 'app-servicio-form',
   templateUrl: './servicio-form.component.html',
-  styleUrls: ['./servicio-form.component.css'],
   standalone:false
 })
 export class ServicioFormComponent implements OnInit {
@@ -43,14 +42,12 @@ loadProduct(): void {
   this.servicioservice.getServicio(this.servicioId!).subscribe(
     (response: any) => {
       const servicio = response.data as Servicio; // Asegúrate de que 'data' es el servicio
-      console.log('servicio cargado:', servicio);
       this.ServicioForm.patchValue({
         nombre: servicio.descripcion,
         importe_por_hora: servicio.importe_por_hora,
       });
     },
-    (error) => {
-      console.error('Error al cargar servicio:', error);
+    () => {
       this.router.navigate(['/servicios']);
     }
   );
@@ -68,22 +65,16 @@ onSubmit(): void {
   if (this.isEditMode) {
     this.servicioservice.updateServicio(servicio).subscribe(
       () => {
-        console.log('servicio actualizado');
         this.router.navigate(['/servicios']);
       },
-      (error) => {
-        console.error('Error al actualizar servicio:', error);
-      }
+      () => {}
     );
   } else {
     this.servicioservice.addServicio(servicio).subscribe(
       () => {
-        console.log('servicio creado');
         this.router.navigate(['/servicios']);
       },
-      (error) => {
-        console.error('Error al crear servicio:', error);
-      }
+      () => {}
     );
   }
 }

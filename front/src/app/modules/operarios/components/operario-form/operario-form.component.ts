@@ -4,7 +4,6 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-operarios-form',
   templateUrl: './operario-form.component.html',
-  styleUrls: ['./operario-form.component.css']
 })
 export class OperarioFormComponent implements OnInit {
 

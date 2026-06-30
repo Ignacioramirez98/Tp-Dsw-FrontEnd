@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { VentasService } from '../../ventas.service.js';
 import { Venta } from '../../../../shared/models/venta.model.js';
 import { HttpErrorResponse } from '@angular/common/http';  // Asegúrate de importar HttpErrorResponse
-import { retry } from 'rxjs';
 
 
 @Component({
@@ -32,21 +31,11 @@ export class VentasListComponent implements OnInit {
 getventas(): void {
   this.ventaservice.getVentas().subscribe(
     (response: { data: Venta[] }) => {
-      console.log('ventas desde API:', response);
       this.ventas = response.data;
       this.totalPages = Math.ceil(this.ventas.length / this.itemsPerPage);
       this.updatePaginatedVentas();
     },
-    (error: HttpErrorResponse) => {  // Especificamos el tipo de error
-      console.error('Error al obtener ventas:', error);
-      if (error.error instanceof ErrorEvent) {
-        // Error ocurrido en el lado del cliente
-        console.error('Error en el cliente:', error.error.message);
-      } else {
-        // Error en la respuesta del servidor
-        console.error(`Código de error ${error.status}, mensaje: ${error.message}`);
-      }
-    }
+    (_error: HttpErrorResponse) => {}
   );
 }
 
@@ -81,10 +70,8 @@ getventas(): void {
   // Método para redirigir al formulario de edición del Venta
 editVenta(id: string | undefined): void {
   if(!id){
-    console.error("ID de Venta no encontrado");
     return;
   }
-  console.log('Editar Venta con ID:', id); // Asegúrate de que se esté imprimiendo correctamente el id
   this.router.navigate(['/ventas/edit', id]);
 }
 
@@ -92,7 +79,6 @@ editVenta(id: string | undefined): void {
   // Método para eliminar un Venta
   deleteVenta(id: string | undefined): void {
     if(!id){
-    console.error("ID de Venta no encontrado");
     return;
     }
     if (confirm('¿Estás seguro de que deseas eliminar este Venta?')) {
@@ -101,8 +87,7 @@ editVenta(id: string | undefined): void {
           alert('Venta eliminado exitosamente.');
           this.getventas(); // Recarga la lista después de eliminar
         },
-        (error) => {
-          console.error('Error al eliminar el Venta:', error);
+        () => {
           alert('Hubo un error al eliminar el Venta.');
         }
       );

@@ -29,22 +29,24 @@
       </thead>
       <tbody>
         <tr *ngFor="let venta of paginatedVentas">
-          <td>{{ venta.cliente.nombre }} {{ venta.cliente.apellido }}</td> <!-- Nombre y apellido del cliente -->
-          <td>{{ venta.cliente.dni }}</td> <!-- DNI del cliente -->
+          <td>{{ venta.cliente ? (venta.cliente.nombre + ' ' + venta.cliente.apellido) : venta.clienteId }}</td>
+          <td>{{ venta.cliente ? venta.cliente.dni : 'N/A' }}</td>
           <td>{{ venta.estado }}</td>
           <td>{{ venta.fechaContacto | date }}</td>
           <td>{{ venta.fechaDeVenta | date }}</td>
           <td>{{ venta.fechaEntrega | date }}</td>
           <td>{{ venta.fechaCancelacion ? (venta.fechaCancelacion | date) : 'N/A' }}</td>
           <td>
-            <ul>
+            <ul *ngIf="venta.productos?.length; else productoIdsTpl">
               <li *ngFor="let producto of venta.productos">{{ producto.nombre }}</li>
             </ul>
+            <ng-template #productoIdsTpl>{{ (venta.productoIds || []).join(', ') || 'N/A' }}</ng-template>
           </td>
           <td>
-            <ul>
+            <ul *ngIf="venta.servicios?.length; else servicioIdsTpl">
               <li *ngFor="let servicio of venta.servicios">{{ servicio.descripcion }}</li>
             </ul>
+            <ng-template #servicioIdsTpl>{{ (venta.servicioIds || []).join(', ') || 'N/A' }}</ng-template>
           </td>
           <td class="d-flex justify-content-center align-items-center">
             <button class="btn btn-outline-success btn-sm me-2" (click)="editVenta(venta._id)">
