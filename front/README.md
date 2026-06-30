@@ -1,27 +1,51 @@
 # Front
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.1.
+Proyecto Angular 18 del frontend.
 
-## Development server
+## Requisitos previos
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Node.js LTS (recomendado 20.x)
+- npm
 
-## Code scaffolding
+## Instalación
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```bash
+npm install
+```
 
-## Build
+## Ejecutar en desarrollo
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Con el backend levantado en `http://localhost:3000`:
 
-## Running unit tests
+```bash
+npm run start
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Abrir: `http://localhost:4200`
 
-## Running end-to-end tests
+## Scripts
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- `npm run start`: servidor de desarrollo.
+- `npm run build`: build de producción.
+- `npm run watch`: build en modo watch.
+- `npm run test`: tests unitarios.
+- `npm run test:e2e`: tests end-to-end (Playwright).
 
-## Further help
+## E2E (primera ejecución)
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Instalar navegadores de Playwright una sola vez:
+
+```bash
+npx playwright install
+```
+
+Luego correr:
+
+```bash
+npm run test:e2e
+```
+
+## Configuración de ambientes
+
+- `src/environments/environment.ts`
+- `src/environments/environment.development.ts`

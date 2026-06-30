@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Servicio } from '../../shared/models/servicio.model.js';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServiciosService {
-  private apiUrl = 'http://localhost:3000/servicios'; // URL de tu API
+  private apiUrl = `${environment.apiUrl}/servicios`; // URL de tu API
   private serviciosSeleccionados: Servicio[] = [];
   private cantidades: { [id: string]: number } = {}; // Almacena las cantidades de cada servicio seleccionado
 

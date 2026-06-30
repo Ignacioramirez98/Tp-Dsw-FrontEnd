@@ -13,11 +13,22 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    if (this.authService.isAuthenticated()) {
-      return true;
-    } else {
+    if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);  // Redirigir al login si no está autenticado
       return false;
     }
+
+    const allowedRoles = route.data?.['roles'] as string[] | undefined;
+    if (!allowedRoles || allowedRoles.length === 0) {
+      return true;
+    }
+
+    const currentRole = this.authService.getRol();
+    if (currentRole && allowedRoles.includes(currentRole)) {
+      return true;
+    }
+
+    this.router.navigate(['/cliente-dashboard']);
+    return false;
   }
 }

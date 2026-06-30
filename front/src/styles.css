@@ -29,6 +29,47 @@ body {
   font-weight: 300;
 }
 
+/* Base mobile-first */
+body {
+  font-size: 14px;
+}
+
+.app-responsive-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 0.75rem;
+}
+
+/* SM */
+@media (min-width: 576px) {
+  body {
+    font-size: 15px;
+  }
+
+  .app-responsive-container {
+    max-width: 540px;
+    padding: 0 1rem;
+  }
+}
+
+/* MD */
+@media (min-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .app-responsive-container {
+    max-width: 720px;
+  }
+}
+
+/* LG */
+@media (min-width: 992px) {
+  .app-responsive-container {
+    max-width: 960px;
+  }
+}
+
 :focus {
   outline: 0;
 }

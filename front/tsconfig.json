@@ -29,5 +29,14 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "e2e/**/*.ts",
+    "playwright.config.ts",
+    "node_modules",
+    "dist"
+  ]
 }
