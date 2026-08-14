@@ -1,1 +1,90 @@
-<p>cliente-form works!</p>
+<app-header></app-header>
+
+<div class="cliente-form container mt-5">
+  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form [formGroup]="clienteForm" (ngSubmit)="guardar()">
+        <div class="row">
+          <div class="col-12 col-md-6 mb-4">
+            <label for="nombre" class="form-label">Nombre:</label>
+            <input type="text" id="nombre" formControlName="nombre" class="form-control"
+              placeholder="Ingrese el nombre" />
+            <div *ngIf="clienteForm.get('nombre')?.invalid && clienteForm.get('nombre')?.touched"
+              class="text-danger mt-1">
+              El nombre es requerido.
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 mb-4">
+            <label for="apellido" class="form-label">Apellido:</label>
+            <input type="text" id="apellido" formControlName="apellido" class="form-control"
+              placeholder="Ingrese el apellido" />
+            <div *ngIf="clienteForm.get('apellido')?.invalid && clienteForm.get('apellido')?.touched"
+              class="text-danger mt-1">
+              El apellido es requerido.
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 mb-4">
+            <label for="dni" class="form-label">DNI:</label>
+            <input type="text" id="dni" formControlName="dni" class="form-control"
+              placeholder="Ingrese el DNI" />
+            <div *ngIf="clienteForm.get('dni')?.invalid && clienteForm.get('dni')?.touched"
+              class="text-danger mt-1">
+              DNI inválido (mínimo 7 caracteres).
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 mb-4">
+            <label for="mail" class="form-label">Mail:</label>
+            <input type="email" id="mail" formControlName="mail" class="form-control"
+              placeholder="cliente@mail.com" />
+            <div *ngIf="clienteForm.get('mail')?.invalid && clienteForm.get('mail')?.touched"
+              class="text-danger mt-1">
+              Ingrese un mail válido.
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 mb-4">
+            <label for="telefono" class="form-label">Teléfono:</label>
+            <input type="text" id="telefono" formControlName="telefono" class="form-control"
+              placeholder="Ingrese el teléfono" />
+            <div *ngIf="clienteForm.get('telefono')?.invalid && clienteForm.get('telefono')?.touched"
+              class="text-danger mt-1">
+              Teléfono inválido (mínimo 8 caracteres).
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 mb-4">
+            <label for="direccion" class="form-label">Dirección:</label>
+            <input type="text" id="direccion" formControlName="direccion" class="form-control"
+              placeholder="Ingrese la dirección" />
+            <div *ngIf="clienteForm.get('direccion')?.invalid && clienteForm.get('direccion')?.touched"
+              class="text-danger mt-1">
+              La dirección es requerida.
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 mb-4">
+            <label for="razon_social" class="form-label">Razón Social (opcional):</label>
+            <input type="text" id="razon_social" formControlName="razon_social" class="form-control"
+              placeholder="Ingrese la razón social" />
+          </div>
+
+          <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary btn-lg mx-2">
+              <i class="bi bi-check-circle"></i> Aceptar
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
+              <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -6,7 +6,7 @@ export class Cliente {
   mail: string;
   telefono: string;
   direccion: string;
-  razonSocial: string;
+  razon_social: string;
 
   constructor(
     _id: string = '',
@@ -16,7 +16,7 @@ export class Cliente {
     mail: string = '',
     telefono: string = '',
     direccion: string = '',
-    razonSocial: string = '',
+    razon_social: string = '',
   ) {
     this._id = _id;
     this.nombre = nombre;
@@ -25,6 +25,6 @@ export class Cliente {
     this.mail = mail;
     this.telefono = telefono;
     this.direccion = direccion;
-    this.razonSocial = razonSocial;
+    this.razon_social = razon_social;
   }
 }

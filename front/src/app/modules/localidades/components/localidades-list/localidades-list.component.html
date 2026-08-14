@@ -1,1 +1,56 @@
-<p>localidades-list works!</p>
+<app-header></app-header>
+
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Localidades</h2>
+
+  <div *ngIf="errorCarga" class="alert alert-warning text-center">
+    {{ errorCarga }}
+  </div>
+
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-primary" (click)="nuevaLocalidad()">
+      <i class="bi bi-plus-circle"></i> Nueva Localidad
+    </button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Código Postal</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let localidad of paginatedLocalidades">
+          <td>{{ localidad.nombre }}</td>
+          <td>{{ localidad.codigo_postal }}</td>
+          <td class="d-flex justify-content-center align-items-center">
+            <button class="btn btn-outline-secondary btn-sm me-2" (click)="verLocalidad(localidad._id)">
+              <i class="bi bi-eye"></i> Ver
+            </button>
+            <button class="btn btn-outline-success btn-sm me-2" (click)="editLocalidad(localidad._id)">
+              <i class="bi bi-pencil"></i> Editar
+            </button>
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteLocalidad(localidad._id)">
+              <i class="bi bi-trash"></i> Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination-controls d-flex justify-content-center mt-4">
+    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
+      <i class="bi bi-arrow-left"></i> Anterior
+    </button>
+    <span class="fs-5 mx-3 align-self-center">Página {{ currentPage }} de {{ totalPages }}</span>
+    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      Siguiente <i class="bi bi-arrow-right"></i>
+    </button>
+  </div>
+</div>
+
+<app-footer></app-footer>
