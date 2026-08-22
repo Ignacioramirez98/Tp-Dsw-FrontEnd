@@ -1,1 +1,43 @@
-<p>vendedor-detail works!</p>
+<app-header></app-header>
+
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Detalle del Vendedor</h2>
+
+  <div *ngIf="cargando" class="text-center">Cargando...</div>
+  <div *ngIf="error" class="alert alert-warning text-center">{{ error }}</div>
+
+  <div class="card shadow-sm" *ngIf="vendedor && !cargando">
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">{{ vendedor.nombre }}</dd>
+
+        <dt class="col-sm-3">Apellido</dt>
+        <dd class="col-sm-9">{{ vendedor.apellido }}</dd>
+
+        <dt class="col-sm-3">DNI</dt>
+        <dd class="col-sm-9">{{ vendedor.dni }}</dd>
+
+        <dt class="col-sm-3">Mail</dt>
+        <dd class="col-sm-9">{{ vendedor.mail }}</dd>
+
+        <dt class="col-sm-3">Teléfono</dt>
+        <dd class="col-sm-9">{{ vendedor.telefono }}</dd>
+
+        <dt class="col-sm-3">Rol</dt>
+        <dd class="col-sm-9">{{ vendedor.rol }}</dd>
+      </dl>
+
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-primary mx-2" (click)="editar()">
+          <i class="bi bi-pencil"></i> Editar
+        </button>
+        <button class="btn btn-secondary mx-2" (click)="volver()">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>
