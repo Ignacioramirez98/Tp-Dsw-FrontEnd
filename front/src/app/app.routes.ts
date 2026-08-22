@@ -7,7 +7,7 @@ export const routes: Routes = [
   { path: 'clientes', loadChildren: () => import('./modules/clientes/clientes.module').then(m => m.ClientesModule), canActivate: [AuthGuard], data: { roles: ['vendedor', 'admin'] } },
   { path: 'localidades', loadChildren: () => import('./modules/localidades/localidades.module').then(m => m.LocalidadesModule), canActivate: [AuthGuard], data: { roles: ['vendedor', 'admin'] } },
   { path: 'ventas', loadChildren: () => import('./modules/ventas/ventas.module').then(m => m.VentasModule), canActivate: [AuthGuard], data: { roles: ['cliente', 'vendedor', 'admin'] } },
-  { path: 'productos', loadChildren: () => import('./modules/productos/productos.module').then(m => m.ProductosModule), canActivate: [AuthGuard], data: { roles: ['vendedor', 'admin'] } },
+  { path: 'productos', loadChildren: () => import('./modules/productos/productos.module').then(m => m.ProductosModule), canActivate: [AuthGuard], data: { roles: ['admin'] } },
   { path: 'servicios', loadChildren: () => import('./modules/servicios/servicio.module').then(m => m.ServiciosModule), canActivate: [AuthGuard], data: { roles: ['cliente', 'vendedor', 'admin'] } },
   { path: 'operarios', loadChildren: () => import('./modules/operarios/operarios.module').then(m => m.OperariosModule), canActivate: [AuthGuard], data: { roles: ['operario', 'vendedor', 'admin'] } },
   { path: 'cliente-dashboard', loadChildren: () => import('./modules/dashboard/cliente-dashboard/cliente-dashboard.module').then(m => m.ClienteDashboardModule), canActivate: [AuthGuard], data: { roles: ['cliente'] }},

@@ -13,6 +13,10 @@ export class HeaderComponent {
   
   constructor(private authService: AuthService, private router: Router) {}
 
+  get isAdmin(): boolean {
+    return (this.authService.getRol() || '').trim().toLowerCase() === 'admin';
+  }
+
   // Método para cerrar sesión
   cerrarSesion(): void {
     // Llamamos al servicio de autenticación para eliminar los datos

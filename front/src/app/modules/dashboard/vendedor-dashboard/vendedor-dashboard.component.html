@@ -5,9 +5,9 @@
 
   <div class="row justify-content-center">
     <!-- Card para Productos -->
-    <div class="col-md-4 mb-4">
+    <div *ngIf="isAdmin" class="col-md-4 mb-4">
       <div class="card shadow-sm h-100">
-        <img src="assets/images/productos.jpg" class="card-img-top" alt="Productos">
+        <img [src]="dashboardImages.productos" class="card-img-top" alt="Productos">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Productos</h5>
           <p class="card-text">Explora nuestra amplia gama de productos disponibles para ti.</p>
@@ -19,7 +19,7 @@
     <!-- Card para Servicios -->
     <div class="col-md-4 mb-4">
       <div class="card shadow-sm h-100">
-        <img src="assets/images/servicios.jpg" class="card-img-top" alt="Servicios">
+        <img [src]="dashboardImages.servicios" class="card-img-top" alt="Servicios">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Servicios</h5>
           <p class="card-text">Descubre los servicios que ofrecemos para mejorar tu experiencia.</p>
@@ -31,7 +31,7 @@
     <!-- Card para Ventas -->
     <div class="col-md-4 mb-4">
       <div class="card shadow-sm h-100">
-        <img src="assets/images/ventas.jpg" class="card-img-top" alt="Ventas">
+        <img [src]="dashboardImages.ventas" class="card-img-top" alt="Ventas">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">Ventas</h5>
           <p class="card-text">Gestiona y consulta el historial de ventas realizadas.</p>

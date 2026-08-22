@@ -3,6 +3,10 @@
 <div class="container mt-5 ">
   <h2 class="text-center mb-4">Productos</h2>
 
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
   <!-- Botón Nuevo Producto -->
   <div class="d-flex justify-content-end mb-3">
     <button class="btn btn-nuevo-producto" (click)="nuevoProducto()">
@@ -26,8 +30,11 @@
         </tr>
       </thead>
       <tbody>
+        <tr *ngIf="paginatedProductos.length === 0">
+          <td colspan="8" class="text-center py-4">No hay productos para mostrar.</td>
+        </tr>
         <tr *ngFor="let producto of paginatedProductos">
-          <td>{{ producto._id }}</td>
+          <td>{{ getProductoId(producto) }}</td>
           <td>
             <img
               *ngIf="producto.imagenUrl"
@@ -42,11 +49,14 @@
           <td>{{ producto.importe_venta | currency }}</td>
           <td>{{ producto.stock }}</td>
           <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editProducto(producto._id)">
+            <button class="btn btn-outline-success btn-sm me-2" (click)="editProducto(producto)"
+              [disabled]="deletingProductId === getProductoId(producto)">
               <i class="bi bi-pencil"></i> Editar
             </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteProducto(producto._id)">
-              <i class="bi bi-trash"></i> Eliminar
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteProducto(producto)"
+              [disabled]="deletingProductId === getProductoId(producto)">
+              <i class="bi bi-trash"></i>
+              {{ deletingProductId === getProductoId(producto) ? 'Eliminando...' : 'Eliminar' }}
             </button>
           </td>
         </tr>
@@ -59,8 +69,8 @@
     <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
       <i class="bi bi-arrow-left"></i> Anterior
     </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+    <span class="fs-5 mx-3 align-self-center">Página {{ totalPages === 0 ? 0 : currentPage }} de {{ totalPages }}</span>
+    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage >= totalPages">
       Siguiente <i class="bi bi-arrow-right"></i>
     </button>
   </div>

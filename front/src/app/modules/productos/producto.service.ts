@@ -19,23 +19,27 @@ export class ProductosService {
 
   // Obtener todos los productos desde la API
   getProductos(): Observable<{ data: Producto[] }> {
-    return this.http.get<{ data: Producto[] }>(this.apiUrl);
+    return this.http.get<unknown>(this.apiUrl).pipe(
+      map((response) => this.normalizarRespuestaProductos(response))
+    );
   }
 
-  private normalizarRespuestaProductos(response: any): { data: Producto[] } {
-    if (Array.isArray(response)) {
-      return { data: response as Producto[] };
-    }
+  private normalizarProducto(response: unknown): Producto {
+    const producto = response as Producto & { id?: string };
+    return { ...producto, _id: producto._id || producto.id || '' };
+  }
 
-    if (Array.isArray(response?.data)) {
-      return { data: response.data as Producto[] };
-    }
+  private normalizarRespuestaProductos(response: unknown): { data: Producto[] } {
+    const respuesta = response as { data?: unknown; productos?: unknown };
+    const productos = Array.isArray(response)
+      ? response
+      : Array.isArray(respuesta?.data)
+        ? respuesta.data
+        : Array.isArray(respuesta?.productos)
+          ? respuesta.productos
+          : [];
 
-    if (Array.isArray(response?.productos)) {
-      return { data: response.productos as Producto[] };
-    }
-
-    return { data: [] };
+    return { data: productos.map((producto) => this.normalizarProducto(producto)) };
   }
 
   // Catalogo para compra: evita enviar Authorization para no heredar permisos de gestion.
@@ -74,7 +78,12 @@ export class ProductosService {
 
   // Obtener un producto por su ID
   getProducto(id: string): Observable<Producto> {
-    return this.http.get<Producto>(`${this.apiUrl}/${id}`);
+    return this.http.get<unknown>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => {
+        const respuesta = response as { data?: unknown };
+        return this.normalizarProducto(respuesta?.data ?? response);
+      })
+    );
   }
 
   // Crear un nuevo producto en la API
@@ -88,9 +97,14 @@ export class ProductosService {
     return this.http.post<Producto>(this.apiUrl, formData, { headers });
   }
 
-  // Actualizar un producto existente en la API
-  updateProducto(producto: Producto): Observable<Producto> {
-    return this.http.put<Producto>(`${this.apiUrl}/${producto._id}`, producto);
+  // Actualizar un producto existente, con una nueva imagen opcional.
+  updateProducto(id: string, formData: FormData): Observable<Producto> {
+    return this.http.put<unknown>(`${this.apiUrl}/${id}`, formData).pipe(
+      map((response) => {
+        const respuesta = response as { data?: unknown };
+        return this.normalizarProducto(respuesta?.data ?? response);
+      })
+    );
   }
 
   // Eliminar un producto por su ID

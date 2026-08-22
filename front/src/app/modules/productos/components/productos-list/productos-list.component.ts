@@ -18,6 +18,8 @@ export class ProductosListComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10; 
   totalPages: number = 0;
+  errorMessage: string = '';
+  deletingProductId: string | null = null;
 
   constructor(
     private productoService: ProductosService,
@@ -29,13 +31,17 @@ export class ProductosListComponent implements OnInit {
   }
 
 getProductos(): void {
+  this.errorMessage = '';
   this.productoService.getProductos().subscribe(
     (response: { data: Producto[] }) => {
       this.productos = response.data;
       this.totalPages = Math.ceil(this.productos.length / this.itemsPerPage);
       this.updatePaginatedProductos();
     },
-    (_error: HttpErrorResponse) => {}
+    (error: HttpErrorResponse) => {
+      const status = error.status ? ` (HTTP ${error.status})` : '';
+      this.errorMessage = `No se pudo cargar el listado de productos${status}.`;
+    }
   );
 }
 
@@ -67,22 +73,45 @@ getProductos(): void {
     }
   }
 
+  getProductoId(producto: Producto): string {
+    return producto._id?.trim() || '';
+  }
+
   // Método para redirigir al formulario de edición del producto
-editProducto(id: string): void {
-  this.router.navigate(['/productos/edit', id]);
-}
+  editProducto(producto: Producto): void {
+    const id = this.getProductoId(producto);
+    if (!id) {
+      this.errorMessage = 'No se puede editar el producto porque no tiene un identificador valido.';
+      return;
+    }
+
+    this.router.navigate(['/productos/edit', id]);
+  }
 
 
   // Método para eliminar un producto
-  deleteProducto(id: string): void {
+  deleteProducto(producto: Producto): void {
+    const id = this.getProductoId(producto);
+    if (!id) {
+      this.errorMessage = 'No se puede eliminar el producto porque no tiene un identificador valido.';
+      return;
+    }
+
     if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+      this.errorMessage = '';
+      this.deletingProductId = id;
       this.productoService.deleteProducto(id).subscribe(
         () => {
+          this.productos = this.productos.filter((item) => this.getProductoId(item) !== id);
+          this.totalPages = Math.ceil(this.productos.length / this.itemsPerPage);
+          this.currentPage = Math.min(this.currentPage, Math.max(this.totalPages, 1));
+          this.updatePaginatedProductos();
+          this.deletingProductId = null;
           alert('Producto eliminado exitosamente.');
-          this.getProductos(); // Recarga la lista después de eliminar
         },
-        () => {
-          alert('Hubo un error al eliminar el producto.');
+        (error: HttpErrorResponse) => {
+          this.deletingProductId = null;
+          this.errorMessage = error.error?.message || 'Hubo un error al eliminar el producto.';
         }
       );
     }

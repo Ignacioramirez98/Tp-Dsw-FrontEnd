@@ -18,6 +18,8 @@ export class ProductoFormComponent implements OnInit {
   selectedImage: File | null = null;
   imagePreview: string | null = null;
   imageError: string = '';
+  errorMessage: string = '';
+  isSubmitting: boolean = false;
 
   private readonly allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
   private readonly maxImageSizeBytes = 5 * 1024 * 1024;
@@ -49,8 +51,7 @@ export class ProductoFormComponent implements OnInit {
 
 loadProduct(): void {
   this.productoService.getProducto(this.productoId!).subscribe(
-    (response: any) => {
-      const producto = response.data as Producto; // Asegúrate de que 'data' es el producto
+    (producto: Producto) => {
       this.productoForm.patchValue({
         nombre: producto.nombre,
         descripcion: producto.descripcion,
@@ -60,8 +61,8 @@ loadProduct(): void {
       });
       this.imagePreview = producto.imagenUrl ? `http://localhost:3000${producto.imagenUrl}` : null;
     },
-    () => {
-      this.router.navigate(['/productos']);
+    (error) => {
+      this.errorMessage = error.error?.message || 'No se pudo cargar el producto.';
     }
   );
 }
@@ -93,23 +94,31 @@ onFileSelected(event: Event): void {
 }
 
 crear(): void {
-  if (this.productoForm.invalid) {
+  if (this.productoForm.invalid || this.isSubmitting) {
     return;
   }
+
+  this.errorMessage = '';
 
   if (!this.isEditMode && !this.selectedImage) {
     this.imageError = 'Debes seleccionar una imagen para crear el producto.';
     return;
   }
 
-  const producto = { ...this.productoForm.value, _id: this.productoId }; // Aseguramos que tenga el ID
-
   if (this.isEditMode) {
-    this.productoService.updateProducto(producto).subscribe(
-      () => {
+    const formData = this.buildFormData();
+    this.isSubmitting = true;
+    this.productoService.updateProducto(this.productoId!, formData).subscribe(
+      (productoActualizado) => {
+        if (productoActualizado.imagenUrl) {
+          this.imagePreview = `http://localhost:3000${productoActualizado.imagenUrl}`;
+        }
         this.router.navigate(['/productos']);
       },
-      () => {}
+      (error) => {
+        this.isSubmitting = false;
+        this.errorMessage = error.error?.message || 'No se pudo actualizar el producto.';
+      }
     );
   } else {
     const token = this.authService.getToken();
@@ -119,20 +128,39 @@ crear(): void {
     }
 
     const formData = new FormData();
-    formData.append('nombre', this.productoForm.value.nombre);
-    formData.append('descripcion', this.productoForm.value.descripcion);
-    formData.append('importe_compra', String(this.productoForm.value.importe_compra));
-    formData.append('importe_venta', String(this.productoForm.value.importe_venta));
-    formData.append('stock', String(this.productoForm.value.stock));
+    this.appendProductFields(formData);
     formData.append('imagen', this.selectedImage);
 
+    this.isSubmitting = true;
     this.productoService.crearProductoConImagen(formData, token).subscribe(
       () => {
         this.router.navigate(['/productos']);
       },
-      () => {}
+      (error) => {
+        this.isSubmitting = false;
+        this.errorMessage = error.error?.message || 'No se pudo crear el producto.';
+      }
     );
   }
+}
+
+private buildFormData(): FormData {
+  const formData = new FormData();
+  this.appendProductFields(formData);
+
+  if (this.selectedImage) {
+    formData.append('imagen', this.selectedImage);
+  }
+
+  return formData;
+}
+
+private appendProductFields(formData: FormData): void {
+  formData.append('nombre', this.productoForm.value.nombre);
+  formData.append('descripcion', this.productoForm.value.descripcion);
+  formData.append('importe_compra', String(this.productoForm.value.importe_compra));
+  formData.append('importe_venta', String(this.productoForm.value.importe_venta));
+  formData.append('stock', String(this.productoForm.value.stock));
 }
 
 onSubmit(): void {
