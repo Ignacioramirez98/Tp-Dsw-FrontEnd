@@ -3,6 +3,10 @@
 <div class="servicio-form container mt-5">
   <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
 
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
   <div class="card shadow-sm">
     <div class="card-body">
       <form [formGroup]="ServicioForm" (ngSubmit)="crear()">
@@ -27,7 +31,7 @@
 
           <!-- Imagen -->
           <div class="col-12 col-md-6 mb-4">
-            <label for="imagen" class="form-label">Imagen del Servicio:</label>
+            <label for="imagen" class="form-label">Imagen del Servicio (opcional):</label>
             <input
               type="file"
               id="imagen"
@@ -46,8 +50,8 @@
 
           <!-- Botones de aceptar y cancelar -->
           <div class="col-12 d-flex justify-content-end">
-            <button type="submit" [disabled]="ServicioForm.invalid" class="btn btn-primary btn-lg mx-2">
-              <i class="bi bi-check-circle"></i> Aceptar
+            <button type="submit" [disabled]="ServicioForm.invalid || isSubmitting" class="btn btn-primary btn-lg mx-2">
+              <i class="bi bi-check-circle"></i> {{ isSubmitting ? 'Guardando...' : 'Aceptar' }}
             </button>
             <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
               <i class="bi bi-x-circle"></i> Cancelar

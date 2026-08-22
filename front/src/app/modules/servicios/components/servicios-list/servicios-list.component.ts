@@ -21,6 +21,7 @@ export class ServiciosListComponent implements OnInit {
   totalPages: number = 0;
   isCliente: boolean = false;
   errorCarga: string = '';
+  deletingServicioId: string | null = null;
 
   constructor(
     private servicioservice: ServiciosService,
@@ -80,9 +81,15 @@ getServicios(): void {
     }
   }
 
+  getServicioId(servicio: Servicio): string {
+    return servicio._id?.trim() || '';
+  }
+
   // Método para redirigir al formulario de edición del Servicio
-editServicio(id: string): void {
-  if (this.isCliente) {
+editServicio(servicio: Servicio): void {
+  const id = this.getServicioId(servicio);
+  if (!id) {
+    this.errorCarga = 'No se puede editar el servicio porque no tiene un identificador valido.';
     return;
   }
   this.router.navigate(['/servicios/edit', id]);
@@ -90,18 +97,27 @@ editServicio(id: string): void {
 
 
   // Método para eliminar un Servicio
-  deleteServicio(id: string): void {
-    if (this.isCliente) {
+  deleteServicio(servicio: Servicio): void {
+    const id = this.getServicioId(servicio);
+    if (!id) {
+      this.errorCarga = 'No se puede eliminar el servicio porque no tiene un identificador valido.';
       return;
     }
     if (confirm('¿Estás seguro de que deseas eliminar este Servicio?')) {
+      this.errorCarga = '';
+      this.deletingServicioId = id;
       this.servicioservice.deleteServicio(id).subscribe(
         () => {
+          this.Servicios = this.Servicios.filter((item) => this.getServicioId(item) !== id);
+          this.totalPages = Math.ceil(this.Servicios.length / this.itemsPerPage);
+          this.currentPage = Math.min(this.currentPage, Math.max(this.totalPages, 1));
+          this.updatePaginatedServicios();
+          this.deletingServicioId = null;
           alert('Servicio eliminado exitosamente.');
-          this.getServicios(); // Recarga la lista después de eliminar
         },
-        () => {
-          alert('Hubo un error al eliminar el Servicio.');
+        (error: HttpErrorResponse) => {
+          this.deletingServicioId = null;
+          this.errorCarga = error.error?.message || 'Hubo un error al eliminar el servicio.';
         }
       );
     }

@@ -46,8 +46,11 @@
         </tr>
       </thead>
       <tbody>
+        <tr *ngIf="paginatedServicios.length === 0">
+          <td colspan="5" class="text-center py-4">No hay servicios para mostrar.</td>
+        </tr>
         <tr *ngFor="let servicio of paginatedServicios">
-          <td>{{ servicio._id }}</td>
+          <td>{{ getServicioId(servicio) }}</td>
           <td>
             <img
               *ngIf="servicio.imagenUrl"
@@ -59,11 +62,14 @@
           <td>{{ servicio.descripcion }}</td>
           <td>{{ servicio.importe_por_hora | currency }}</td>
           <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editServicio(servicio._id)">
+            <button class="btn btn-outline-success btn-sm me-2" (click)="editServicio(servicio)"
+              [disabled]="deletingServicioId === getServicioId(servicio)">
               <i class="bi bi-pencil"></i> Editar
             </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteServicio(servicio._id)">
-              <i class="bi bi-trash"></i> Eliminar
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteServicio(servicio)"
+              [disabled]="deletingServicioId === getServicioId(servicio)">
+              <i class="bi bi-trash"></i>
+              {{ deletingServicioId === getServicioId(servicio) ? 'Eliminando...' : 'Eliminar' }}
             </button>
           </td>
         </tr>
@@ -76,8 +82,8 @@
     <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
       <i class="bi bi-arrow-left"></i> Anterior
     </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+    <span class="fs-5 mx-3 align-self-center">Página {{ totalPages === 0 ? 0 : currentPage }} de {{ totalPages }}</span>
+    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage >= totalPages">
       Siguiente <i class="bi bi-arrow-right"></i>
     </button>
   </div>

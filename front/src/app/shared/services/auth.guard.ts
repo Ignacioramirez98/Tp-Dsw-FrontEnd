@@ -30,11 +30,8 @@ export class AuthGuard implements CanActivate {
     }
 
     let fallbackRoute = '/cliente-dashboard';
-    if (currentRole === 'vendedor' || currentRole === 'admin') {
+    if (currentRole === 'vendedor' || currentRole === 'operario' || currentRole === 'admin') {
       fallbackRoute = '/vendedor-dashboard';
-    }
-    if (currentRole === 'operario') {
-      fallbackRoute = '/operarios';
     }
 
     // Evita loop si justo ya estamos intentando entrar al mismo fallback.

@@ -7,11 +7,11 @@
       <ul class="nav-menu">
         <li><a href="/vendedor-dashboard">Inicio</a></li>
         <li *ngIf="isAdmin"><a href="/productos">Productos</a></li>
-        <li><a href="/servicios">Servicios</a></li>
-        <li><a href="/ventas">Ventas</a></li>
-        <li><a href="/clientes">Clientes</a></li>
-        <li><a href="/localidades">Localidades</a></li>
-        <li><a href="/operarios">Operarios</a></li>
+        <li *ngIf="canManageServicios"><a href="/servicios">Servicios</a></li>
+        <li *ngIf="canViewVentas"><a href="/ventas">Ventas</a></li>
+        <li *ngIf="canViewClientes"><a href="/clientes">Clientes</a></li>
+        <li *ngIf="isAdmin"><a href="/localidades">Localidades</a></li>
+        <li *ngIf="isAdmin"><a href="/operarios">Operarios</a></li>
         <li><a href="/contacto">Contacto</a></li>
 
         <!-- desplegable de perfil -->

@@ -70,4 +70,28 @@ describe('LoginComponent', () => {
 
     expect(component.errorMessage).toBe('Usuario o contraseña incorrectos');
   });
+
+  it('debe redirigir al vendedor a su dashboard operativo', () => {
+    authServiceSpy.login.and.returnValue(of({
+      message: 'Login exitoso',
+      token: 'jwt-token',
+      data: { rol: 'vendedor', activo: true }
+    }));
+
+    component.onLogin();
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/vendedor-dashboard']);
+  });
+
+  it('debe redirigir al operario al dashboard operativo', () => {
+    authServiceSpy.login.and.returnValue(of({
+      message: 'Login exitoso',
+      token: 'jwt-token',
+      data: { rol: 'operario', activo: true }
+    }));
+
+    component.onLogin();
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/vendedor-dashboard']);
+  });
 });

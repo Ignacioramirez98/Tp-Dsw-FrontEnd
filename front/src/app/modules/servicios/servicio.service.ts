@@ -19,23 +19,27 @@ export class ServiciosService {
 
   // Obtener todos los servicios desde la API
   getServicios(): Observable<{ data: Servicio[] }> {
-    return this.http.get<{ data: Servicio[] }>(this.apiUrl);
+    return this.http.get<unknown>(this.apiUrl).pipe(
+      map((response) => this.normalizarRespuestaServicios(response))
+    );
   }
 
-  private normalizarRespuestaServicios(response: any): { data: Servicio[] } {
-    if (Array.isArray(response)) {
-      return { data: response as Servicio[] };
-    }
+  private normalizarServicio(response: unknown): Servicio {
+    const servicio = response as Servicio & { id?: string };
+    return { ...servicio, _id: servicio._id || servicio.id || '' };
+  }
 
-    if (Array.isArray(response?.data)) {
-      return { data: response.data as Servicio[] };
-    }
+  private normalizarRespuestaServicios(response: unknown): { data: Servicio[] } {
+    const respuesta = response as { data?: unknown; servicios?: unknown };
+    const servicios = Array.isArray(response)
+      ? response
+      : Array.isArray(respuesta?.data)
+        ? respuesta.data
+        : Array.isArray(respuesta?.servicios)
+          ? respuesta.servicios
+          : [];
 
-    if (Array.isArray(response?.servicios)) {
-      return { data: response.servicios as Servicio[] };
-    }
-
-    return { data: [] };
+    return { data: servicios.map((servicio) => this.normalizarServicio(servicio)) };
   }
 
   // Catalogo para compra: evita enviar Authorization para no heredar permisos de gestion.
@@ -68,7 +72,12 @@ export class ServiciosService {
 
   // Obtener un servicio por su ID
   getServicio(id: string): Observable<Servicio> {
-    return this.http.get<Servicio>(`${this.apiUrl}/${id}`);
+    return this.http.get<unknown>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => {
+        const respuesta = response as { data?: unknown };
+        return this.normalizarServicio(respuesta?.data ?? response);
+      })
+    );
   }
 
   // Crear un nuevo servicio en la API
@@ -82,9 +91,14 @@ export class ServiciosService {
     return this.http.post<Servicio>(this.apiUrl, formData, { headers });
   }
 
-  // Actualizar un servicio existente en la API
-  updateServicio(servicio: Servicio): Observable<Servicio> {
-    return this.http.put<Servicio>(`${this.apiUrl}/${servicio._id}`, servicio);
+  // Actualizar un servicio existente, con una nueva imagen opcional.
+  updateServicio(id: string, formData: FormData): Observable<Servicio> {
+    return this.http.put<unknown>(`${this.apiUrl}/${id}`, formData).pipe(
+      map((response) => {
+        const respuesta = response as { data?: unknown };
+        return this.normalizarServicio(respuesta?.data ?? response);
+      })
+    );
   }
 
   // Eliminar un servicio por su ID

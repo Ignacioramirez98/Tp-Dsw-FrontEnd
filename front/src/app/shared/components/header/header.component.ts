@@ -17,6 +17,21 @@ export class HeaderComponent {
     return (this.authService.getRol() || '').trim().toLowerCase() === 'admin';
   }
 
+  get canManageServicios(): boolean {
+    const role = (this.authService.getRol() || '').trim().toLowerCase();
+    return role === 'admin' || role === 'operario';
+  }
+
+  get canViewVentas(): boolean {
+    const role = (this.authService.getRol() || '').trim().toLowerCase();
+    return role === 'admin' || role === 'vendedor';
+  }
+
+  get canViewClientes(): boolean {
+    const role = (this.authService.getRol() || '').trim().toLowerCase();
+    return role === 'admin' || role === 'vendedor' || role === 'operario';
+  }
+
   // Método para cerrar sesión
   cerrarSesion(): void {
     // Llamamos al servicio de autenticación para eliminar los datos

@@ -77,10 +77,8 @@ export class LoginComponent {
         }
         this.authService.saveRol(rol);
 
-        if (rol === 'vendedor' || rol === 'admin') {
+        if (rol === 'vendedor' || rol === 'admin' || rol === 'operario') {
           this.router.navigate(['/vendedor-dashboard']);
-        } else if (rol === 'operario') {
-          this.router.navigate(['/operarios']);
         } else {
           this.router.navigate(['/cliente-dashboard']);
         }
