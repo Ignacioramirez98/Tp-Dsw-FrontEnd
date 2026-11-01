@@ -8,9 +8,10 @@ import { WarningComponent } from '../../shared/components/warning/warning.compon
 
 
 @Component({
-  selector: 'app-seleccion-productos',
-  templateUrl: './seleccion-productos.component.html',
-  styleUrls: ['./seleccion-productos.component.css']
+    selector: 'app-seleccion-productos',
+    templateUrl: './seleccion-productos.component.html',
+    styleUrls: ['./seleccion-productos.component.css'],
+    standalone: false
 })
 export class SeleccionProductosComponent implements OnInit {
   productos: Producto[] = [];             // Lista completa de productos
