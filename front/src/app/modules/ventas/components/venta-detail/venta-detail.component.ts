@@ -2,8 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-ventas-detail',
-  templateUrl: './venta-detail.component.html',
+    selector: 'app-ventas-detail',
+    templateUrl: './venta-detail.component.html',
+    standalone: false
 })
 export class VentaDetailComponent implements OnInit {
 

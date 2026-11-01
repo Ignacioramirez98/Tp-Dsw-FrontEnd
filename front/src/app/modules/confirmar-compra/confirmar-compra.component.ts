@@ -10,9 +10,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { WarningComponent } from '../../shared/components/warning/warning.component.js';
 
 @Component({
-  selector: 'app-confirmar-compra',
-  templateUrl: './confirmar-compra.component.html',
-  styleUrls: ['./confirmar-compra.component.css']
+    selector: 'app-confirmar-compra',
+    templateUrl: './confirmar-compra.component.html',
+    styleUrls: ['./confirmar-compra.component.css'],
+    standalone: false
 })
 export class ConfirmarCompraComponent implements OnInit {
   cliente: any = null;  // Variable para almacenar el objeto completo del cliente

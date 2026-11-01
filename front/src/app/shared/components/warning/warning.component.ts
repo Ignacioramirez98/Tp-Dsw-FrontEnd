@@ -2,9 +2,10 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-warning',
-  templateUrl: './warning.component.html',
-  styleUrls: ['./warning.component.css']
+    selector: 'app-warning',
+    templateUrl: './warning.component.html',
+    styleUrls: ['./warning.component.css'],
+    standalone: false
 })
 export class WarningComponent {
   message: string;

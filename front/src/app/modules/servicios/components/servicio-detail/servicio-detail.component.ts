@@ -2,8 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-servicios-detail',
-  templateUrl: './servicio-detail.component.html',
+    selector: 'app-servicios-detail',
+    templateUrl: './servicio-detail.component.html',
+    standalone: false
 })
 export class ServicioDetailComponent implements OnInit {
 

@@ -2,8 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-ventas-form',
-  templateUrl: './venta-form.component.html',
+    selector: 'app-ventas-form',
+    templateUrl: './venta-form.component.html',
+    standalone: false
 })
 export class VentaFormComponent implements OnInit {
 
