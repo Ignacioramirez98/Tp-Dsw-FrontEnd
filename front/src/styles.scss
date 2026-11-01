@@ -158,3 +158,51 @@ h1, .h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
   dt { font-size: 0.75rem; font-weight: 600; color: var(--pa-muted); }
   dd { margin: 0; overflow-wrap: anywhere; }
 }
+
+// ---------------------------------------------------------------------------
+// Ventas
+// ---------------------------------------------------------------------------
+
+// Filtro por estado con botones tipo "chip" (se desplazan en celular)
+.filtro-chips {
+  display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 2px;
+  button {
+    display: inline-flex; align-items: center; min-height: 36px; padding: 0 0.875rem; flex: none;
+    border-radius: 999px; border: 1px solid $border-color; background: var(--pa-superficie);
+    color: $body-color; font-size: 0.8125rem; font-weight: 600; white-space: nowrap;
+    &:hover { background: #ECE8DD; }
+    &[aria-pressed='true'] { background: var(--pa-sidebar); border-color: var(--pa-sidebar); color: #fff; }
+  }
+}
+
+// Pasos del ciclo de vida de la venta
+.pasos-venta {
+  list-style: none; margin: 0 0 1.5rem; padding: 1rem 1.25rem; display: grid; gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+  @include media-breakpoint-up(md) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  li { display: flex; align-items: center; gap: 0.625rem; }
+  .marca {
+    width: 32px; height: 32px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.875rem; border: 2px solid $border-color; color: var(--pa-muted);
+  }
+  .hecho .marca { background: $primary; border-color: $primary; color: #fff; }
+  .actual .marca { border-color: #B7791F; color: #7A4E0A; }
+  strong { display: block; font-size: 0.875rem; }
+  .subtexto { font-size: 0.75rem; }
+}
+
+.total-venta { font-family: $headings-font-family; font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.numero { font-variant-numeric: tabular-nums; }
+
+// Renglón de producto en el formulario de venta: apilado en celular, en fila desde md
+.renglon-venta {
+  display: grid; gap: 0.75rem; padding: 0.875rem; border: 1px solid $border-color; border-radius: 12px;
+  grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'producto producto' 'cantidad subtotal' 'quitar quitar';
+  .campo-producto { grid-area: producto; } .campo-cantidad { grid-area: cantidad; max-width: 140px; }
+  .campo-subtotal { grid-area: subtotal; text-align: right; } .btn-quitar { grid-area: quitar; }
+  @include media-breakpoint-up(md) {
+    grid-template-columns: minmax(0, 1fr) 120px 170px auto; grid-template-areas: 'producto cantidad subtotal quitar';
+    align-items: start; padding: 0; border: 0;
+    .btn-quitar { margin-top: 1.9rem; }
+  }
+}

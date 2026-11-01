@@ -1,50 +1,70 @@
-import {Producto} from "./producto.model.js"
-import {Servicio} from "./servicio.model.js"
-import {Cliente} from "./cliente.model.js"
-import {Vendedor} from "./vendedor.model.js"
+import { Producto } from './producto.model';
+import { Servicio } from './servicio.model';
+import { Cliente } from './cliente.model';
+import { Vendedor } from './vendedor.model';
+
+/** Estados del ciclo de vida de una venta (ver backend: venta.estados.ts). */
+export type EstadoVenta = 'pendiente' | 'concretada' | 'facturada' | 'cancelada';
+export const ESTADOS_VENTA: EstadoVenta[] = ['pendiente', 'concretada', 'facturada', 'cancelada'];
 
 /** Renglón de una venta: producto, cantidad y precio al momento de la venta. */
 export interface ItemVenta {
-  producto: Producto;
+  producto: Producto | null;
   cantidad: number;
   precioUnitario: number;
   subtotal?: number;
 }
 
+/** Venta tal como la devuelve la API (con sus relaciones cargadas). */
 export class Venta {
-  _id?: string;
-  estado: string;
-  fechaContacto: Date;
-  fechaDeVenta: Date;
-  fechaEntrega: Date;
-  fechaCancelacion: Date | null;
-  clienteId: string;
-  productoIds: string[];
-  servicioIds: string[];
-  // Compatibilidad para respuestas viejas o parcialmente pobladas.
+  _id = '';
+  estado: EstadoVenta | string = 'pendiente';
+  fechaContacto: string | Date = new Date();
+  fechaDeVenta?: string | Date | null;
+  fechaEntrega?: string | Date | null;
+  fechaCancelacion?: string | Date | null;
   cliente?: Cliente;
-  productos?: Producto[];
-  servicios?: Servicio[];
-  items?: ItemVenta[];
   vendedor?: Vendedor | null;
+  items?: ItemVenta[];
+  servicios?: Servicio[];
+
+  // Formato anterior, usado por el carrito del cliente al crear el pedido
+  clienteId?: string;
+  productoIds?: string[];
+  servicioIds?: string[];
 
   constructor(
-    estado: string = '',
+    estado = 'pendiente',
     fechaContacto: Date = new Date(),
-    fechaDeVenta: Date = new Date(),
-    fechaEntrega: Date = new Date(),
-    fechaCancelacion: Date | null = null,
-    clienteId: string = '',
+    _fechaDeVenta: Date | null = null,
+    _fechaEntrega: Date | null = null,
+    _fechaCancelacion: Date | null = null,
+    clienteId = '',
     productoIds: string[] = [],
-    servicioIds: string[] = []
+    servicioIds: string[] = [],
   ) {
     this.estado = estado;
     this.fechaContacto = fechaContacto;
-    this.fechaDeVenta = fechaDeVenta;
-    this.fechaEntrega = fechaEntrega;
-    this.fechaCancelacion = fechaCancelacion;
     this.clienteId = clienteId;
     this.productoIds = productoIds;
     this.servicioIds = servicioIds;
   }
+}
+
+/** Datos para crear o modificar una venta. */
+export interface VentaPayload {
+  clienteId?: string;
+  vendedorId?: string | null;
+  fechaEntrega?: string | null;
+  items?: { productoId: string; cantidad: number }[];
+  servicioIds?: string[];
+}
+
+export interface FiltrosVenta {
+  estado?: string;
+  clienteId?: string;
+  vendedorId?: string;
+  /** AAAA-MM-DD */
+  desde?: string;
+  hasta?: string;
 }

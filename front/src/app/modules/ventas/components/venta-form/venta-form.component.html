@@ -1,1 +1,107 @@
-<p>venta-form works!</p>
+<a routerLink="/ventas" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Ventas</a>
+<app-page-header [titulo]="titulo" subtitulo="La venta queda pendiente hasta que un vendedor la concreta." />
+
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando…</div>
+} @else {
+<form class="panel formulario" style="max-width: 980px" [formGroup]="form" (ngSubmit)="guardar()" novalidate [attr.aria-label]="titulo">
+  @if (errorServidor) {
+    <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+  }
+
+  <fieldset>
+    <legend>Cliente y vendedor</legend>
+    <div class="grid-campos">
+      <app-campo etiqueta="Cliente" para="clienteId" [error]="error('clienteId')">
+        <select class="form-select" id="clienteId" formControlName="clienteId" [class.is-invalid]="error('clienteId')"
+                [attr.aria-invalid]="!!error('clienteId')" [attr.aria-describedby]="error('clienteId') ? 'clienteId-error' : null">
+          <option value="">Elegí un cliente</option>
+          @for (c of clientes; track c._id) {
+            <option [value]="c._id">{{ c.apellido }}, {{ c.nombre }}{{ c.razon_social ? ' — ' + c.razon_social : '' }}</option>
+          }
+        </select>
+      </app-campo>
+      <app-campo etiqueta="Vendedor" para="vendedorId" [opcional]="true" ayuda="Si lo dejás vacío, se asigna quien la concrete.">
+        <select class="form-select" id="vendedorId" formControlName="vendedorId">
+          <option value="">Sin asignar</option>
+          @for (v of vendedores; track v._id) {
+            <option [value]="v._id">{{ v.nombre }} {{ v.apellido }}</option>
+          }
+        </select>
+      </app-campo>
+      <app-campo etiqueta="Fecha de entrega" para="fechaEntrega" [opcional]="true">
+        <input class="form-control" type="date" id="fechaEntrega" formControlName="fechaEntrega">
+      </app-campo>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Productos</legend>
+    <div formArrayName="items" class="d-flex flex-column gap-3">
+      @for (item of items.controls; track item; let i = $index) {
+        <div class="renglon-venta" [formGroupName]="i" role="group" [attr.aria-label]="'Producto ' + (i + 1)">
+          <div class="campo-producto">
+            <label class="form-label fw-semibold" [for]="'producto-' + i">Producto</label>
+            <select class="form-select" [id]="'producto-' + i" formControlName="productoId" [class.is-invalid]="errorItem(i, 'productoId')">
+              <option value="">Elegí un producto</option>
+              @for (p of productos; track p._id) {
+                <option [value]="p._id">{{ p.nombre }} — {{ p.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }} ({{ p.stock }} en stock)</option>
+              }
+            </select>
+            @if (errorItem(i, 'productoId'); as e) { <div class="invalid-feedback d-block">{{ e }}</div> }
+          </div>
+          <div class="campo-cantidad">
+            <label class="form-label fw-semibold" [for]="'cantidad-' + i">Cantidad</label>
+            <input class="form-control" type="number" min="1" step="1" inputmode="numeric" [id]="'cantidad-' + i" formControlName="cantidad"
+                   [class.is-invalid]="errorItem(i, 'cantidad')">
+            @if (errorItem(i, 'cantidad'); as e) { <div class="invalid-feedback d-block">{{ e }}</div> }
+          </div>
+          <div class="campo-subtotal">
+            <span class="form-label fw-semibold d-block">Subtotal</span>
+            <span class="numero fw-semibold">{{ subtotal(i) | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+            @if (sinStock(i)) { <span class="subtexto text-warning-emphasis"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Supera el stock actual</span> }
+          </div>
+          <button type="button" class="btn btn-outline-danger btn-quitar" (click)="quitarItem(i)" [attr.aria-label]="'Quitar producto ' + (i + 1)">
+            <i class="bi bi-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      }
+    </div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3 mb-3">
+      <button type="button" class="btn btn-outline-primary" (click)="agregarItem()"><i class="bi bi-plus-lg" aria-hidden="true"></i> Agregar producto</button>
+      <span>Total <span class="total-venta ms-2">{{ total | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span></span>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Servicios <span class="text-secondary fw-normal small">(opcional, se cotizan por hora)</span></legend>
+    @if (servicios.length === 0) {
+      <p class="text-secondary">No hay servicios cargados.</p>
+    } @else {
+      <div class="grid-campos mb-3" style="row-gap: 0.5rem">
+        @for (s of servicios; track s._id) {
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [id]="'servicio-' + s._id" [checked]="servicioElegido(s._id)"
+                   (change)="alternarServicio(s._id, $any($event.target).checked)">
+            <label class="form-check-label" [for]="'servicio-' + s._id">
+              {{ s.descripcion }} <span class="text-secondary">· {{ s.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}/h</span>
+            </label>
+          </div>
+        }
+      </div>
+    }
+  </fieldset>
+
+  @if (errorDetalle) {
+    <div class="alert alert-warning" role="alert">{{ errorDetalle }}</div>
+  }
+
+  <div class="pie-formulario">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="guardando">
+      @if (guardando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Guardando… }
+      @else { <i class="bi bi-check-lg" aria-hidden="true"></i> {{ esEdicion ? 'Guardar cambios' : 'Crear venta' }} }
+    </button>
+  </div>
+</form>
+}

@@ -1,74 +1,108 @@
+@if (esCliente) {
+  <app-page-header titulo="Mis compras" subtitulo="Tus pedidos y su estado. Un vendedor confirma cada pedido.">
+    <a acciones routerLink="/seleccion-productos" class="btn btn-primary"><i class="bi bi-bag-plus" aria-hidden="true"></i> Nuevo pedido</a>
+  </app-page-header>
+} @else {
+  <app-page-header titulo="Ventas" subtitulo="Pedidos de clientes y ventas concretadas.">
+    @if (puedeCrear) {
+      <a acciones routerLink="/ventas/nueva" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva venta</a>
+    }
+  </app-page-header>
+}
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Ventas</h2>
-
-  <!-- Botón Nueva Venta -->
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-nueva-venta" (click)="nuevaVenta()">
-      Nueva Venta
-    </button>
+<section class="panel" [attr.aria-label]="esCliente ? 'Listado de mis compras' : 'Listado de ventas'">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-venta">Buscar</label>
+      <input #buscador id="buscar-venta" type="search" class="form-control"
+             [placeholder]="esCliente ? 'Producto o vendedor' : 'Cliente, razón social, vendedor o producto'"
+             (input)="buscar(buscador.value)">
+    </div>
+    <div class="campo">
+      <label class="form-label" for="venta-desde">Desde</label>
+      <input #desde id="venta-desde" type="date" class="form-control" [class.is-invalid]="errorFechas"
+             (change)="filtrarPorFecha('desde', desde.value)">
+    </div>
+    <div class="campo">
+      <label class="form-label" for="venta-hasta">Hasta</label>
+      <input #hasta id="venta-hasta" type="date" class="form-control" [class.is-invalid]="errorFechas"
+             [attr.aria-describedby]="errorFechas ? 'error-fechas' : null" (change)="filtrarPorFecha('hasta', hasta.value)">
+    </div>
+    <div class="w-100 d-flex flex-wrap align-items-center gap-2">
+      <div class="filtro-chips" role="group" aria-label="Filtrar por estado">
+        @for (o of opcionesEstado; track o.valor) {
+          <button type="button" [attr.aria-pressed]="filtros.estado === o.valor" (click)="filtrarPorEstado(o.valor)">{{ o.etiqueta }}</button>
+        }
+      </div>
+      @if (hayFiltros) {
+        <button type="button" class="btn btn-link btn-sm ms-auto" (click)="limpiarFiltros(buscador, desde, hasta)">Limpiar filtros</button>
+      }
+    </div>
+    @if (errorFechas) {
+      <div id="error-fechas" class="invalid-feedback d-block w-100 mt-0" role="alert">{{ errorFechas }}</div>
+    }
   </div>
 
-  <!-- Tabla de Ventas -->
-  <div class="table-responsive">
-    <table class="table table-hover table-bordered">
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando ventas…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-receipt" aria-hidden="true"></i>
+      @if (hayFiltros) { Ninguna venta coincide con los filtros. }
+      @else if (esCliente) { Todavía no hiciste pedidos. <a routerLink="/seleccion-productos">Ver el catálogo</a> }
+      @else { Todavía no hay ventas cargadas. }
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
       <thead>
         <tr>
-          <th>Cliente</th> <!-- Nueva columna Cliente -->
-          <th>DNI Cliente</th> <!-- Nueva columna DNI Cliente -->
-          <th>Estado</th>
-          <th>Fecha de Contacto</th>
-          <th>Fecha de Venta</th>
-          <th>Fecha de Entrega</th>
-          <th>Fecha de Cancelación</th>
-          <th>Productos</th>
-          <th>Servicios</th>
-          <th>Acciones</th>
+          <th scope="col">{{ esCliente ? 'Pedido' : 'Cliente' }}</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Vendedor</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-md-end">Total</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let venta of paginatedVentas">
-          <td>{{ venta.cliente ? (venta.cliente.nombre + ' ' + venta.cliente.apellido) : venta.clienteId }}</td>
-          <td>{{ venta.cliente ? venta.cliente.dni : 'N/A' }}</td>
-          <td>{{ venta.estado }}</td>
-          <td>{{ venta.fechaContacto | date }}</td>
-          <td>{{ venta.fechaDeVenta | date }}</td>
-          <td>{{ venta.fechaEntrega | date }}</td>
-          <td>{{ venta.fechaCancelacion ? (venta.fechaCancelacion | date) : 'N/A' }}</td>
-          <td>
-            <ul *ngIf="venta.productos?.length; else productoIdsTpl">
-              <li *ngFor="let producto of venta.productos">{{ producto.nombre }}</li>
-            </ul>
-            <ng-template #productoIdsTpl>{{ (venta.productoIds || []).join(', ') || 'N/A' }}</ng-template>
-          </td>
-          <td>
-            <ul *ngIf="venta.servicios?.length; else servicioIdsTpl">
-              <li *ngFor="let servicio of venta.servicios">{{ servicio.descripcion }}</li>
-            </ul>
-            <ng-template #servicioIdsTpl>{{ (venta.servicioIds || []).join(', ') || 'N/A' }}</ng-template>
-          </td>
-          <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editVenta(venta._id)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteVenta(venta._id)">
-              <i class="bi bi-trash"></i> Eliminar
-            </button>
-          </td>
-        </tr>
+        @for (v of visibles; track v._id) {
+          <tr>
+            <td class="celda-principal">
+              @if (esCliente) {
+                <strong>{{ v.items?.length ?? 0 }} {{ v.items?.length === 1 ? 'producto' : 'productos' }}</strong>
+                <span class="subtexto">{{ v.items?.[0]?.producto?.nombre }}{{ (v.items?.length ?? 0) > 1 ? ' y más' : '' }}</span>
+              } @else {
+                <strong>{{ nombreCliente(v) }}</strong>
+                <span class="subtexto">{{ v.cliente?.razon_social || v.cliente?.localidad?.nombre || '' }}</span>
+              }
+            </td>
+            <td data-label="Fecha">{{ v.fechaContacto | date: 'dd/MM/yyyy' }}</td>
+            <td data-label="Vendedor">{{ v.vendedor ? v.vendedor.nombre + ' ' + v.vendedor.apellido : 'Sin asignar' }}</td>
+            <td data-label="Estado"><app-status-chip [estado]="v.estado" /></td>
+            <td data-label="Total" class="text-md-end fw-semibold numero">{{ total(v) | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/ventas', v._id]" class="btn btn-sm btn-outline-secondary"
+                   [attr.aria-label]="'Ver la venta de ' + nombreCliente(v) + ' del ' + (v.fechaContacto | date: 'dd/MM/yyyy')">
+                  <i class="bi bi-eye" aria-hidden="true"></i> Ver
+                </a>
+                @if (sePuedeEliminar(v)) {
+                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="eliminandoId === v._id"
+                          [attr.aria-label]="'Eliminar la venta de ' + nombreCliente(v)" (click)="confirmarEliminar(v)">
+                    <i class="bi bi-trash" aria-hidden="true"></i>
+                  </button>
+                }
+              </span>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-  </div>
-
-  <!-- Controles de paginación -->
-  <div class="pagination-controls d-flex justify-content-center mt-4">
-    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
-      <i class="bi bi-arrow-left"></i> Anterior
-    </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
-      Siguiente <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
-</div>
-
+    <app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />
+  }
+</section>
