@@ -7,6 +7,8 @@ import { ProductoDetailComponent } from './components/producto-detail/producto-d
 import { ProductoFormComponent } from './components/producto-form/producto-form.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { PaginadorComponent } from '../../shared/ui/paginador.component';
 import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
 
 
@@ -25,6 +27,8 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+    PageHeaderComponent,
+    PaginadorComponent,
     RouterModule.forChild(routes),
     NgxPaginationModule,
     FormsModule,

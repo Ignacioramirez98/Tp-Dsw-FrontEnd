@@ -1,77 +1,74 @@
+<app-page-header titulo="Productos" subtitulo="Catálogo de maquinaria, precios y stock.">
+  <a acciones routerLink="/productos/nuevo" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo producto</a>
+</app-page-header>
 
-<div class="container mt-5 ">
-  <h2 class="text-center mb-4">Productos</h2>
-
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
+<section class="panel" aria-label="Listado de productos">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-producto">Buscar</label>
+      <input id="buscar-producto" type="search" class="form-control" placeholder="Nombre o descripción"
+             (input)="buscar($any($event.target).value)">
+    </div>
   </div>
 
-  <!-- Botón Nuevo Producto -->
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-nuevo-producto" (click)="nuevoProducto()">
-      Nueva Producto
-    </button>
-  </div>
-
-  <!-- Tabla de Productos -->
-  <div class="table-responsive">
-    <table class="table table-hover table-bordered">
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando productos…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-truck" aria-hidden="true"></i>
+      {{ busqueda ? 'Ningún producto coincide con la búsqueda.' : 'Todavía no hay productos cargados.' }}
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Imagen</th>
-          <th>Nombre</th>
-          <th>Descripción</th>
-          <th class="precio-col">Precio Compra</th> <!-- Solo esta columna -->
-          <th class="precio-col">Precio Venta</th> <!-- Solo esta columna -->
-          <th>Stock</th>
-          <th>Acciones</th>
+          <th scope="col">Producto</th><th scope="col">Precio de compra</th><th scope="col">Precio de venta</th>
+          <th scope="col">Stock</th><th scope="col"><span class="solo-lectores">Acciones</span></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngIf="paginatedProductos.length === 0">
-          <td colspan="8" class="text-center py-4">No hay productos para mostrar.</td>
-        </tr>
-        <tr *ngFor="let producto of paginatedProductos">
-          <td>{{ getProductoId(producto) }}</td>
-          <td>
-            <img
-              *ngIf="producto.imagenUrl"
-              [src]="'http://localhost:3000' + producto.imagenUrl"
-              alt="Imagen producto"
-              style="width: 64px; height: 64px; object-fit: cover; border-radius: 6px;"
-            />
-          </td>
-          <td>{{ producto.nombre }}</td>
-          <td>{{ producto.descripcion }}</td>
-          <td>{{ producto.importe_compra | currency }}</td>
-          <td>{{ producto.importe_venta | currency }}</td>
-          <td>{{ producto.stock }}</td>
-          <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editProducto(producto)"
-              [disabled]="deletingProductId === getProductoId(producto)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteProducto(producto)"
-              [disabled]="deletingProductId === getProductoId(producto)">
-              <i class="bi bi-trash"></i>
-              {{ deletingProductId === getProductoId(producto) ? 'Eliminando...' : 'Eliminar' }}
-            </button>
-          </td>
-        </tr>
+        @for (p of visibles; track p._id) {
+          <tr>
+            <td class="celda-principal">
+              <div class="d-flex align-items-center gap-3">
+                @if (urlImagen(p.imagenUrl); as src) {
+                  <img [src]="src" alt="" class="miniatura">
+                } @else {
+                  <span class="miniatura d-inline-flex align-items-center justify-content-center text-secondary" aria-hidden="true"><i class="bi bi-image"></i></span>
+                }
+                <span><strong>{{ p.nombre }}</strong><span class="subtexto">{{ p.descripcion }}</span></span>
+              </div>
+            </td>
+            <td data-label="Precio de compra">{{ p.importe_compra | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+            <td data-label="Precio de venta"><strong>{{ p.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</strong></td>
+            <td data-label="Stock">
+              @if (p.stock === 0) {
+                <span class="badge text-bg-danger">Sin stock</span>
+              } @else if (p.stock <= 2) {
+                <span class="badge text-bg-warning">{{ p.stock }} — bajo</span>
+              } @else {
+                {{ p.stock }}
+              }
+            </td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/productos/edit', p._id]" class="btn btn-sm btn-outline-primary" [attr.aria-label]="'Editar ' + p.nombre"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmarEliminar(p)"
+                        [disabled]="eliminandoId === p._id" [attr.aria-label]="'Eliminar ' + p.nombre">
+                  <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                </button>
+              </span>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-  </div>
+  }
+</section>
 
-  <!-- Controles de paginación -->
-  <div class="pagination-controls d-flex justify-content-center mt-4">
-    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
-      <i class="bi bi-arrow-left"></i> Anterior
-    </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ totalPages === 0 ? 0 : currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage >= totalPages">
-      Siguiente <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
-</div>
-
+<app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />

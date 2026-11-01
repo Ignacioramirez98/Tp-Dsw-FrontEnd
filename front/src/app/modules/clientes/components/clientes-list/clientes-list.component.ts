@@ -1,92 +1,46 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
 import { ClientesService } from '../../cliente.service';
+import { LocalidadesService } from '../../../localidades/localidad.service';
 import { Cliente } from '../../../../shared/models/cliente.model';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Localidad } from '../../../../shared/models/localidad.model';
+import { ListadoBase } from '../../../../shared/ui/listado-base';
+import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-clientes-list',
   templateUrl: './clientes-list.component.html',
-  standalone: false
+  standalone: false,
 })
-export class ClientesListComponent implements OnInit {
-  clientes: Cliente[] = [];
-  paginatedClientes: Cliente[] = [];
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  totalPages: number = 0;
-  errorCarga: string = '';
+export class ClientesListComponent extends ListadoBase<Cliente> implements OnInit {
+  private readonly servicio = inject(ClientesService);
+  private readonly localidadesService = inject(LocalidadesService);
+  private readonly rol = inject(AuthService).getRol();
+  protected readonly recurso = 'clientes';
 
-  constructor(
-    private clienteService: ClientesService,
-    private router: Router
-  ) {}
+  localidades: Localidad[] = [];
+  localidadId = '';
 
-  ngOnInit(): void {
-    this.getClientes();
+  // Permisos según la matriz del backend
+  readonly puedeEditar = this.rol === 'admin' || this.rol === 'vendedor';
+  readonly puedeEliminar = this.rol === 'admin';
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+    this.localidadesService.getLocalidades().subscribe({
+      next: (r) => (this.localidades = [...(r.data ?? [])].sort((a, b) => a.nombre.localeCompare(b.nombre))),
+      error: () => (this.localidades = []),
+    });
   }
 
-  getClientes(): void {
-    this.errorCarga = '';
-    this.clienteService.getClientes().subscribe(
-      (response: { data: Cliente[] }) => {
-        this.clientes = response.data;
-        this.totalPages = Math.ceil(this.clientes.length / this.itemsPerPage);
-        this.updatePaginatedClientes();
-      },
-      (error: HttpErrorResponse) => {
-        const status = error?.status ? ` (HTTP ${error.status})` : '';
-        this.errorCarga = `No se pudo cargar el listado de clientes${status}.`;
-      }
-    );
+  /** Filtro por localidad: lo resuelve el backend (GET /clientes?localidadId=...). */
+  filtrarPorLocalidad(id: string): void {
+    this.localidadId = id;
+    this.pagina = 1;
+    this.recargar();
   }
 
-  updatePaginatedClientes(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedClientes = this.clientes.slice(startIndex, endIndex);
-  }
-
-  changePage(page: number): void {
-    this.currentPage = page;
-    this.updatePaginatedClientes();
-  }
-
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.changePage(this.currentPage - 1);
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.changePage(this.currentPage + 1);
-    }
-  }
-
-  verCliente(id: string): void {
-    this.router.navigate(['/clientes', id]);
-  }
-
-  editCliente(id: string): void {
-    this.router.navigate(['/clientes/edit', id]);
-  }
-
-  deleteCliente(id: string): void {
-    if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
-      this.clienteService.deleteCliente(id).subscribe(
-        () => {
-          alert('Cliente eliminado exitosamente.');
-          this.getClientes();
-        },
-        () => {
-          alert('Hubo un error al eliminar el cliente.');
-        }
-      );
-    }
-  }
-
-  nuevoCliente(): void {
-    this.router.navigate(['/clientes/nuevo']);
-  }
+  protected cargar$() { return this.servicio.getClientes({ localidadId: this.localidadId }); }
+  protected eliminar$(id: string) { return this.servicio.deleteCliente(id); }
+  protected textoBuscable(c: Cliente) { return `${c.nombre} ${c.apellido} ${c.razon_social} ${c.dni} ${c.mail}`; }
+  protected descripcion(c: Cliente) { return `al cliente ${c.nombre} ${c.apellido}`; }
 }

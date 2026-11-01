@@ -1,3 +1,5 @@
+import { Localidad } from './localidad.model';
+
 export class Cliente {
   _id: string;
   nombre: string;
@@ -7,6 +9,7 @@ export class Cliente {
   telefono: string;
   direccion: string;
   razon_social: string;
+  localidad?: Localidad | null;
 
   constructor(
     _id: string = '',
