@@ -6,8 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OperariosListComponent } from './components/operarios-list/operarios-list.component';
 import { OperarioDetailComponent } from './components/operario-detail/operario-detail.component';
 import { OperarioFormComponent } from './components/operario-form/operario-form.component';
-import { HeaderModule } from '../../shared/components/header/header.module.js';
-import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 // Define las rutas para el módulo
 const routes: Routes = [
@@ -26,8 +24,6 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    HeaderModule,
-    FooterComponent,
     FormsModule,
     ReactiveFormsModule
   ]

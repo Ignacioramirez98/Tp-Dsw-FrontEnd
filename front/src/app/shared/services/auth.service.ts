@@ -55,9 +55,21 @@ export class AuthService {
     localStorage.removeItem('cantidadesSeleccionadas');
   }
 
-  // Verificar si el usuario está autenticado (si hay un token)
+  /**
+   * Hay sesión si existe un token y no está vencido (campo exp del JWT).
+   * Si venció, se borran los datos guardados para que la app abra el login.
+   */
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    if (!this.getToken()) {
+      return false;
+    }
+
+    const exp = this.getDecodedTokenPayload()?.['exp'];
+    if (typeof exp === 'number' && exp * 1000 <= Date.now()) {
+      this.logout();
+      return false;
+    }
+    return true;
   }
 
   // Guardar el clienteId en localStorage

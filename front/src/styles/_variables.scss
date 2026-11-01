@@ -1,0 +1,33 @@
+// Variables del tema (paleta, tipografía, radios). Se aplican sobre Bootstrap.
+
+$primary: #2E5B3B;
+$secondary: #5B665F;
+$success: #2E7D45;
+$info: #1E4E8C;
+$warning: #B7791F;
+$danger: #A33A2F;
+$light: #F5F3EC;
+$dark: #1F3A2A;
+
+$body-bg: #F5F3EC;
+$body-color: #1B241F;
+$border-color: #E2DED3;
+$link-color: $primary;
+
+$font-family-sans-serif: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+$headings-font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+$headings-font-weight: 800;
+
+$border-radius: 0.625rem;
+$border-radius-sm: 0.5rem;
+$border-radius-lg: 1rem;
+
+$input-border-color: #D6D1C4;
+$input-btn-padding-y: 0.55rem;
+$input-btn-padding-x: 1rem;
+$btn-font-weight: 600;
+
+$card-border-color: $border-color;
+$card-border-radius: 1rem;
+$table-border-color: #EEEAE0;
+$table-hover-bg: #FAF8F2;

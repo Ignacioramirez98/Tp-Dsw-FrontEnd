@@ -1,0 +1,52 @@
+@import 'tema';
+
+// Mobile-first: en celular la navegación se despliega debajo de la barra;
+// desde md (768px) queda en línea.
+:host { display: flex; flex-direction: column; min-height: 100vh; }
+
+.barra { position: sticky; top: 0; z-index: 1020; background: #fff; border-bottom: 1px solid $border-color; }
+.barra-contenido {
+  max-width: 1180px; margin: 0 auto; padding: 0.5rem 1rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.5rem;
+}
+.marca { display: flex; align-items: center; }
+.logo { height: 36px; border-radius: 6px; }
+
+.acciones { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+.btn-icono {
+  position: relative; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid $border-color; border-radius: 12px; background: #fff; color: $body-color; font-size: 1.3rem;
+  text-decoration: none;
+  &:hover { background: $light; }
+}
+.contador {
+  position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0 5px;
+  border-radius: 999px; background: $primary; color: #fff; font-size: 0.75rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.navegacion { display: none; width: 100%; padding: 0.5rem 0 0.75rem; flex-direction: column; gap: 0.75rem; }
+.navegacion.abierto { display: flex; }
+.menu { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.menu-link {
+  display: flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0 0.75rem; border-radius: 10px;
+  color: #3E4A43; text-decoration: none; font-weight: 600;
+  &:hover { background: $light; color: $body-color; }
+  &.activo { background: #E6EFE7; color: var(--pa-sidebar); }
+}
+.usuario { display: flex; align-items: center; gap: 0.5rem; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--pa-acento); color: var(--pa-sidebar); font-weight: 700; font-size: 0.8125rem;
+}
+.usuario-nombre { font-weight: 600; font-size: 0.875rem; }
+
+.contenido { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 1.25rem 1rem 0; box-sizing: border-box; }
+
+@include media-breakpoint-up(md) {
+  .barra-contenido { flex-wrap: nowrap; }
+  .acciones { order: 3; margin-left: 0; }
+  .navegacion { display: flex; flex-direction: row; align-items: center; width: auto; flex: 1; padding: 0; gap: 1rem; }
+  .menu { flex-direction: row; flex: 1; }
+  .contenido { padding: 2rem 1.5rem 0; }
+}

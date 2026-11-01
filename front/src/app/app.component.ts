@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router'; // Importa RouterModule
+import { RouterOutlet } from '@angular/router';
+import { ToastsComponent } from './shared/ui/toasts.component';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html', // Marca el componente como standalone
-    imports: [RouterModule]
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, ToastsComponent],
+  template: `<router-outlet /><app-toasts />`,
 })
-export class AppComponent {
-  title = 'Mi Aplicación Angular';
-}
+export class AppComponent {}

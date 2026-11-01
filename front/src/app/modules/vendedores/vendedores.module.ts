@@ -6,8 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VendedoresListComponent } from './components/vendedores-list/vendedores-list.component';
 import { VendedorDetailComponent } from './components/vendedor-detail/vendedor-detail.component';
 import { VendedorFormComponent } from './components/vendedor-form/vendedor-form.component';
-import { HeaderModule } from '../../shared/components/header/header.module.js';
-import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 // Define las rutas para el módulo
 const routes: Routes = [
@@ -26,8 +24,6 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    HeaderModule,
-    FooterComponent,
     FormsModule,
     ReactiveFormsModule
   ]

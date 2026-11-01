@@ -5,8 +5,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { VentasListComponent } from './components/ventas-list/ventas-list.component';
 import { VentaDetailComponent } from './components/venta-detail/venta-detail.component';
 import { VentaFormComponent } from './components/venta-form/venta-form.component';
-import { HeaderModule } from '../../shared/components/header/header.module.js';
-import { FooterComponent } from "../../shared/components/footer/footer.component";
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
@@ -27,8 +25,6 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    HeaderModule,
-    FooterComponent,
     NgxPaginationModule,
     FormsModule,
     ReactiveFormsModule
