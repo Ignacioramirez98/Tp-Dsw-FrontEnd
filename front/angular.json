@@ -52,13 +52,26 @@
               }
             ],
             "styles": [
-                "src/styles.css",
-                "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                "node_modules/bootstrap-icons/font/bootstrap-icons.min.css"
+              "node_modules/@angular/cdk/overlay-prebuilt.css",
+              "src/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules",
+                "src/styles"
               ],
-              "scripts": [
-                "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-              ]
+              "sass": {
+                "silenceDeprecations": [
+                  "import",
+                  "mixed-decls",
+                  "color-functions",
+                  "global-builtin"
+                ]
+              }
+            },
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -120,13 +133,22 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
-              "src/assets",
-              "src/favicon.ico"
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
             ],
             "styles": [
-              "src/styles.css"
+              "node_modules/@angular/cdk/overlay-prebuilt.css",
+              "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules",
+                "src/styles"
+              ]
+            }
           }
         }
       }

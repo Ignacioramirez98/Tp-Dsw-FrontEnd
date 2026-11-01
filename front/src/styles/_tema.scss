@@ -1,0 +1,9 @@
+// Para usar en los estilos de los componentes: da acceso a las variables del tema
+// y a los mixins de Bootstrap (por ejemplo media-breakpoint-up) sin generar CSS.
+//   @import 'tema';
+@import 'bootstrap/scss/functions';
+@import 'variables';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';

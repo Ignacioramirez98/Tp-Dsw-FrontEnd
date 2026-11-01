@@ -1,0 +1,51 @@
+// ---------------------------------------------------------------------------
+// Tema de la aplicación: Bootstrap 5 personalizado (SCSS) + Bootstrap Icons.
+// Mobile-first: los estilos base son para celular y se amplían con
+// media-breakpoint-up(sm | md | lg) para tablet y escritorio.
+// ---------------------------------------------------------------------------
+
+// 1. Paleta y tipografía (sobrescriben las variables de Bootstrap): src/styles/_variables.scss
+@import 'bootstrap/scss/functions';
+@import 'variables';
+
+// 2. Bootstrap completo (usa las variables de arriba)
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons';
+
+// 3. Tokens propios disponibles en toda la app
+:root {
+  --pa-sidebar: #1F3A2A;
+  --pa-sidebar-hover: #28473A;
+  --pa-sidebar-text: #C9D6CC;
+  --pa-acento: #E2B04A;
+  --pa-muted: #5B665F;
+  --pa-superficie: #FFFFFF;
+}
+
+h1, .h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
+@include media-breakpoint-up(md) {
+  h1, .h1 { font-size: 2rem; }
+}
+
+// Botones y controles con área táctil cómoda en celular
+.btn, .form-control, .form-select { min-height: 44px; }
+.btn-sm { min-height: 36px; }
+
+// Tarjeta base de las pantallas
+.panel {
+  background: var(--pa-superficie);
+  border: 1px solid $border-color;
+  border-radius: $card-border-radius;
+}
+
+// Texto solo para lectores de pantalla
+.solo-lectores {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+:focus-visible { outline: 3px solid rgba($primary, 0.45); outline-offset: 2px; }
+
+// Diálogos de Angular Material (se usan sin un tema de Material completo)
+.cdk-overlay-container { z-index: 1060; }
+.mat-mdc-dialog-surface { background: #fff; border-radius: 1rem !important; box-shadow: 0 16px 40px rgba(27, 36, 31, 0.2); }

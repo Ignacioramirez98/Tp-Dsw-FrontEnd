@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService, LoginResponse } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
+import { rutaInicio } from '../../shared/auth/roles';
 
 @Component({
     selector: 'app-login',
@@ -78,15 +79,16 @@ export class LoginComponent {
         }
         this.authService.saveRol(rol);
 
-        if (rol === 'vendedor' || rol === 'admin' || rol === 'operario') {
-          this.router.navigate(['/vendedor-dashboard']);
-        } else {
-          this.router.navigate(['/cliente-dashboard']);
-        }
+        this.router.navigate([rutaInicio(rol)]);
       },
       (error) => {
         if (error?.status === 403) {
           this.errorMessage = 'Usuario desactivado.';
+          return;
+        }
+
+        if (error?.status === 0) {
+          this.errorMessage = 'No se pudo conectar con el servidor. Verificá que el backend esté levantado.';
           return;
         }
 

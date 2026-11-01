@@ -1,0 +1,45 @@
+<header class="barra">
+  <div class="barra-contenido">
+    <a routerLink="/cliente-dashboard" class="marca">
+      <img src="img/pauny-logo.jpg" alt="Pauny - inicio" class="logo">
+    </a>
+
+    <div class="acciones">
+      <a routerLink="/confirmar-compra" class="btn-icono carrito" [attr.aria-label]="'Carrito, ' + unidadesEnCarrito + ' unidades'">
+        <i class="bi bi-cart3" aria-hidden="true"></i>
+        @if (unidadesEnCarrito > 0) {
+          <span class="contador">{{ unidadesEnCarrito }}</span>
+        }
+      </a>
+      <button type="button" class="btn-icono d-md-none" (click)="alternarMenu()"
+              [attr.aria-expanded]="menuAbierto()" aria-controls="menu-cliente" aria-label="Abrir menú">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <nav id="menu-cliente" aria-label="Principal" class="navegacion" [class.abierto]="menuAbierto()">
+      <ul class="menu">
+        @for (item of items; track item.ruta) {
+          <li>
+            <a [routerLink]="item.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page" class="menu-link">
+              <i class="bi {{ item.icono }}" aria-hidden="true"></i>{{ item.etiqueta }}
+            </a>
+          </li>
+        }
+      </ul>
+      <div class="usuario">
+        <span class="avatar" aria-hidden="true">{{ iniciales }}</span>
+        <span class="usuario-nombre">{{ usuario }}</span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cerrarSesion()">
+          <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Salir
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="contenido">
+  <router-outlet />
+</main>
+
+<app-footer />

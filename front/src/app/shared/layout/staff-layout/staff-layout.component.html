@@ -1,0 +1,47 @@
+<div class="shell">
+  <header class="barra-movil">
+    <button type="button" class="btn-icono" (click)="alternarMenu()"
+            [attr.aria-expanded]="menuAbierto()" aria-controls="menu-lateral" aria-label="Abrir menú">
+      <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
+    <img src="img/pauny-logo.jpg" alt="Pauny" class="logo-movil">
+  </header>
+
+  @if (menuAbierto()) {
+    <div class="fondo" (click)="alternarMenu()" aria-hidden="true"></div>
+  }
+
+  <aside id="menu-lateral" class="lateral" [class.abierto]="menuAbierto()">
+    <div class="marca">
+      <img src="img/pauny-logo.jpg" alt="Pauny" class="logo">
+      <span class="marca-texto">CRM</span>
+    </div>
+
+    <nav aria-label="Principal">
+      <ul class="menu">
+        @for (item of items(); track item.ruta) {
+          <li>
+            <a [routerLink]="item.ruta" routerLinkActive="activo" ariaCurrentWhenActive="page" class="menu-link">
+              <i class="bi {{ item.icono }}" aria-hidden="true"></i>{{ item.etiqueta }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="usuario">
+      <div class="avatar" aria-hidden="true">{{ iniciales }}</div>
+      <div class="usuario-datos">
+        <span class="usuario-nombre">{{ usuario }}</span>
+        <span class="usuario-rol">{{ nombreRol }}</span>
+      </div>
+      <button type="button" class="btn-icono btn-salir" (click)="cerrarSesion()" aria-label="Cerrar sesión" title="Cerrar sesión">
+        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </aside>
+
+  <main class="contenido">
+    <router-outlet />
+  </main>
+</div>
