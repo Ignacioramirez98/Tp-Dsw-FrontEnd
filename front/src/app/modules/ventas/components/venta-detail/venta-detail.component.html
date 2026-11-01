@@ -1,1 +1,136 @@
-<p>venta-detail works!</p>
+<a [routerLink]="rutaListado" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> {{ esCliente ? 'Mis compras' : 'Ventas' }}</a>
+
+@if (cargando && !venta) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando venta…</div>
+} @else if (error || !venta) {
+  <div class="panel estado-panel" role="alert"><i class="bi bi-receipt" aria-hidden="true"></i>{{ error }}</div>
+} @else {
+  <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <h1 class="mb-0">{{ esCliente ? 'Pedido' : 'Venta' }} del {{ venta.fechaContacto | date: 'dd/MM/yyyy' }}</h1>
+      <app-status-chip [estado]="venta.estado" />
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      @if (puedeEditar) {
+        <button type="button" class="btn btn-outline-secondary" (click)="irAEditar()"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</button>
+      }
+      @if (puedeCancelar) {
+        <button type="button" class="btn btn-outline-danger" [disabled]="procesando" (click)="cancelar()">
+          {{ esCliente ? 'Cancelar pedido' : 'Cancelar venta' }}
+        </button>
+      }
+      @if (puedeConcretar) {
+        <button type="button" class="btn btn-primary" [disabled]="procesando" (click)="concretar()">
+          @if (procesando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> }
+          @else { <i class="bi bi-check-lg" aria-hidden="true"></i> }
+          Concretar venta
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (venta.estado === 'cancelada') {
+    <div class="alert alert-secondary d-flex gap-2 align-items-center" role="status">
+      <i class="bi bi-x-circle" aria-hidden="true"></i>
+      Cancelada el {{ venta.fechaCancelacion | date: 'dd/MM/yyyy' }}.
+    </div>
+  } @else {
+    <ol class="panel pasos-venta" aria-label="Estado de la venta">
+      @for (p of pasos; track p.titulo; let i = $index) {
+        <li [class]="p.estado" [attr.aria-current]="p.estado === 'actual' ? 'step' : null">
+          <span class="marca" aria-hidden="true">
+            @if (p.estado === 'hecho') { <i class="bi bi-check-lg"></i> } @else { {{ i + 1 }} }
+          </span>
+          <span><strong>{{ p.titulo }}</strong>@if (p.detalle) { <span class="subtexto">{{ p.detalle }}</span> }</span>
+          <span class="solo-lectores">{{ p.estado === 'hecho' ? '(completado)' : p.estado === 'actual' ? '(paso actual)' : '' }}</span>
+        </li>
+      }
+    </ol>
+  }
+
+  <div class="detalle">
+    <section class="panel panel-relacion" aria-labelledby="t-productos">
+      <h2 id="t-productos">Productos</h2>
+      @if (!venta.items?.length) {
+        <div class="estado-panel"><i class="bi bi-box" aria-hidden="true"></i>Esta venta no tiene productos.</div>
+      } @else {
+        <table class="table tabla-adaptable">
+          <thead>
+            <tr>
+              <th scope="col">Producto</th><th scope="col" class="text-md-end">Cantidad</th>
+              <th scope="col" class="text-md-end">Precio unit.</th><th scope="col" class="text-md-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of venta.items; track $index) {
+              <tr>
+                <td class="celda-principal"><strong>{{ item.producto?.nombre ?? 'Producto eliminado' }}</strong></td>
+                <td data-label="Cantidad" class="text-md-end">{{ item.cantidad }}</td>
+                <td data-label="Precio unit." class="text-md-end numero">{{ item.precioUnitario | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+                <td data-label="Subtotal" class="text-md-end fw-semibold numero">{{ item.cantidad * item.precioUnitario | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-end align-items-baseline gap-3 px-3 py-3 border-top">
+          <span class="text-secondary">Total</span>
+          <span class="total-venta">{{ total | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+        </div>
+      }
+    </section>
+
+    <section class="panel" aria-labelledby="t-servicios">
+      <h2 id="t-servicios">Servicios</h2>
+      @if (!venta.servicios?.length) {
+        <p class="mb-0 text-secondary">Esta venta no tiene servicios asociados.</p>
+      } @else {
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+          @for (s of venta.servicios; track s._id) {
+            <li class="d-flex justify-content-between gap-3">
+              <span>{{ s.descripcion }}@if (s.operario) { <span class="subtexto">A cargo de {{ s.operario.nombre }} {{ s.operario.apellido }}</span> }</span>
+              <span class="text-nowrap numero">{{ s.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}/h</span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <div class="grid-campos" style="row-gap: 1.5rem">
+      <section class="panel" aria-labelledby="t-cliente">
+        <h2 id="t-cliente">Cliente</h2>
+        @if (venta.cliente; as c) {
+          <dl class="datos">
+            <div class="ancho-completo"><dt>Nombre</dt><dd class="fw-semibold">{{ c.nombre }} {{ c.apellido }}</dd></div>
+            @if (c.razon_social) { <div class="ancho-completo"><dt>Razón social</dt><dd>{{ c.razon_social }}</dd></div> }
+            <div><dt>Localidad</dt><dd>{{ c.localidad ? c.localidad.nombre + ' (' + c.localidad.codigo_postal + ')' : '—' }}</dd></div>
+            <div><dt>DNI</dt><dd>{{ c.dni }}</dd></div>
+            <div><dt>Teléfono</dt><dd><a [href]="'tel:' + c.telefono">{{ c.telefono }}</a></dd></div>
+            <div><dt>Mail</dt><dd><a [href]="'mailto:' + c.mail">{{ c.mail }}</a></dd></div>
+          </dl>
+          @if (esPersonal) {
+            <a [routerLink]="['/clientes', c._id]" class="d-inline-block mt-3 fw-semibold">Ver ficha del cliente</a>
+          }
+        } @else {
+          <p class="mb-0 text-secondary">El cliente fue eliminado.</p>
+        }
+      </section>
+
+      <section class="panel" aria-labelledby="t-vendedor">
+        <h2 id="t-vendedor">Vendedor y fechas</h2>
+        <dl class="datos">
+          <div class="ancho-completo">
+            <dt>Vendedor</dt>
+            <dd>
+              @if (venta.vendedor) { <span class="fw-semibold">{{ venta.vendedor.nombre }} {{ venta.vendedor.apellido }}</span> }
+              @else { <span class="text-secondary">Sin asignar{{ puedeConcretar ? '. Se asigna al concretar.' : '' }}</span> }
+            </dd>
+          </div>
+          <div><dt>Pedido</dt><dd>{{ venta.fechaContacto | date: 'dd/MM/yyyy' }}</dd></div>
+          <div><dt>Venta</dt><dd>{{ (venta.fechaDeVenta | date: 'dd/MM/yyyy') ?? '—' }}</dd></div>
+          <div><dt>Entrega</dt><dd>{{ (venta.fechaEntrega | date: 'dd/MM/yyyy') ?? 'A coordinar' }}</dd></div>
+          @if (venta.fechaCancelacion) { <div><dt>Cancelación</dt><dd>{{ venta.fechaCancelacion | date: 'dd/MM/yyyy' }}</dd></div> }
+        </dl>
+      </section>
+    </div>
+  </div>
+}

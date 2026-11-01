@@ -1,24 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Venta } from '../../shared/models/venta.model.js';
+import { FiltrosVenta, Venta, VentaPayload } from '../../shared/models/venta.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VentasService {
-  private apiUrl = `${environment.apiUrl}/ventas`; // URL base del backend
+  private apiUrl = `${environment.apiUrl}/ventas`;
 
   constructor(private http: HttpClient) {}
 
-  crearVenta(venta: Venta): Observable<any> {
-    return this.http.post<any>(this.apiUrl, venta);
-  }
-
-    // Obtener todos los Ventas desde la API
-  // Filtros opcionales que resuelve el backend: estado, clienteId, vendedorId
-  getVentas(filtros: { estado?: string; clienteId?: string; vendedorId?: string } = {}): Observable<{ data: Venta[] }> {
+  /** Lista de ventas (la más nueva primero). Los filtros los resuelve el backend. */
+  getVentas(filtros: FiltrosVenta = {}): Observable<{ data: Venta[] }> {
     let params = new HttpParams();
     for (const [clave, valor] of Object.entries(filtros)) {
       if (valor) params = params.set(clave, valor);
@@ -26,7 +21,28 @@ export class VentasService {
     return this.http.get<{ data: Venta[] }>(this.apiUrl, { params });
   }
 
-    // Eliminar un producto por su ID
+  getVenta(id: string): Observable<{ data: Venta }> {
+    return this.http.get<{ data: Venta }>(`${this.apiUrl}/${id}`);
+  }
+
+  crearVenta(venta: VentaPayload | Venta): Observable<{ data: Venta }> {
+    return this.http.post<{ data: Venta }>(this.apiUrl, venta);
+  }
+
+  actualizarVenta(id: string, cambios: VentaPayload): Observable<{ data: Venta }> {
+    return this.http.patch<{ data: Venta }>(`${this.apiUrl}/${id}`, cambios);
+  }
+
+  /** CUU Concretar Venta: descuenta stock y la deja a nombre del vendedor. */
+  concretar(id: string, datos: { vendedorId?: string; fechaEntrega?: string | null } = {}): Observable<{ data: Venta }> {
+    return this.http.post<{ data: Venta }>(`${this.apiUrl}/${id}/concretar`, datos);
+  }
+
+  /** Cancela la venta (si estaba concretada, el backend devuelve el stock). */
+  cancelar(id: string): Observable<{ data: Venta }> {
+    return this.http.post<{ data: Venta }>(`${this.apiUrl}/${id}/cancelar`, {});
+  }
+
   deleteVenta(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

@@ -1,100 +1,83 @@
-// src/app/modules/ventas/components/ventas-list/ventas-list.component.ts
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { VentasService } from '../../ventas.service.js';
-import { Venta } from '../../../../shared/models/venta.model.js';
-import { HttpErrorResponse } from '@angular/common/http';  // Asegúrate de importar HttpErrorResponse
+import { Component, inject } from '@angular/core';
+import { VentasService } from '../../ventas.service';
+import { EstadoVenta, FiltrosVenta, Venta } from '../../../../shared/models/venta.model';
+import { ListadoBase } from '../../../../shared/ui/listado-base';
+import { AuthService } from '../../../../shared/services/auth.service';
+import { totalVenta } from '../../../../shared/utils/venta';
 
-
+/**
+ * Listado de ventas. Lo usan el personal ("Ventas") y el cliente ("Mis compras":
+ * el backend le devuelve solo las suyas). Estado y rango de fechas los filtra el backend.
+ */
 @Component({
   selector: 'app-ventas-list',
   templateUrl: './ventas-list.component.html',
-  styleUrls: ['./ventas-list.component.css'],
-  standalone: false
+  standalone: false,
 })
-export class VentasListComponent implements OnInit {
-  ventas: Venta[] = [];
-  paginatedVentas: Venta[] = [];
-  currentPage: number = 1;
-  itemsPerPage: number = 10; 
-  totalPages: number = 0;
+export class VentasListComponent extends ListadoBase<Venta> {
+  private readonly ventas = inject(VentasService);
+  private readonly rol = inject(AuthService).getRol();
+  protected readonly recurso = 'ventas';
 
-  constructor(
-    private ventaservice: VentasService,
-    private router: Router
-  ) {}
+  readonly esCliente = this.rol === 'cliente';
+  readonly puedeCrear = this.rol === 'admin' || this.rol === 'vendedor';
+  readonly puedeEliminar = this.rol === 'admin';
+  readonly total = totalVenta;
 
-  ngOnInit(): void {
-    this.getventas();
+  readonly opcionesEstado: { valor: EstadoVenta | ''; etiqueta: string }[] = [
+    { valor: '', etiqueta: 'Todas' },
+    { valor: 'pendiente', etiqueta: 'Pendientes' },
+    { valor: 'concretada', etiqueta: 'Concretadas' },
+    { valor: 'facturada', etiqueta: 'Facturadas' },
+    { valor: 'cancelada', etiqueta: 'Canceladas' },
+  ];
+
+  filtros: FiltrosVenta = { estado: '', desde: '', hasta: '' };
+  errorFechas = '';
+
+  get hayFiltros(): boolean {
+    return !!(this.busqueda || this.filtros.estado || this.filtros.desde || this.filtros.hasta);
   }
 
-getventas(): void {
-  this.ventaservice.getVentas().subscribe(
-    (response: { data: Venta[] }) => {
-      this.ventas = response.data;
-      this.totalPages = Math.ceil(this.ventas.length / this.itemsPerPage);
-      this.updatePaginatedVentas();
-    },
-    (_error: HttpErrorResponse) => {}
-  );
-}
-
-
-
-  // Método para actualizar la lista paginada
-  updatePaginatedVentas(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedVentas = this.ventas.slice(startIndex, endIndex);
+  filtrarPorEstado(estado: string): void {
+    this.filtros = { ...this.filtros, estado };
+    this.pagina = 1;
+    this.recargar();
   }
 
-  // Método para cambiar de página
-  changePage(page: number): void {
-    this.currentPage = page;
-    this.updatePaginatedVentas();
+  /** Rango de fechas del pedido. Se valida acá para no pedir un rango invertido. */
+  filtrarPorFecha(campo: 'desde' | 'hasta', valor: string): void {
+    this.filtros = { ...this.filtros, [campo]: valor };
+    const { desde, hasta } = this.filtros;
+    this.errorFechas = desde && hasta && desde > hasta ? 'La fecha "desde" no puede ser posterior a "hasta".' : '';
+    if (this.errorFechas) return;
+    this.pagina = 1;
+    this.recargar();
   }
 
-  // Métodos para navegar a la página anterior y siguiente
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.changePage(this.currentPage - 1);
-    }
+  limpiarFiltros(buscador: HTMLInputElement, desde: HTMLInputElement, hasta: HTMLInputElement): void {
+    buscador.value = desde.value = hasta.value = '';
+    this.busqueda = '';
+    this.errorFechas = '';
+    this.filtros = { estado: '', desde: '', hasta: '' };
+    this.pagina = 1;
+    this.recargar();
   }
 
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.changePage(this.currentPage + 1);
-    }
+  /** Solo se pueden borrar pedidos pendientes o ventas canceladas (las demás movieron stock). */
+  sePuedeEliminar(v: Venta): boolean {
+    return this.puedeEliminar && (v.estado === 'pendiente' || v.estado === 'cancelada');
   }
 
-  // Método para redirigir al formulario de edición del Venta
-editVenta(id: string | undefined): void {
-  if(!id){
-    return;
-  }
-  this.router.navigate(['/ventas/edit', id]);
-}
-
-
-  // Método para eliminar un Venta
-  deleteVenta(id: string | undefined): void {
-    if(!id){
-    return;
-    }
-    if (confirm('¿Estás seguro de que deseas eliminar este Venta?')) {
-      this.ventaservice.deleteVenta(id).subscribe(
-        () => {
-          alert('Venta eliminado exitosamente.');
-          this.getventas(); // Recarga la lista después de eliminar
-        },
-        () => {
-          alert('Hubo un error al eliminar el Venta.');
-        }
-      );
-    }
+  nombreCliente(v: Venta): string {
+    return v.cliente ? `${v.cliente.nombre} ${v.cliente.apellido}` : 'Cliente eliminado';
   }
 
-  nuevaVenta(): void {
-  this.router.navigate(['/ventas/nuevo']);
-}
+  protected cargar$() { return this.ventas.getVentas(this.filtros); }
+  protected eliminar$(id: string) { return this.ventas.deleteVenta(id); }
+  protected textoBuscable(v: Venta) {
+    const productos = (v.items ?? []).map((i) => i.producto?.nombre).join(' ');
+    return `${this.nombreCliente(v)} ${v.cliente?.razon_social ?? ''} ${v.vendedor?.nombre ?? ''} ${v.vendedor?.apellido ?? ''} ${productos}`;
+  }
+  protected descripcion(v: Venta) { return `la venta de ${this.nombreCliente(v)}`; }
 }
