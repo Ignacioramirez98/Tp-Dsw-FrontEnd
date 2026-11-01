@@ -1,175 +1,64 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProductosService } from '../../producto.service.js';
-import { Producto } from '../../../../shared/models/producto.model.js';
-import { AuthService } from '../../../../shared/services/auth.service.js';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { ProductosService } from '../../producto.service';
+import { Producto } from '../../../../shared/models/producto.model';
+import { FormularioBase } from '../../../../shared/ui/formulario-base';
+import { Validadores } from '../../../../shared/utils/validadores';
+import { urlImagen } from '../../../../shared/utils/imagen';
 
 @Component({
   selector: 'app-producto-form',
   templateUrl: './producto-form.component.html',
-  styleUrls: ['./producto-form.component.css'],
-  standalone:false
+  standalone: false,
 })
-export class ProductoFormComponent implements OnInit {
-  productoForm!: FormGroup;
-  isEditMode: boolean = false;
-  productoId: string | null = null;
-  selectedImage: File | null = null;
-  imagePreview: string | null = null;
-  imageError: string = '';
-  errorMessage: string = '';
-  isSubmitting: boolean = false;
+export class ProductoFormComponent extends FormularioBase<Producto> {
+  private readonly fb = inject(FormBuilder);
+  private readonly productos = inject(ProductosService);
 
-  private readonly allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-  private readonly maxImageSizeBytes = 5 * 1024 * 1024;
+  protected readonly recurso = 'producto';
+  readonly rutaListado = '/productos';
+  protected override readonly mensajes = {
+    importe_venta: { min: 'El precio de venta tiene que ser mayor a $ 0.' },
+    stock: { pattern: 'El stock tiene que ser un número entero.' },
+  };
 
-  constructor(
-    private productoService: ProductosService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private fb: FormBuilder,
-    private authService: AuthService
-  ) {}
+  imagen: File | null = null;
+  imagenActual: string | null = null;
 
-  ngOnInit(): void {
-    this.productoForm = this.fb.group({
-      nombre: ['', Validators.required],
-      descripcion: ['', Validators.required],
-      importe_compra: [0, Validators.required],
-      importe_venta: [0, Validators.required],
-      stock: [0, Validators.required],
+  protected crearFormulario() {
+    return this.fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(150)]],
+      descripcion: ['', [Validators.required, Validators.maxLength(1000)]],
+      importe_compra: [null as number | null, [Validators.required, Validators.min(0)]],
+      importe_venta: [null as number | null, [Validators.required, Validators.min(0.01)]],
+      stock: [0 as number | null, [Validators.required, Validators.min(0), Validadores.entero]],
     });
+  }
 
-    // Cargar producto si está en modo edición
-    this.productoId = this.route.snapshot.paramMap.get('id');
-    if (this.productoId) {
-      this.isEditMode = true;
-      this.loadProduct();
+  protected override cargarEnFormulario(producto: Producto): void {
+    super.cargarEnFormulario(producto);
+    this.imagenActual = urlImagen(producto.imagenUrl);
+  }
+
+  /** Se envía como multipart para poder adjuntar la imagen. */
+  protected override valorParaEnviar() {
+    const datos = new FormData();
+    for (const [clave, valor] of Object.entries(this.form.getRawValue())) {
+      datos.append(clave, String(valor ?? ''));
     }
+    if (this.imagen) datos.append('imagen', this.imagen);
+    return datos as unknown as Record<string, unknown>;
   }
 
-loadProduct(): void {
-  this.productoService.getProducto(this.productoId!).subscribe(
-    (producto: Producto) => {
-      this.productoForm.patchValue({
-        nombre: producto.nombre,
-        descripcion: producto.descripcion,
-        importe_compra: producto.importe_compra,
-        importe_venta: producto.importe_venta,
-        stock: producto.stock,
-      });
-      this.imagePreview = producto.imagenUrl ? `http://localhost:3000${producto.imagenUrl}` : null;
-    },
-    (error) => {
-      this.errorMessage = error.error?.message || 'No se pudo cargar el producto.';
-    }
-  );
-}
-
-onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const file = input.files && input.files.length > 0 ? input.files[0] : null;
-
-  this.imageError = '';
-  this.selectedImage = null;
-  this.imagePreview = null;
-
-  if (!file) {
-    return;
+  protected obtener$(id: string) {
+    return this.productos.getProducto(id);
   }
 
-  if (!this.allowedImageTypes.includes(file.type)) {
-    this.imageError = 'Formato invalido. Solo se permite JPEG, PNG, WEBP o GIF.';
-    return;
+  protected crear$(datos: FormData) {
+    return this.productos.crearProducto(datos);
   }
 
-  if (file.size > this.maxImageSizeBytes) {
-    this.imageError = 'La imagen supera el maximo permitido de 5MB.';
-    return;
-  }
-
-  this.selectedImage = file;
-  this.imagePreview = URL.createObjectURL(file);
-}
-
-crear(): void {
-  if (this.productoForm.invalid || this.isSubmitting) {
-    return;
-  }
-
-  this.errorMessage = '';
-
-  if (!this.isEditMode && !this.selectedImage) {
-    this.imageError = 'Debes seleccionar una imagen para crear el producto.';
-    return;
-  }
-
-  if (this.isEditMode) {
-    const formData = this.buildFormData();
-    this.isSubmitting = true;
-    this.productoService.updateProducto(this.productoId!, formData).subscribe(
-      (productoActualizado) => {
-        if (productoActualizado.imagenUrl) {
-          this.imagePreview = `http://localhost:3000${productoActualizado.imagenUrl}`;
-        }
-        this.router.navigate(['/productos']);
-      },
-      (error) => {
-        this.isSubmitting = false;
-        this.errorMessage = error.error?.message || 'No se pudo actualizar el producto.';
-      }
-    );
-  } else {
-    const token = this.authService.getToken();
-    if (!token || !this.selectedImage) {
-      this.imageError = 'No hay sesion valida o imagen seleccionada.';
-      return;
-    }
-
-    const formData = new FormData();
-    this.appendProductFields(formData);
-    formData.append('imagen', this.selectedImage);
-
-    this.isSubmitting = true;
-    this.productoService.crearProductoConImagen(formData, token).subscribe(
-      () => {
-        this.router.navigate(['/productos']);
-      },
-      (error) => {
-        this.isSubmitting = false;
-        this.errorMessage = error.error?.message || 'No se pudo crear el producto.';
-      }
-    );
-  }
-}
-
-private buildFormData(): FormData {
-  const formData = new FormData();
-  this.appendProductFields(formData);
-
-  if (this.selectedImage) {
-    formData.append('imagen', this.selectedImage);
-  }
-
-  return formData;
-}
-
-private appendProductFields(formData: FormData): void {
-  formData.append('nombre', this.productoForm.value.nombre);
-  formData.append('descripcion', this.productoForm.value.descripcion);
-  formData.append('importe_compra', String(this.productoForm.value.importe_compra));
-  formData.append('importe_venta', String(this.productoForm.value.importe_venta));
-  formData.append('stock', String(this.productoForm.value.stock));
-}
-
-onSubmit(): void {
-  this.crear();
-}
-
-
-
-  onCancel(): void {
-    this.router.navigate(['/productos']);
+  protected actualizar$(id: string, datos: FormData) {
+    return this.productos.updateProducto(id, datos);
   }
 }

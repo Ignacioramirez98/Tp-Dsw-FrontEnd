@@ -1,49 +1,56 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ClientesService } from '../../cliente.service';
+import { VentasService } from '../../../ventas/ventas.service';
+import { AuthService } from '../../../../shared/services/auth.service';
 import { Cliente } from '../../../../shared/models/cliente.model';
+import { Venta } from '../../../../shared/models/venta.model';
+import { ordenarPorFecha } from '../../../../shared/utils/venta';
 
+/** Ficha del cliente con su localidad y su historial de ventas. */
 @Component({
-  selector: 'app-clientes-detail',
+  selector: 'app-cliente-detail',
   templateUrl: './cliente-detail.component.html',
-  standalone: false
+  standalone: false,
 })
 export class ClienteDetailComponent implements OnInit {
-  cliente: Cliente | null = null;
-  cargando: boolean = true;
-  error: string = '';
+  private readonly route = inject(ActivatedRoute);
+  private readonly clientes = inject(ClientesService);
+  private readonly ventasService = inject(VentasService);
+  private readonly rol = inject(AuthService).getRol();
 
-  constructor(
-    private clienteService: ClientesService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  readonly puedeEditar = this.rol === 'admin' || this.rol === 'vendedor';
+  // Las ventas solo las ve el personal comercial (igual que en el backend)
+  readonly veVentas = this.puedeEditar;
+
+  cliente: Cliente | null = null;
+  ventas: Venta[] = [];
+  cargando = true;
+  cargandoVentas = false;
+  error = '';
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      this.router.navigate(['/clientes']);
-      return;
-    }
-    this.clienteService.getCliente(id).subscribe(
-      (response: { data: Cliente }) => {
-        this.cliente = response.data;
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.clientes.getCliente(id).subscribe({
+      next: ({ data }) => {
+        this.cliente = data;
         this.cargando = false;
       },
-      () => {
-        this.error = 'No se pudo cargar el cliente.';
+      error: (err) => {
+        this.error = err.status === 404 ? 'El cliente no existe o fue eliminado.' : 'No se pudo cargar el cliente.';
         this.cargando = false;
-      }
-    );
-  }
+      },
+    });
 
-  editar(): void {
-    if (this.cliente) {
-      this.router.navigate(['/clientes/edit', this.cliente._id]);
+    if (this.veVentas) {
+      this.cargandoVentas = true;
+      this.ventasService.getVentas({ clienteId: id }).subscribe({
+        next: ({ data }) => {
+          this.ventas = ordenarPorFecha(data);
+          this.cargandoVentas = false;
+        },
+        error: () => (this.cargandoVentas = false),
+      });
     }
-  }
-
-  volver(): void {
-    this.router.navigate(['/clientes']);
   }
 }

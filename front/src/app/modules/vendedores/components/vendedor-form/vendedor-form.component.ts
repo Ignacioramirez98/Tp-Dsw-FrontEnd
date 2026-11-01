@@ -1,88 +1,38 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { map } from 'rxjs';
 import { VendedoresService } from '../../vendedor.service';
 import { Vendedor } from '../../../../shared/models/vendedor.model';
+import { FormularioBase } from '../../../../shared/ui/formulario-base';
+import { MENSAJES_PERSONA, camposPersona } from '../../../../shared/utils/validadores';
 
 @Component({
   selector: 'app-vendedor-form',
   templateUrl: './vendedor-form.component.html',
-  standalone: false
+  standalone: false,
 })
-export class VendedorFormComponent implements OnInit {
-  vendedorForm!: FormGroup;
-  isEditMode: boolean = false;
-  vendedorId: string | null = null;
+export class VendedorFormComponent extends FormularioBase<Vendedor> {
+  private readonly fb = inject(FormBuilder);
+  private readonly servicio = inject(VendedoresService);
 
-  constructor(
-    private vendedorService: VendedoresService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private fb: FormBuilder
-  ) {}
+  protected readonly recurso = 'vendedor';
+  readonly rutaListado = '/vendedores';
+  protected override readonly mensajes = MENSAJES_PERSONA;
 
-  ngOnInit(): void {
-    this.vendedorForm = this.fb.group({
-      nombre: ['', Validators.required],
-      apellido: ['', Validators.required],
-      dni: ['', Validators.required],
-      mail: ['', [Validators.required, Validators.email]],
-      telefono: ['', Validators.required],
-      rol: ['vendedor', Validators.required],
-    });
-
-    this.vendedorId = this.route.snapshot.paramMap.get('id');
-    if (this.vendedorId) {
-      this.isEditMode = true;
-      this.loadVendedor();
-    }
+  protected crearFormulario() {
+    // El rol lo asigna el backend ('vendedor') al crear
+    return this.fb.group(camposPersona());
   }
 
-  loadVendedor(): void {
-    this.vendedorService.getVendedor(this.vendedorId!).subscribe(
-      (response: { data: Vendedor }) => {
-        const vendedor = response.data;
-        this.vendedorForm.patchValue({
-          nombre: vendedor.nombre,
-          apellido: vendedor.apellido,
-          dni: vendedor.dni,
-          mail: vendedor.mail,
-          telefono: vendedor.telefono,
-          rol: vendedor.rol,
-        });
-      },
-      () => {
-        this.router.navigate(['/vendedores']);
-      }
-    );
+  protected obtener$(id: string) {
+    return this.servicio.getVendedor(id).pipe(map((r) => r.data));
   }
 
-  guardar(): void {
-    if (this.vendedorForm.invalid) {
-      this.vendedorForm.markAllAsTouched();
-      return;
-    }
-
-    const vendedor = { ...this.vendedorForm.value, _id: this.vendedorId } as Vendedor;
-
-    if (this.isEditMode) {
-      this.vendedorService.updateVendedor(vendedor).subscribe(
-        () => this.router.navigate(['/vendedores']),
-        () => alert('Hubo un error al actualizar el vendedor.')
-      );
-    } else {
-      this.vendedorService.addVendedor(vendedor).subscribe(
-        () => this.router.navigate(['/vendedores']),
-        () => alert('Hubo un error al crear el vendedor.')
-      );
-    }
+  protected crear$(valor: Vendedor) {
+    return this.servicio.addVendedor(valor);
   }
 
-  onSubmit(): void {
-    this.guardar();
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/vendedores']);
+  protected actualizar$(id: string, valor: Vendedor) {
+    return this.servicio.updateVendedor({ ...valor, _id: id });
   }
 }

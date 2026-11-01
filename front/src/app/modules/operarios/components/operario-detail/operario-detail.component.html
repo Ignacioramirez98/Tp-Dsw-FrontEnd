@@ -1,38 +1,48 @@
+<a routerLink="/operarios" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Operarios</a>
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Detalle del Operario</h2>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando operario…</div>
+} @else if (error || !operario) {
+  <div class="panel estado-panel" role="alert"><i class="bi bi-person-x" aria-hidden="true"></i>{{ error }}</div>
+} @else {
+  <app-page-header [titulo]="operario.nombre + ' ' + operario.apellido" subtitulo="Operario">
+    <a acciones [routerLink]="['/operarios/edit', operario._id]" class="btn btn-outline-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+  </app-page-header>
 
-  <div *ngIf="cargando" class="text-center">Cargando...</div>
-  <div *ngIf="error" class="alert alert-warning text-center">{{ error }}</div>
-
-  <div class="card shadow-sm" *ngIf="operario && !cargando">
-    <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">{{ operario.nombre }}</dd>
-
-        <dt class="col-sm-3">Apellido</dt>
-        <dd class="col-sm-9">{{ operario.apellido }}</dd>
-
-        <dt class="col-sm-3">DNI</dt>
-        <dd class="col-sm-9">{{ operario.dni }}</dd>
-
-        <dt class="col-sm-3">Mail</dt>
-        <dd class="col-sm-9">{{ operario.mail }}</dd>
-
-        <dt class="col-sm-3">Teléfono</dt>
-        <dd class="col-sm-9">{{ operario.telefono }}</dd>
+  <div class="detalle">
+    <section class="panel" aria-labelledby="t-datos">
+      <h2 id="t-datos">Datos de contacto</h2>
+      <dl class="datos">
+        <div><dt>DNI</dt><dd>{{ operario.dni }}</dd></div>
+        <div><dt>Teléfono</dt><dd><a [href]="'tel:' + operario.telefono">{{ operario.telefono }}</a></dd></div>
+        <div class="ancho-completo"><dt>Mail</dt><dd><a [href]="'mailto:' + operario.mail">{{ operario.mail }}</a></dd></div>
       </dl>
+    </section>
 
-      <div class="d-flex justify-content-end">
-        <button class="btn btn-primary mx-2" (click)="editar()">
-          <i class="bi bi-pencil"></i> Editar
-        </button>
-        <button class="btn btn-secondary mx-2" (click)="volver()">
-          <i class="bi bi-arrow-left"></i> Volver
-        </button>
-      </div>
-    </div>
+    <section class="panel panel-relacion" aria-labelledby="t-servicios">
+      <h2 id="t-servicios">Servicios a cargo <span class="text-secondary fw-normal">({{ servicios.length }})</span></h2>
+      @if (cargandoServicios) {
+        <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando servicios…</div>
+      } @else if (servicios.length === 0) {
+        <div class="estado-panel"><i class="bi bi-tools" aria-hidden="true"></i>Este operario no tiene servicios asignados.</div>
+      } @else {
+        <table class="table tabla-adaptable">
+          <thead>
+            <tr><th scope="col">Servicio</th><th scope="col" class="text-md-end">Precio por hora</th><th scope="col"><span class="solo-lectores">Acciones</span></th></tr>
+          </thead>
+          <tbody>
+            @for (s of servicios; track s._id) {
+              <tr>
+                <td class="celda-principal"><strong>{{ s.descripcion }}</strong></td>
+                <td data-label="Precio por hora" class="text-md-end">{{ s.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+                <td class="celda-acciones">
+                  <a [routerLink]="['/servicios/edit', s._id]" class="btn btn-sm btn-outline-secondary" [attr.aria-label]="'Editar ' + s.descripcion"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
   </div>
-</div>
-
+}

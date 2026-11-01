@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VendedoresListComponent } from './components/vendedores-list/vendedores-list.component';
 import { VendedorDetailComponent } from './components/vendedor-detail/vendedor-detail.component';
 import { VendedorFormComponent } from './components/vendedor-form/vendedor-form.component';
+import { CampoComponent } from '../../shared/ui/campo.component';
+import { TablaVentasComponent } from '../../shared/ui/tabla-ventas.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { PaginadorComponent } from '../../shared/ui/paginador.component';
 
@@ -26,6 +28,8 @@ const routes: Routes = [
   imports: [
     CommonModule,
     PageHeaderComponent,
+    TablaVentasComponent,
+    CampoComponent,
     PaginadorComponent,
     RouterModule.forChild(routes),
     FormsModule,

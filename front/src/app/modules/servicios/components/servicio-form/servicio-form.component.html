@@ -1,64 +1,42 @@
+<a [routerLink]="rutaListado" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Servicios</a>
+<app-page-header [titulo]="titulo" subtitulo="Trabajo técnico que se ofrece a los clientes." />
 
-<div class="servicio-form container mt-5">
-  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
-
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form [formGroup]="ServicioForm" (ngSubmit)="crear()">
-        <div class="row">
-          <!-- Descripción -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="descripcion" class="form-label">Descripción del Servicio:</label>
-            <textarea id="descripcion" formControlName="descripcion" class="form-control"
-              placeholder="Ingrese la descripción del servicio" rows="4" required></textarea>
-            <div *ngIf="ServicioForm.get('descripcion')?.invalid && ServicioForm.get('descripcion')?.touched"
-              class="invalid-feedback">
-              La descripción es requerida.
-            </div>
-          </div>
-
-          <!-- Importe por Hora -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="importe_por_hora" class="form-label">Importe por Hora:</label>
-            <input type="number" id="importe_por_hora" formControlName="importe_por_hora" class="form-control"
-              placeholder="Precio por hora" required />
-          </div>
-
-          <!-- Imagen -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="imagen" class="form-label">Imagen del Servicio (opcional):</label>
-            <input
-              type="file"
-              id="imagen"
-              class="form-control"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              (change)="onFileSelected($event)"
-            />
-            <small class="text-muted d-block mt-1">Formatos: JPEG, PNG, WEBP, GIF. Maximo 5MB.</small>
-            <div *ngIf="imageError" class="text-danger mt-2">{{ imageError }}</div>
-          </div>
-
-          <div class="col-12 mb-4" *ngIf="imagePreview">
-            <label class="form-label d-block">Preview:</label>
-            <img [src]="imagePreview" alt="Preview imagen servicio" style="max-width: 240px; border-radius: 8px;" />
-          </div>
-
-          <!-- Botones de aceptar y cancelar -->
-          <div class="col-12 d-flex justify-content-end">
-            <button type="submit" [disabled]="ServicioForm.invalid || isSubmitting" class="btn btn-primary btn-lg mx-2">
-              <i class="bi bi-check-circle"></i> {{ isSubmitting ? 'Guardando...' : 'Aceptar' }}
-            </button>
-            <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
-              <i class="bi bi-x-circle"></i> Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando…</div>
+} @else {
+<form class="panel formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate [attr.aria-label]="titulo">
+  @if (errorServidor) {
+    <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+  }
+  <fieldset>
+    <legend>Datos del servicio</legend>
+    <div class="grid-campos">
+      <app-campo class="ancho-completo" etiqueta="Descripción" para="descripcion" [error]="error('descripcion')">
+        <textarea class="form-control" rows="3" id="descripcion" formControlName="descripcion" [class.is-invalid]="error('descripcion')"
+                 [attr.aria-invalid]="!!error('descripcion')" [attr.aria-describedby]="error('descripcion') ? 'descripcion-error' : null" placeholder="Ej. Service de 250 horas"></textarea>
+      </app-campo>
+      <app-campo etiqueta="Precio por hora ($)" para="importe_por_hora" [error]="error('importe_por_hora')">
+        <input class="form-control" type="number" id="importe_por_hora" formControlName="importe_por_hora" [class.is-invalid]="error('importe_por_hora')"
+                 [attr.aria-invalid]="!!error('importe_por_hora')" [attr.aria-describedby]="error('importe_por_hora') ? 'importe_por_hora-error' : null" min="0" step="0.01" inputmode="decimal">
+      </app-campo>
+      <app-campo etiqueta="Operario responsable" para="operarioId" [error]="error('operarioId')" [opcional]="true">
+        <select class="form-select" id="operarioId" formControlName="operarioId" [class.is-invalid]="error('operarioId')"
+                 [attr.aria-invalid]="!!error('operarioId')" [attr.aria-describedby]="error('operarioId') ? 'operarioId-error' : null">
+          <option value="">Sin asignar</option>
+          @for (o of operarios; track o._id) {
+            <option [value]="o._id">{{ o.nombre }} {{ o.apellido }}</option>
+          }
+        </select>
+      </app-campo>
+      <div class="ancho-completo"><app-selector-imagen id="imagen-servicio" [imagenActual]="imagenActual" [descripcion]="form.value.descripcion" (archivoElegido)="imagen = $event" /></div>
     </div>
+  </fieldset>
+  <div class="pie-formulario">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="guardando">
+      @if (guardando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Guardando… }
+      @else { <i class="bi bi-check-lg" aria-hidden="true"></i> {{ esEdicion ? 'Guardar cambios' : 'Crear servicio' }} }
+    </button>
   </div>
-</div>
-
+</form>
+}

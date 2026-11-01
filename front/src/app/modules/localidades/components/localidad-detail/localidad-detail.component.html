@@ -1,29 +1,48 @@
+<a routerLink="/localidades" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Localidades</a>
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Detalle de la Localidad</h2>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando localidad…</div>
+} @else if (error || !localidad) {
+  <div class="panel estado-panel" role="alert"><i class="bi bi-geo" aria-hidden="true"></i>{{ error }}</div>
+} @else {
+  <app-page-header [titulo]="localidad.nombre" [subtitulo]="'Código postal ' + localidad.codigo_postal">
+    <a acciones [routerLink]="['/localidades/edit', localidad._id]" class="btn btn-outline-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+  </app-page-header>
 
-  <div *ngIf="cargando" class="text-center">Cargando...</div>
-  <div *ngIf="error" class="alert alert-warning text-center">{{ error }}</div>
-
-  <div class="card shadow-sm" *ngIf="localidad && !cargando">
-    <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">{{ localidad.nombre }}</dd>
-
-        <dt class="col-sm-3">Código Postal</dt>
-        <dd class="col-sm-9">{{ localidad.codigo_postal }}</dd>
+  <div class="detalle">
+    <section class="panel" aria-labelledby="t-datos">
+      <h2 id="t-datos">Datos</h2>
+      <dl class="datos">
+        <div><dt>Nombre</dt><dd>{{ localidad.nombre }}</dd></div>
+        <div><dt>Código postal</dt><dd>{{ localidad.codigo_postal }}</dd></div>
+        <div><dt>Clientes</dt><dd>{{ cargandoClientes ? '…' : clientes.length }}</dd></div>
       </dl>
+    </section>
 
-      <div class="d-flex justify-content-end">
-        <button class="btn btn-primary mx-2" (click)="editar()">
-          <i class="bi bi-pencil"></i> Editar
-        </button>
-        <button class="btn btn-secondary mx-2" (click)="volver()">
-          <i class="bi bi-arrow-left"></i> Volver
-        </button>
-      </div>
-    </div>
+    <section class="panel panel-relacion" aria-labelledby="t-clientes">
+      <h2 id="t-clientes">Clientes de {{ localidad.nombre }}</h2>
+      @if (cargandoClientes) {
+        <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando clientes…</div>
+      } @else if (clientes.length === 0) {
+        <div class="estado-panel"><i class="bi bi-people" aria-hidden="true"></i>No hay clientes en esta localidad.</div>
+      } @else {
+        <table class="table tabla-adaptable">
+          <thead>
+            <tr><th scope="col">Cliente</th><th scope="col">Teléfono</th><th scope="col"><span class="solo-lectores">Acciones</span></th></tr>
+          </thead>
+          <tbody>
+            @for (c of clientes; track c._id) {
+              <tr>
+                <td class="celda-principal"><strong>{{ c.nombre }} {{ c.apellido }}</strong>@if (c.razon_social) { <span class="subtexto">{{ c.razon_social }}</span> }</td>
+                <td data-label="Teléfono">{{ c.telefono }}</td>
+                <td class="celda-acciones">
+                  <a [routerLink]="['/clientes', c._id]" class="btn btn-sm btn-outline-secondary" [attr.aria-label]="'Ver a ' + c.nombre + ' ' + c.apellido"><i class="bi bi-eye" aria-hidden="true"></i> Ver</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
   </div>
-</div>
-
+}

@@ -1,80 +1,43 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { map } from 'rxjs';
 import { LocalidadesService } from '../../localidad.service';
 import { Localidad } from '../../../../shared/models/localidad.model';
+import { FormularioBase } from '../../../../shared/ui/formulario-base';
+import { Validadores } from '../../../../shared/utils/validadores';
 
 @Component({
   selector: 'app-localidad-form',
   templateUrl: './localidad-form.component.html',
-  standalone: false
+  standalone: false,
 })
-export class LocalidadFormComponent implements OnInit {
-  localidadForm!: FormGroup;
-  isEditMode: boolean = false;
-  localidadId: string | null = null;
+export class LocalidadFormComponent extends FormularioBase<Localidad> {
+  private readonly fb = inject(FormBuilder);
+  private readonly localidades = inject(LocalidadesService);
 
-  constructor(
-    private localidadService: LocalidadesService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private fb: FormBuilder
-  ) {}
+  protected readonly recurso = 'localidad';
+  protected override readonly genero = 'a';
+  readonly rutaListado = '/localidades';
+  protected override readonly mensajes = {
+    codigo_postal: { pattern: 'Ingresá 4 dígitos (2000) o el CPA completo (S2000ABC).' },
+  };
 
-  ngOnInit(): void {
-    this.localidadForm = this.fb.group({
-      nombre: ['', Validators.required],
-      codigo_postal: ['', Validators.required],
+  protected crearFormulario() {
+    return this.fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(100)]],
+      codigo_postal: ['', [Validators.required, Validadores.codigoPostal]],
     });
-
-    this.localidadId = this.route.snapshot.paramMap.get('id');
-    if (this.localidadId) {
-      this.isEditMode = true;
-      this.loadLocalidad();
-    }
   }
 
-  loadLocalidad(): void {
-    this.localidadService.getLocalidad(this.localidadId!).subscribe(
-      (response: { data: Localidad }) => {
-        const localidad = response.data;
-        this.localidadForm.patchValue({
-          nombre: localidad.nombre,
-          codigo_postal: localidad.codigo_postal,
-        });
-      },
-      () => {
-        this.router.navigate(['/localidades']);
-      }
-    );
+  protected obtener$(id: string) {
+    return this.localidades.getLocalidad(id).pipe(map((r) => r.data));
   }
 
-  guardar(): void {
-    if (this.localidadForm.invalid) {
-      this.localidadForm.markAllAsTouched();
-      return;
-    }
-
-    const localidad = { ...this.localidadForm.value, _id: this.localidadId } as Localidad;
-
-    if (this.isEditMode) {
-      this.localidadService.updateLocalidad(localidad).subscribe(
-        () => this.router.navigate(['/localidades']),
-        () => alert('Hubo un error al actualizar la localidad.')
-      );
-    } else {
-      this.localidadService.addLocalidad(localidad).subscribe(
-        () => this.router.navigate(['/localidades']),
-        () => alert('Hubo un error al crear la localidad.')
-      );
-    }
+  protected crear$(valor: Localidad) {
+    return this.localidades.addLocalidad(valor);
   }
 
-  onSubmit(): void {
-    this.guardar();
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/localidades']);
+  protected actualizar$(id: string, valor: Localidad) {
+    return this.localidades.updateLocalidad({ ...valor, _id: id });
   }
 }

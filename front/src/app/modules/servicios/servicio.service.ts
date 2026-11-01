@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Servicio } from '../../shared/models/servicio.model.js';
@@ -18,8 +18,13 @@ export class ServiciosService {
   }
 
   // Obtener todos los servicios desde la API
-  getServicios(): Observable<{ data: Servicio[] }> {
-    return this.http.get<unknown>(this.apiUrl).pipe(
+  // Filtros opcionales que resuelve el backend: descripcion, operarioId
+  getServicios(filtros: { descripcion?: string; operarioId?: string } = {}): Observable<{ data: Servicio[] }> {
+    let params = new HttpParams();
+    for (const [clave, valor] of Object.entries(filtros)) {
+      if (valor) params = params.set(clave, valor);
+    }
+    return this.http.get<unknown>(this.apiUrl, { params }).pipe(
       map((response) => this.normalizarRespuestaServicios(response))
     );
   }
@@ -85,10 +90,9 @@ export class ServiciosService {
     return this.http.post<Servicio>(this.apiUrl, servicio);
   }
 
-  // Crear servicio con imagen multipart/form-data.
-  crearServicioConImagen(formData: FormData, token: string): Observable<Servicio> {
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.post<Servicio>(this.apiUrl, formData, { headers });
+  // Crear servicio (multipart/form-data, con imagen opcional). El token lo agrega el interceptor.
+  crearServicio(formData: FormData): Observable<Servicio> {
+    return this.http.post<Servicio>(this.apiUrl, formData);
   }
 
   // Actualizar un servicio existente, con una nueva imagen opcional.

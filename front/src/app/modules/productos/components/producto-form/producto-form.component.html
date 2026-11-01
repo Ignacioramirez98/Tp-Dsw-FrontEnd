@@ -1,89 +1,50 @@
+<a [routerLink]="rutaListado" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Productos</a>
+<app-page-header [titulo]="titulo" subtitulo="Maquinaria o insumo que se vende en el catálogo." />
 
-<div class="producto-form container mt-5">
-  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
-
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form [formGroup]="productoForm" (ngSubmit)="crear()">
-        <div class="row">
-          <!-- Nombre -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="nombre" class="form-label">Nombre del Producto:</label>
-            <input type="text" id="nombre" formControlName="nombre" class="form-control"
-              placeholder="Ingrese el nombre del producto" required />
-            <div *ngIf="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched"
-              class="invalid-feedback">
-              El nombre es requerido.
-            </div>
-          </div>
-
-          <!-- Importe Compra -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="importe_compra" class="form-label">Importe Compra:</label>
-            <input type="number" id="importe_compra" formControlName="importe_compra" class="form-control"
-              placeholder="Precio de compra" required />
-          </div>
-
-          <!-- Descripción -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="descripcion" class="form-label">Descripción:</label>
-            <textarea id="descripcion" formControlName="descripcion" class="form-control"
-              placeholder="Descripción del producto" rows="4" required></textarea>
-            <div *ngIf="productoForm.get('descripcion')?.invalid && productoForm.get('descripcion')?.touched"
-              class="invalid-feedback">
-              La descripción es requerida.
-            </div>
-          </div>
-
-          <!-- Importe Venta -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="importe_venta" class="form-label">Importe Venta:</label>
-            <input type="number" id="importe_venta" formControlName="importe_venta" class="form-control"
-              placeholder="Precio de venta" required />
-          </div>
-
-          <!-- Stock -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="stock" class="form-label">Stock Disponible:</label>
-            <input type="number" id="stock" formControlName="stock" class="form-control"
-              placeholder="Cantidad disponible" required />
-          </div>
-
-          <!-- Imagen -->
-          <div class="col-12 col-md-6 mb-4">
-            <label for="imagen" class="form-label">Imagen del Producto:</label>
-            <input
-              type="file"
-              id="imagen"
-              class="form-control"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              (change)="onFileSelected($event)"
-            />
-            <small class="text-muted d-block mt-1">Formatos: JPEG, PNG, WEBP, GIF. Maximo 5MB.</small>
-            <div *ngIf="imageError" class="text-danger mt-2">{{ imageError }}</div>
-          </div>
-
-          <div class="col-12 mb-4" *ngIf="imagePreview">
-            <label class="form-label d-block">Preview:</label>
-            <img [src]="imagePreview" alt="Preview imagen producto" style="max-width: 240px; border-radius: 8px;" />
-          </div>
-
-          <!-- Botones de aceptar y cancelar -->
-          <div class="col-12 d-flex justify-content-end">
-            <button type="submit" [disabled]="productoForm.invalid || isSubmitting" class="btn btn-primary btn-lg mx-2">
-              <i class="bi bi-check-circle"></i> {{ isSubmitting ? 'Guardando...' : 'Aceptar' }}
-            </button>
-            <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
-              <i class="bi bi-x-circle"></i> Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando…</div>
+} @else {
+<form class="panel formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate [attr.aria-label]="titulo">
+  @if (errorServidor) {
+    <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+  }
+  <fieldset>
+    <legend>Descripción</legend>
+    <div class="grid-campos">
+      <app-campo class="ancho-completo" etiqueta="Nombre" para="nombre" [error]="error('nombre')">
+        <input class="form-control" type="text" id="nombre" formControlName="nombre" [class.is-invalid]="error('nombre')"
+                 [attr.aria-invalid]="!!error('nombre')" [attr.aria-describedby]="error('nombre') ? 'nombre-error' : null" placeholder="Ej. Tractor 120 HP">
+      </app-campo>
+      <app-campo class="ancho-completo" etiqueta="Descripción" para="descripcion" [error]="error('descripcion')">
+        <textarea class="form-control" rows="3" id="descripcion" formControlName="descripcion" [class.is-invalid]="error('descripcion')"
+                 [attr.aria-invalid]="!!error('descripcion')" [attr.aria-describedby]="error('descripcion') ? 'descripcion-error' : null"></textarea>
+      </app-campo>
+      <div class="ancho-completo"><app-selector-imagen id="imagen-producto" [imagenActual]="imagenActual" [descripcion]="form.value.nombre" (archivoElegido)="imagen = $event" /></div>
     </div>
+  </fieldset>
+  <fieldset>
+    <legend>Precios y stock</legend>
+    <div class="grid-campos">
+      <app-campo etiqueta="Precio de compra ($)" para="importe_compra" [error]="error('importe_compra')">
+        <input class="form-control" type="number" id="importe_compra" formControlName="importe_compra" [class.is-invalid]="error('importe_compra')"
+                 [attr.aria-invalid]="!!error('importe_compra')" [attr.aria-describedby]="error('importe_compra') ? 'importe_compra-error' : null" min="0" step="0.01" inputmode="decimal">
+      </app-campo>
+      <app-campo etiqueta="Precio de venta ($)" para="importe_venta" [error]="error('importe_venta')">
+        <input class="form-control" type="number" id="importe_venta" formControlName="importe_venta" [class.is-invalid]="error('importe_venta')"
+                 [attr.aria-invalid]="!!error('importe_venta')" [attr.aria-describedby]="error('importe_venta') ? 'importe_venta-error' : null" min="0" step="0.01" inputmode="decimal">
+      </app-campo>
+      <app-campo etiqueta="Stock (unidades)" para="stock" [error]="error('stock')">
+        <input class="form-control" type="number" id="stock" formControlName="stock" [class.is-invalid]="error('stock')"
+                 [attr.aria-invalid]="!!error('stock')" [attr.aria-describedby]="error('stock') ? 'stock-error' : null" min="0" step="1" inputmode="numeric">
+      </app-campo>
+    </div>
+  </fieldset>
+  <div class="pie-formulario">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="guardando">
+      @if (guardando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Guardando… }
+      @else { <i class="bi bi-check-lg" aria-hidden="true"></i> {{ esEdicion ? 'Guardar cambios' : 'Crear producto' }} }
+    </button>
   </div>
-</div>
-
+</form>
+}
