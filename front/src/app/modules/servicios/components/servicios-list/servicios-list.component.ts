@@ -1,132 +1,29 @@
-// src/app/modules/Servicios/components/Servicios-list/Servicios-list.component.ts
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ServiciosService } from '../../servicio.service.js';
-import { Servicio } from '../../../../shared/models/servicio.model.js';
-import { HttpErrorResponse } from '@angular/common/http';  // Asegúrate de importar HttpErrorResponse
-import { AuthService } from '../../../../shared/services/auth.service.js';
+import { Component, inject } from '@angular/core';
+import { ServiciosService } from '../../servicio.service';
+import { Servicio } from '../../../../shared/models/servicio.model';
+import { ListadoBase } from '../../../../shared/ui/listado-base';
+import { AuthService } from '../../../../shared/services/auth.service';
+import { urlImagen } from '../../../../shared/utils/imagen';
 
-
+/**
+ * Servicios: tabla de gestión para admin/operario y catálogo en tarjetas para el cliente.
+ */
 @Component({
-  selector: 'app-Servicios-list',
+  selector: 'app-servicios-list',
   templateUrl: './servicios-list.component.html',
-  styleUrls: ['./servicios-list.component.css'],
-  standalone: false
+  standalone: false,
 })
-export class ServiciosListComponent implements OnInit {
-  Servicios: Servicio[] = [];
-  paginatedServicios: Servicio[] = [];
-  currentPage: number = 1;
-  itemsPerPage: number = 10; 
-  totalPages: number = 0;
-  isCliente: boolean = false;
-  errorCarga: string = '';
-  deletingServicioId: string | null = null;
+export class ServiciosListComponent extends ListadoBase<Servicio> {
+  private readonly servicio = inject(ServiciosService);
+  private readonly rol = inject(AuthService).getRol();
+  protected readonly recurso = 'servicios';
+  readonly urlImagen = urlImagen;
 
-  constructor(
-    private servicioservice: ServiciosService,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  readonly esCliente = this.rol === 'cliente';
+  readonly puedeEliminar = this.rol === 'admin';
 
-  ngOnInit(): void {
-    this.isCliente = (this.authService.getRol() || '').trim().toLowerCase() === 'cliente';
-    this.getServicios();
-  }
-
-getServicios(): void {
-  this.errorCarga = '';
-  const request$ = this.isCliente
-    ? this.servicioservice.getServiciosParaCompra()
-    : this.servicioservice.getServicios();
-
-  request$.subscribe(
-    (response: { data: Servicio[] }) => {
-      this.Servicios = response.data;
-      this.totalPages = Math.ceil(this.Servicios.length / this.itemsPerPage);
-      this.updatePaginatedServicios();
-    },
-    (error: HttpErrorResponse) => {
-      const status = error?.status ? ` (HTTP ${error.status})` : '';
-      this.errorCarga = `No se pudo cargar el catalogo de servicios${status}.`;
-    }
-  );
-}
-
-
-
-  // Método para actualizar la lista paginada
-  updatePaginatedServicios(): void {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedServicios = this.Servicios.slice(startIndex, endIndex);
-  }
-
-  // Método para cambiar de página
-  changePage(page: number): void {
-    this.currentPage = page;
-    this.updatePaginatedServicios();
-  }
-
-  // Métodos para navegar a la página anterior y siguiente
-  prevPage(): void {
-    if (this.currentPage > 1) {
-      this.changePage(this.currentPage - 1);
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.changePage(this.currentPage + 1);
-    }
-  }
-
-  getServicioId(servicio: Servicio): string {
-    return servicio._id?.trim() || '';
-  }
-
-  // Método para redirigir al formulario de edición del Servicio
-editServicio(servicio: Servicio): void {
-  const id = this.getServicioId(servicio);
-  if (!id) {
-    this.errorCarga = 'No se puede editar el servicio porque no tiene un identificador valido.';
-    return;
-  }
-  this.router.navigate(['/servicios/edit', id]);
-}
-
-
-  // Método para eliminar un Servicio
-  deleteServicio(servicio: Servicio): void {
-    const id = this.getServicioId(servicio);
-    if (!id) {
-      this.errorCarga = 'No se puede eliminar el servicio porque no tiene un identificador valido.';
-      return;
-    }
-    if (confirm('¿Estás seguro de que deseas eliminar este Servicio?')) {
-      this.errorCarga = '';
-      this.deletingServicioId = id;
-      this.servicioservice.deleteServicio(id).subscribe(
-        () => {
-          this.Servicios = this.Servicios.filter((item) => this.getServicioId(item) !== id);
-          this.totalPages = Math.ceil(this.Servicios.length / this.itemsPerPage);
-          this.currentPage = Math.min(this.currentPage, Math.max(this.totalPages, 1));
-          this.updatePaginatedServicios();
-          this.deletingServicioId = null;
-          alert('Servicio eliminado exitosamente.');
-        },
-        (error: HttpErrorResponse) => {
-          this.deletingServicioId = null;
-          this.errorCarga = error.error?.message || 'Hubo un error al eliminar el servicio.';
-        }
-      );
-    }
-  }
-
-  nuevoServicio(): void {
-  if (this.isCliente) {
-    return;
-  }
-  this.router.navigate(['/servicios/nuevo']);
-}
+  protected cargar$() { return this.servicio.getServicios(); }
+  protected eliminar$(id: string) { return this.servicio.deleteServicio(id); }
+  protected textoBuscable(s: Servicio) { return `${s.descripcion} ${s.operario?.nombre ?? ''} ${s.operario?.apellido ?? ''}`; }
+  protected descripcion(s: Servicio) { return `el servicio "${s.descripcion}"`; }
 }

@@ -1,62 +1,78 @@
+<app-page-header titulo="Clientes" subtitulo="Productores y empresas que compran o contratan servicios.">
+  @if (puedeEditar) {
+    <a acciones routerLink="/clientes/nuevo" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo cliente</a>
+  }
+</app-page-header>
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Clientes</h2>
-
-  <div *ngIf="errorCarga" class="alert alert-warning text-center">
-    {{ errorCarga }}
+<section class="panel" aria-label="Listado de clientes">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-cliente">Buscar</label>
+      <input id="buscar-cliente" type="search" class="form-control" placeholder="Nombre, razón social, DNI o mail"
+             (input)="buscar($any($event.target).value)">
+    </div>
+    <div class="campo">
+      <label class="form-label" for="filtro-localidad">Localidad</label>
+      <select id="filtro-localidad" class="form-select" (change)="filtrarPorLocalidad($any($event.target).value)">
+        <option value="">Todas</option>
+        @for (l of localidades; track l._id) {
+          <option [value]="l._id">{{ l.nombre }}</option>
+        }
+      </select>
+    </div>
   </div>
 
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary" (click)="nuevoCliente()">
-      <i class="bi bi-plus-circle"></i> Nuevo Cliente
-    </button>
-  </div>
-
-  <div class="table-responsive">
-    <table class="table table-hover table-bordered">
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando clientes…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-people" aria-hidden="true"></i>
+      {{ busqueda || localidadId ? 'Ningún cliente coincide con los filtros.' : 'Todavía no hay clientes cargados.' }}
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
       <thead>
         <tr>
-          <th>Nombre</th>
-          <th>Apellido</th>
-          <th>DNI</th>
-          <th>Mail</th>
-          <th>Teléfono</th>
-          <th>Razón Social</th>
-          <th>Acciones</th>
+          <th scope="col">Cliente</th><th scope="col">DNI</th><th scope="col">Localidad</th><th scope="col">Contacto</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let cliente of paginatedClientes">
-          <td>{{ cliente.nombre }}</td>
-          <td>{{ cliente.apellido }}</td>
-          <td>{{ cliente.dni }}</td>
-          <td>{{ cliente.mail }}</td>
-          <td>{{ cliente.telefono }}</td>
-          <td>{{ cliente.razon_social }}</td>
-          <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-secondary btn-sm me-2" (click)="verCliente(cliente._id)">
-              <i class="bi bi-eye"></i> Ver
-            </button>
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editCliente(cliente._id)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteCliente(cliente._id)">
-              <i class="bi bi-trash"></i> Eliminar
-            </button>
-          </td>
-        </tr>
+        @for (c of visibles; track c._id) {
+          <tr>
+            <td class="celda-principal">
+              <strong>{{ c.nombre }} {{ c.apellido }}</strong>
+              @if (c.razon_social) { <span class="subtexto">{{ c.razon_social }}</span> }
+            </td>
+            <td data-label="DNI">{{ c.dni }}</td>
+            <td data-label="Localidad">{{ c.localidad?.nombre ?? '—' }}</td>
+            <td data-label="Contacto">
+              <span>{{ c.telefono }}<span class="subtexto">{{ c.mail }}</span></span>
+            </td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/clientes', c._id]" class="btn btn-sm btn-outline-secondary" [attr.aria-label]="'Ver a ' + c.nombre + ' ' + c.apellido"><i class="bi bi-eye" aria-hidden="true"></i> Ver</a>
+                @if (puedeEditar) {
+                  <a [routerLink]="['/clientes/edit', c._id]" class="btn btn-sm btn-outline-primary" [attr.aria-label]="'Editar a ' + c.nombre + ' ' + c.apellido"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                }
+                @if (puedeEliminar) {
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmarEliminar(c)"
+                          [disabled]="eliminandoId === c._id" [attr.aria-label]="'Eliminar a ' + c.nombre + ' ' + c.apellido">
+                    <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                  </button>
+                }
+              </span>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-  </div>
+  }
+</section>
 
-  <div class="pagination-controls d-flex justify-content-center mt-4">
-    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
-      <i class="bi bi-arrow-left"></i> Anterior
-    </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
-      Siguiente <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
-</div>
-
+<app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />

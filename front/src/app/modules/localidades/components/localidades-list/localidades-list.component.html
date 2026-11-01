@@ -1,54 +1,53 @@
+<app-page-header titulo="Localidades" subtitulo="Localidades donde están los clientes.">
+  <a acciones routerLink="/localidades/nuevo" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva localidad</a>
+</app-page-header>
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Localidades</h2>
-
-  <div *ngIf="errorCarga" class="alert alert-warning text-center">
-    {{ errorCarga }}
+<section class="panel" aria-label="Listado de localidades">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-localidad">Buscar</label>
+      <input id="buscar-localidad" type="search" class="form-control" placeholder="Nombre o código postal"
+             (input)="buscar($any($event.target).value)">
+    </div>
   </div>
 
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-primary" (click)="nuevaLocalidad()">
-      <i class="bi bi-plus-circle"></i> Nueva Localidad
-    </button>
-  </div>
-
-  <div class="table-responsive">
-    <table class="table table-hover table-bordered">
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando localidades…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-geo-alt" aria-hidden="true"></i>
+      {{ busqueda ? 'Ninguna localidad coincide con la búsqueda.' : 'Todavía no hay localidades cargadas.' }}
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
       <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Código Postal</th>
-          <th>Acciones</th>
-        </tr>
+        <tr><th scope="col">Localidad</th><th scope="col">Código postal</th><th scope="col"><span class="solo-lectores">Acciones</span></th></tr>
       </thead>
       <tbody>
-        <tr *ngFor="let localidad of paginatedLocalidades">
-          <td>{{ localidad.nombre }}</td>
-          <td>{{ localidad.codigo_postal }}</td>
-          <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-secondary btn-sm me-2" (click)="verLocalidad(localidad._id)">
-              <i class="bi bi-eye"></i> Ver
-            </button>
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editLocalidad(localidad._id)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteLocalidad(localidad._id)">
-              <i class="bi bi-trash"></i> Eliminar
-            </button>
-          </td>
-        </tr>
+        @for (localidad of visibles; track localidad._id) {
+          <tr>
+            <td class="celda-principal"><strong>{{ localidad.nombre }}</strong></td>
+            <td data-label="Código postal">{{ localidad.codigo_postal }}</td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/localidades', localidad._id]" class="btn btn-sm btn-outline-secondary" [attr.aria-label]="'Ver ' + localidad.nombre"><i class="bi bi-eye" aria-hidden="true"></i> Ver</a>
+                <a [routerLink]="['/localidades/edit', localidad._id]" class="btn btn-sm btn-outline-primary" [attr.aria-label]="'Editar ' + localidad.nombre"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmarEliminar(localidad)"
+                        [disabled]="eliminandoId === localidad._id" [attr.aria-label]="'Eliminar ' + localidad.nombre">
+                  <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                </button>
+              </span>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-  </div>
+  }
+</section>
 
-  <div class="pagination-controls d-flex justify-content-center mt-4">
-    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
-      <i class="bi bi-arrow-left"></i> Anterior
-    </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
-      Siguiente <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
-</div>
-
+<app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />

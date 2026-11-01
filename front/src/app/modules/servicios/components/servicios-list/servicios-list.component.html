@@ -1,89 +1,91 @@
+@if (esCliente) {
+  <app-page-header titulo="Servicios" subtitulo="Service, reparaciones y puesta a punto de tu maquinaria." />
+} @else {
+  <app-page-header titulo="Servicios" subtitulo="Servicios técnicos y el operario responsable de cada uno.">
+    <a acciones routerLink="/servicios/nuevo" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo servicio</a>
+  </app-page-header>
+}
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Servicios</h2>
-
-  <div *ngIf="errorCarga" class="alert alert-warning text-center">
-    {{ errorCarga }}
-  </div>
-
-  <!-- Botón Nuevo Servicio -->
-  <div *ngIf="!isCliente" class="d-flex justify-content-end mb-3">
-    <button class="btn btn-nuevo-servicio" (click)="nuevoServicio()">
-      Nuevo Servicio
-    </button>
-  </div>
-
-  <!-- Vista de cliente en cards -->
-  <div *ngIf="isCliente" class="row">
-    <div class="col-md-4 mb-4" *ngFor="let servicio of paginatedServicios">
-      <div class="card h-100 shadow-sm servicio-card">
-        <img
-          *ngIf="servicio.imagenUrl"
-          [src]="'http://localhost:3000' + servicio.imagenUrl"
-          alt="Imagen servicio"
-          class="card-img-top servicio-img"
-        />
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ servicio.nombre || 'Servicio' }}</h5>
-          <p class="card-text">{{ servicio.descripcion }}</p>
-        </div>
-      </div>
+<section [class.panel]="!esCliente" aria-label="Listado de servicios">
+  <div class="barra-filtros" [class.panel]="esCliente" [class.mb-3]="esCliente">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-servicio">Buscar</label>
+      <input id="buscar-servicio" type="search" class="form-control" placeholder="Descripción u operario"
+             (input)="buscar($any($event.target).value)">
     </div>
   </div>
 
-  <!-- Tabla de Servicios para gestion -->
-  <div *ngIf="!isCliente" class="table-responsive">
-    <table class="table table-hover table-bordered">
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando servicios…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-tools" aria-hidden="true"></i>
+      {{ busqueda ? 'Ningún servicio coincide con la búsqueda.' : 'Todavía no hay servicios cargados.' }}
+    </div>
+  } @else if (esCliente) {
+    <div class="row g-3">
+      @for (s of visibles; track s._id) {
+        <div class="col-12 col-sm-6 col-lg-4">
+          <article class="panel h-100 overflow-hidden d-flex flex-column">
+            @if (urlImagen(s.imagenUrl); as src) {
+              <img [src]="src" alt="" class="w-100" style="height: 160px; object-fit: cover">
+            } @else {
+              <div class="d-flex align-items-center justify-content-center text-secondary" style="height: 160px; background: #ECE8DD" aria-hidden="true">
+                <i class="bi bi-tools fs-1"></i>
+              </div>
+            }
+            <div class="p-3 d-flex flex-column gap-2 flex-grow-1">
+              <h2 class="h6 mb-0">{{ s.descripcion }}</h2>
+              <p class="mb-0 mt-auto"><strong>{{ s.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</strong> <span class="text-secondary ms-1">por hora</span></p>
+            </div>
+          </article>
+        </div>
+      }
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Imagen</th>
-          <th>Descripción</th>
-          <th class="precio-col">Importe / Hora</th> <!-- Solo esta columna -->
-          <th>Acciones</th>
+          <th scope="col">Servicio</th><th scope="col">Operario</th><th scope="col">Importe por hora</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngIf="paginatedServicios.length === 0">
-          <td colspan="5" class="text-center py-4">No hay servicios para mostrar.</td>
-        </tr>
-        <tr *ngFor="let servicio of paginatedServicios">
-          <td>{{ getServicioId(servicio) }}</td>
-          <td>
-            <img
-              *ngIf="servicio.imagenUrl"
-              [src]="'http://localhost:3000' + servicio.imagenUrl"
-              alt="Imagen servicio"
-              style="width: 64px; height: 64px; object-fit: cover; border-radius: 6px;"
-            />
-          </td>
-          <td>{{ servicio.descripcion }}</td>
-          <td>{{ servicio.importe_por_hora | currency }}</td>
-          <td class="d-flex justify-content-center align-items-center">
-            <button class="btn btn-outline-success btn-sm me-2" (click)="editServicio(servicio)"
-              [disabled]="deletingServicioId === getServicioId(servicio)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-            <button class="btn btn-outline-danger btn-sm" (click)="deleteServicio(servicio)"
-              [disabled]="deletingServicioId === getServicioId(servicio)">
-              <i class="bi bi-trash"></i>
-              {{ deletingServicioId === getServicioId(servicio) ? 'Eliminando...' : 'Eliminar' }}
-            </button>
-          </td>
-        </tr>
+        @for (s of visibles; track s._id) {
+          <tr>
+            <td class="celda-principal">
+              <div class="d-flex align-items-center gap-3">
+                @if (urlImagen(s.imagenUrl); as src) {
+                  <img [src]="src" alt="" class="miniatura">
+                } @else {
+                  <span class="miniatura d-inline-flex align-items-center justify-content-center text-secondary" aria-hidden="true"><i class="bi bi-tools"></i></span>
+                }
+                <strong>{{ s.descripcion }}</strong>
+              </div>
+            </td>
+            <td data-label="Operario">{{ s.operario ? s.operario.nombre + ' ' + s.operario.apellido : 'Sin asignar' }}</td>
+            <td data-label="Importe por hora">{{ s.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/servicios/edit', s._id]" class="btn btn-sm btn-outline-primary" [attr.aria-label]="'Editar ' + s.descripcion"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                @if (puedeEliminar) {
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmarEliminar(s)"
+                          [disabled]="eliminandoId === s._id" [attr.aria-label]="'Eliminar ' + s.descripcion">
+                    <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                  </button>
+                }
+              </span>
+            </td>
+          </tr>
+        }
       </tbody>
     </table>
-  </div>
+  }
+</section>
 
-  <!-- Controles de paginación -->
-  <div class="pagination-controls d-flex justify-content-center mt-4">
-    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
-      <i class="bi bi-arrow-left"></i> Anterior
-    </button>
-    <span class="fs-5 mx-3 align-self-center">Página {{ totalPages === 0 ? 0 : currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage >= totalPages">
-      Siguiente <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
-</div>
-
+<app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />

@@ -6,6 +6,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LocalidadesListComponent } from './components/localidades-list/localidades-list.component';
 import { LocalidadDetailComponent } from './components/localidad-detail/localidad-detail.component';
 import { LocalidadFormComponent } from './components/localidad-form/localidad-form.component';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { PaginadorComponent } from '../../shared/ui/paginador.component';
 
 // Define las rutas para el módulo
 const routes: Routes = [
@@ -23,6 +25,8 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+    PageHeaderComponent,
+    PaginadorComponent,
     RouterModule.forChild(routes),
     FormsModule,
     ReactiveFormsModule

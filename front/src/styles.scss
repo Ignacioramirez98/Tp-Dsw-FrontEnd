@@ -49,3 +49,63 @@ h1, .h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
 // Diálogos de Angular Material (se usan sin un tema de Material completo)
 .cdk-overlay-container { z-index: 1060; }
 .mat-mdc-dialog-surface { background: #fff; border-radius: 1rem !important; box-shadow: 0 16px 40px rgba(27, 36, 31, 0.2); }
+
+// ---------------------------------------------------------------------------
+// Listados
+// ---------------------------------------------------------------------------
+
+// Barra de búsqueda y filtros arriba de cada listado
+.barra-filtros {
+  display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end;
+  padding: 1rem; border-bottom: 1px solid $border-color;
+  .form-label { font-size: 0.75rem; font-weight: 600; color: var(--pa-muted); margin-bottom: 0.25rem; }
+  .campo { flex: 1 1 180px; }
+  .campo-ancho { flex: 2 1 240px; }
+}
+
+// Tabla adaptable (mobile-first): en celular cada fila es una tarjeta con etiquetas
+// (data-label en cada <td>); desde md vuelve a ser una tabla común.
+.tabla-adaptable {
+  margin: 0;
+  --bs-table-bg: transparent;
+  thead { display: none; }
+  tbody tr {
+    display: block; padding: 0.75rem 1rem; border-bottom: 1px solid $table-border-color;
+  }
+  tbody td {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 0.3rem 0; border: 0; text-align: right;
+    &::before { content: attr(data-label); font-size: 0.75rem; font-weight: 600; color: var(--pa-muted); text-align: left; }
+    &.celda-principal { display: block; text-align: left; padding-bottom: 0.5rem; &::before { content: none; } }
+    &.celda-acciones { justify-content: flex-end; padding-top: 0.5rem; &::before { content: none; } }
+  }
+
+  @include media-breakpoint-up(md) {
+    thead { display: table-header-group; }
+    thead th {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--pa-muted);
+      font-weight: 600; padding: 0.75rem 1rem; border-bottom: 1px solid $border-color; white-space: nowrap;
+    }
+    tbody tr { display: table-row; padding: 0; }
+    tbody td {
+      display: table-cell; padding: 0.875rem 1rem; text-align: left; vertical-align: middle;
+      border-bottom: 1px solid $table-border-color;
+      &::before { content: none; }
+      &.celda-principal { display: table-cell; padding-bottom: 0.875rem; }
+      &.celda-acciones { display: table-cell; text-align: right; white-space: nowrap; padding-top: 0.875rem; width: 1%; }
+    }
+    tbody tr:hover td { background: $table-hover-bg; }
+    .text-md-end { text-align: right; }
+  }
+}
+
+.acciones-fila { display: inline-flex; flex-wrap: wrap; gap: 0.375rem; justify-content: flex-end; }
+@include media-breakpoint-up(md) { .acciones-fila { flex-wrap: nowrap; } }
+.subtexto { display: block; font-size: 0.8125rem; color: var(--pa-muted); }
+.miniatura { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: #ECE8DD; }
+
+// Estado vacío / cargando / error dentro de un panel
+.estado-panel {
+  padding: 2.5rem 1rem; text-align: center; color: var(--pa-muted);
+  i.bi { display: block; font-size: 2rem; margin-bottom: 0.5rem; color: #A9B1AB; }
+}

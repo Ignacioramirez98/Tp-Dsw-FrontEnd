@@ -1,9 +1,12 @@
+import { Operario } from './operario.model';
+
 export class Servicio {
   _id: string;
   nombre?: string;
   descripcion: string;
   importe_por_hora: number;
   imagenUrl?: string;
+  operario?: Operario | null;
 
   constructor(
     _id: string = '',

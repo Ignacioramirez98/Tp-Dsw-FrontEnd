@@ -9,6 +9,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
 import { rolesActivateGuard } from '../../shared/auth/role.guard';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { PaginadorComponent } from '../../shared/ui/paginador.component';
 
 
 // Define las rutas para el módulo
@@ -26,6 +28,8 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
+    PageHeaderComponent,
+    PaginadorComponent,
     RouterModule.forChild(routes),
     NgxPaginationModule,
     FormsModule,

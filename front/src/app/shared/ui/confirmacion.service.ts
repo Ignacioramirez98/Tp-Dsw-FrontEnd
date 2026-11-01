@@ -1,5 +1,5 @@
 import { Component, Injectable, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -13,15 +13,15 @@ export interface DatosConfirmacion {
 @Component({
   selector: 'app-confirmacion-dialog',
   standalone: true,
-  imports: [MatDialogModule],
+  imports: [],
   template: `
     <div class="p-4">
-      <h2 mat-dialog-title class="h5 mb-2 p-0">{{ datos.titulo }}</h2>
+      <h2 id="confirmacion-titulo" class="h5 mb-2">{{ datos.titulo }}</h2>
       <p class="mb-4">{{ datos.mensaje }}</p>
       <div class="d-flex justify-content-end gap-2 flex-wrap">
         <button type="button" class="btn btn-outline-secondary" (click)="ref.close(false)">Cancelar</button>
         <button type="button" class="btn" [class.btn-danger]="datos.peligro" [class.btn-primary]="!datos.peligro"
-                (click)="ref.close(true)" cdkFocusInitial>{{ datos.textoConfirmar ?? 'Confirmar' }}</button>
+                (click)="ref.close(true)">{{ datos.textoConfirmar ?? 'Confirmar' }}</button>
       </div>
     </div>
   `,
@@ -38,7 +38,7 @@ export class ConfirmacionService {
 
   confirmar(datos: DatosConfirmacion): Observable<boolean> {
     return this.dialog
-      .open(ConfirmacionDialogComponent, { data: datos, width: '420px', maxWidth: '92vw', autoFocus: 'dialog' })
+      .open(ConfirmacionDialogComponent, { data: datos, width: '420px', maxWidth: '92vw', autoFocus: 'dialog', ariaLabelledBy: 'confirmacion-titulo' })
       .afterClosed()
       .pipe(map((resultado) => resultado === true));
   }
