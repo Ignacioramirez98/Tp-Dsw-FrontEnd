@@ -1,6 +1,15 @@
 import {Producto} from "./producto.model.js"
 import {Servicio} from "./servicio.model.js"
 import {Cliente} from "./cliente.model.js"
+import {Vendedor} from "./vendedor.model.js"
+
+/** Renglón de una venta: producto, cantidad y precio al momento de la venta. */
+export interface ItemVenta {
+  producto: Producto;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal?: number;
+}
 
 export class Venta {
   _id?: string;
@@ -16,6 +25,8 @@ export class Venta {
   cliente?: Cliente;
   productos?: Producto[];
   servicios?: Servicio[];
+  items?: ItemVenta[];
+  vendedor?: Vendedor | null;
 
   constructor(
     estado: string = '',

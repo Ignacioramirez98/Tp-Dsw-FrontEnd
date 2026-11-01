@@ -1,41 +1,33 @@
+<a routerLink="/vendedores" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Vendedores</a>
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Detalle del Vendedor</h2>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando vendedor…</div>
+} @else if (error || !vendedor) {
+  <div class="panel estado-panel" role="alert"><i class="bi bi-person-x" aria-hidden="true"></i>{{ error }}</div>
+} @else {
+  <app-page-header [titulo]="vendedor.nombre + ' ' + vendedor.apellido" subtitulo="Vendedor">
+    <a acciones [routerLink]="['/vendedores/edit', vendedor._id]" class="btn btn-outline-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+  </app-page-header>
 
-  <div *ngIf="cargando" class="text-center">Cargando...</div>
-  <div *ngIf="error" class="alert alert-warning text-center">{{ error }}</div>
-
-  <div class="card shadow-sm" *ngIf="vendedor && !cargando">
-    <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">{{ vendedor.nombre }}</dd>
-
-        <dt class="col-sm-3">Apellido</dt>
-        <dd class="col-sm-9">{{ vendedor.apellido }}</dd>
-
-        <dt class="col-sm-3">DNI</dt>
-        <dd class="col-sm-9">{{ vendedor.dni }}</dd>
-
-        <dt class="col-sm-3">Mail</dt>
-        <dd class="col-sm-9">{{ vendedor.mail }}</dd>
-
-        <dt class="col-sm-3">Teléfono</dt>
-        <dd class="col-sm-9">{{ vendedor.telefono }}</dd>
-
-        <dt class="col-sm-3">Rol</dt>
-        <dd class="col-sm-9">{{ vendedor.rol }}</dd>
+  <div class="detalle">
+    <section class="panel" aria-labelledby="t-datos">
+      <h2 id="t-datos">Datos de contacto</h2>
+      <dl class="datos">
+        <div><dt>DNI</dt><dd>{{ vendedor.dni }}</dd></div>
+        <div><dt>Teléfono</dt><dd><a [href]="'tel:' + vendedor.telefono">{{ vendedor.telefono }}</a></dd></div>
+        <div class="ancho-completo"><dt>Mail</dt><dd><a [href]="'mailto:' + vendedor.mail">{{ vendedor.mail }}</a></dd></div>
+        <div><dt>Ventas</dt><dd>{{ cargandoVentas ? '…' : ventas.length }}</dd></div>
+        <div><dt>Total vendido</dt><dd class="fw-semibold">{{ cargandoVentas ? '…' : (totalVendido | currency: 'ARS' : '$' : '1.0-0' : 'es-AR') }}</dd></div>
       </dl>
+    </section>
 
-      <div class="d-flex justify-content-end">
-        <button class="btn btn-primary mx-2" (click)="editar()">
-          <i class="bi bi-pencil"></i> Editar
-        </button>
-        <button class="btn btn-secondary mx-2" (click)="volver()">
-          <i class="bi bi-arrow-left"></i> Volver
-        </button>
-      </div>
-    </div>
+    <section class="panel panel-relacion" aria-labelledby="t-ventas">
+      <h2 id="t-ventas">Ventas a su nombre</h2>
+      @if (cargandoVentas) {
+        <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando ventas…</div>
+      } @else {
+        <app-tabla-ventas [ventas]="ventas" columna="cliente" vacio="Este vendedor todavía no tiene ventas." />
+      }
+    </section>
   </div>
-</div>
-
+}

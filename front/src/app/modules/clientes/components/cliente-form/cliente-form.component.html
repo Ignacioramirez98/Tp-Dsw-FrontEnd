@@ -1,88 +1,66 @@
+<a [routerLink]="rutaListado" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Clientes</a>
+<app-page-header [titulo]="titulo" subtitulo="Datos de contacto y ubicación del productor o empresa." />
 
-<div class="cliente-form container mt-5">
-  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form [formGroup]="clienteForm" (ngSubmit)="guardar()">
-        <div class="row">
-          <div class="col-12 col-md-6 mb-4">
-            <label for="nombre" class="form-label">Nombre:</label>
-            <input type="text" id="nombre" formControlName="nombre" class="form-control"
-              placeholder="Ingrese el nombre" />
-            <div *ngIf="clienteForm.get('nombre')?.invalid && clienteForm.get('nombre')?.touched"
-              class="text-danger mt-1">
-              El nombre es requerido.
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="apellido" class="form-label">Apellido:</label>
-            <input type="text" id="apellido" formControlName="apellido" class="form-control"
-              placeholder="Ingrese el apellido" />
-            <div *ngIf="clienteForm.get('apellido')?.invalid && clienteForm.get('apellido')?.touched"
-              class="text-danger mt-1">
-              El apellido es requerido.
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="dni" class="form-label">DNI:</label>
-            <input type="text" id="dni" formControlName="dni" class="form-control"
-              placeholder="Ingrese el DNI" />
-            <div *ngIf="clienteForm.get('dni')?.invalid && clienteForm.get('dni')?.touched"
-              class="text-danger mt-1">
-              DNI inválido (mínimo 7 caracteres).
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="mail" class="form-label">Mail:</label>
-            <input type="email" id="mail" formControlName="mail" class="form-control"
-              placeholder="cliente@mail.com" />
-            <div *ngIf="clienteForm.get('mail')?.invalid && clienteForm.get('mail')?.touched"
-              class="text-danger mt-1">
-              Ingrese un mail válido.
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="telefono" class="form-label">Teléfono:</label>
-            <input type="text" id="telefono" formControlName="telefono" class="form-control"
-              placeholder="Ingrese el teléfono" />
-            <div *ngIf="clienteForm.get('telefono')?.invalid && clienteForm.get('telefono')?.touched"
-              class="text-danger mt-1">
-              Teléfono inválido (mínimo 8 caracteres).
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="direccion" class="form-label">Dirección:</label>
-            <input type="text" id="direccion" formControlName="direccion" class="form-control"
-              placeholder="Ingrese la dirección" />
-            <div *ngIf="clienteForm.get('direccion')?.invalid && clienteForm.get('direccion')?.touched"
-              class="text-danger mt-1">
-              La dirección es requerida.
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="razon_social" class="form-label">Razón Social (opcional):</label>
-            <input type="text" id="razon_social" formControlName="razon_social" class="form-control"
-              placeholder="Ingrese la razón social" />
-          </div>
-
-          <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary btn-lg mx-2">
-              <i class="bi bi-check-circle"></i> Aceptar
-            </button>
-            <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
-              <i class="bi bi-x-circle"></i> Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando…</div>
+} @else {
+<form class="panel formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate [attr.aria-label]="titulo">
+  @if (errorServidor) {
+    <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+  }
+  <fieldset>
+    <legend>Datos personales</legend>
+    <div class="grid-campos">
+      <app-campo etiqueta="Nombre" para="nombre" [error]="error('nombre')">
+        <input class="form-control" type="text" id="nombre" formControlName="nombre" [class.is-invalid]="error('nombre')"
+                 [attr.aria-invalid]="!!error('nombre')" [attr.aria-describedby]="error('nombre') ? 'nombre-error' : null" autocomplete="given-name">
+      </app-campo>
+      <app-campo etiqueta="Apellido" para="apellido" [error]="error('apellido')">
+        <input class="form-control" type="text" id="apellido" formControlName="apellido" [class.is-invalid]="error('apellido')"
+                 [attr.aria-invalid]="!!error('apellido')" [attr.aria-describedby]="error('apellido') ? 'apellido-error' : null" autocomplete="family-name">
+      </app-campo>
+      <app-campo etiqueta="DNI" para="dni" [error]="error('dni')">
+        <input class="form-control" type="text" id="dni" formControlName="dni" [class.is-invalid]="error('dni')"
+                 [attr.aria-invalid]="!!error('dni')" [attr.aria-describedby]="error('dni') ? 'dni-error' : null" inputmode="numeric" placeholder="30.111.222">
+      </app-campo>
+      <app-campo etiqueta="Teléfono" para="telefono" [error]="error('telefono')">
+        <input class="form-control" type="tel" id="telefono" formControlName="telefono" [class.is-invalid]="error('telefono')"
+                 [attr.aria-invalid]="!!error('telefono')" [attr.aria-describedby]="error('telefono') ? 'telefono-error' : null" autocomplete="tel" placeholder="341 555-1234">
+      </app-campo>
+      <app-campo etiqueta="Razón social" para="razon_social" [error]="error('razon_social')" [opcional]="true">
+        <input class="form-control" type="text" id="razon_social" formControlName="razon_social" [class.is-invalid]="error('razon_social')"
+                 [attr.aria-invalid]="!!error('razon_social')" [attr.aria-describedby]="error('razon_social') ? 'razon_social-error' : null" placeholder="Ej. Establecimiento La Esperanza">
+      </app-campo>
     </div>
+  </fieldset>
+  <fieldset>
+    <legend>Contacto y ubicación</legend>
+    <div class="grid-campos">
+      <app-campo class="ancho-completo" etiqueta="Mail" para="mail" [error]="error('mail')">
+        <input class="form-control" type="email" id="mail" formControlName="mail" [class.is-invalid]="error('mail')"
+                 [attr.aria-invalid]="!!error('mail')" [attr.aria-describedby]="error('mail') ? 'mail-error' : null" autocomplete="email" placeholder="nombre@dominio.com">
+      </app-campo>
+      <app-campo etiqueta="Dirección" para="direccion" [error]="error('direccion')">
+        <input class="form-control" type="text" id="direccion" formControlName="direccion" [class.is-invalid]="error('direccion')"
+                 [attr.aria-invalid]="!!error('direccion')" [attr.aria-describedby]="error('direccion') ? 'direccion-error' : null" autocomplete="street-address">
+      </app-campo>
+      <app-campo etiqueta="Localidad" para="localidadId" [error]="error('localidadId')" [opcional]="true">
+        <select class="form-select" id="localidadId" formControlName="localidadId" [class.is-invalid]="error('localidadId')"
+                 [attr.aria-invalid]="!!error('localidadId')" [attr.aria-describedby]="error('localidadId') ? 'localidadId-error' : null">
+          <option value="">Sin localidad</option>
+          @for (o of localidades; track o._id) {
+            <option [value]="o._id">{{ o.nombre }} ({{ o.codigo_postal }})</option>
+          }
+        </select>
+      </app-campo>
+    </div>
+  </fieldset>
+  <div class="pie-formulario">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="guardando">
+      @if (guardando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Guardando… }
+      @else { <i class="bi bi-check-lg" aria-hidden="true"></i> {{ esEdicion ? 'Guardar cambios' : 'Crear cliente' }} }
+    </button>
   </div>
-</div>
-
+</form>
+}

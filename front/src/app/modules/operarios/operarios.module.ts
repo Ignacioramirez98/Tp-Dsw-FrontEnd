@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OperariosListComponent } from './components/operarios-list/operarios-list.component';
 import { OperarioDetailComponent } from './components/operario-detail/operario-detail.component';
 import { OperarioFormComponent } from './components/operario-form/operario-form.component';
+import { CampoComponent } from '../../shared/ui/campo.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { PaginadorComponent } from '../../shared/ui/paginador.component';
 
@@ -26,6 +27,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     PageHeaderComponent,
+    CampoComponent,
     PaginadorComponent,
     RouterModule.forChild(routes),
     FormsModule,

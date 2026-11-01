@@ -3,10 +3,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ProductosListComponent } from './components/productos-list/productos-list.component';
-import { ProductoDetailComponent } from './components/producto-detail/producto-detail.component';
 import { ProductoFormComponent } from './components/producto-form/producto-form.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
+import { CampoComponent } from '../../shared/ui/campo.component';
+import { SelectorImagenComponent } from '../../shared/ui/selector-imagen.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { PaginadorComponent } from '../../shared/ui/paginador.component';
 import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
@@ -22,12 +23,13 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     ProductosListComponent,
-    ProductoDetailComponent,
     ProductoFormComponent
   ],
   imports: [
     CommonModule,
     PageHeaderComponent,
+    SelectorImagenComponent,
+    CampoComponent,
     PaginadorComponent,
     RouterModule.forChild(routes),
     NgxPaginationModule,

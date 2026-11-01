@@ -1,86 +1,38 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { map } from 'rxjs';
 import { OperariosService } from '../../operario.service';
 import { Operario } from '../../../../shared/models/operario.model';
+import { FormularioBase } from '../../../../shared/ui/formulario-base';
+import { MENSAJES_PERSONA, camposPersona } from '../../../../shared/utils/validadores';
 
 @Component({
   selector: 'app-operario-form',
   templateUrl: './operario-form.component.html',
-  standalone: false
+  standalone: false,
 })
-export class OperarioFormComponent implements OnInit {
-  operarioForm!: FormGroup;
-  isEditMode: boolean = false;
-  operarioId: string | null = null;
+export class OperarioFormComponent extends FormularioBase<Operario> {
+  private readonly fb = inject(FormBuilder);
+  private readonly servicio = inject(OperariosService);
 
-  constructor(
-    private operarioService: OperariosService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private fb: FormBuilder
-  ) {}
+  protected readonly recurso = 'operario';
+  readonly rutaListado = '/operarios';
+  protected override readonly mensajes = MENSAJES_PERSONA;
 
-  ngOnInit(): void {
-    this.operarioForm = this.fb.group({
-      nombre: ['', Validators.required],
-      apellido: ['', Validators.required],
-      dni: ['', Validators.required],
-      mail: ['', [Validators.required, Validators.email]],
-      telefono: ['', Validators.required],
-    });
-
-    this.operarioId = this.route.snapshot.paramMap.get('id');
-    if (this.operarioId) {
-      this.isEditMode = true;
-      this.loadOperario();
-    }
+  protected crearFormulario() {
+    // El rol lo asigna el backend ('operario') al crear
+    return this.fb.group(camposPersona());
   }
 
-  loadOperario(): void {
-    this.operarioService.getOperario(this.operarioId!).subscribe(
-      (response: { data: Operario }) => {
-        const operario = response.data;
-        this.operarioForm.patchValue({
-          nombre: operario.nombre,
-          apellido: operario.apellido,
-          dni: operario.dni,
-          mail: operario.mail,
-          telefono: operario.telefono,
-        });
-      },
-      () => {
-        this.router.navigate(['/operarios']);
-      }
-    );
+  protected obtener$(id: string) {
+    return this.servicio.getOperario(id).pipe(map((r) => r.data));
   }
 
-  guardar(): void {
-    if (this.operarioForm.invalid) {
-      this.operarioForm.markAllAsTouched();
-      return;
-    }
-
-    const operario = { ...this.operarioForm.value, _id: this.operarioId } as Operario;
-
-    if (this.isEditMode) {
-      this.operarioService.updateOperario(operario).subscribe(
-        () => this.router.navigate(['/operarios']),
-        () => alert('Hubo un error al actualizar el operario.')
-      );
-    } else {
-      this.operarioService.addOperario(operario).subscribe(
-        () => this.router.navigate(['/operarios']),
-        () => alert('Hubo un error al crear el operario.')
-      );
-    }
+  protected crear$(valor: Operario) {
+    return this.servicio.addOperario(valor);
   }
 
-  onSubmit(): void {
-    this.guardar();
-  }
-
-  onCancel(): void {
-    this.router.navigate(['/operarios']);
+  protected actualizar$(id: string, valor: Operario) {
+    return this.servicio.updateOperario({ ...valor, _id: id });
   }
 }

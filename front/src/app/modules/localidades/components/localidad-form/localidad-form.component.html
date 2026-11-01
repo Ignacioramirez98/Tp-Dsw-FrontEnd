@@ -1,42 +1,32 @@
+<a [routerLink]="rutaListado" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Localidades</a>
+<app-page-header [titulo]="titulo" subtitulo="Ciudad o pueblo donde viven los clientes." />
 
-<div class="localidad-form container mt-5">
-  <h2 class="text-center mb-4">{{ isEditMode ? 'Editar Localidad' : 'Nueva Localidad' }}</h2>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form [formGroup]="localidadForm" (ngSubmit)="guardar()">
-        <div class="row">
-          <div class="col-12 col-md-6 mb-4">
-            <label for="nombre" class="form-label">Nombre:</label>
-            <input type="text" id="nombre" formControlName="nombre" class="form-control"
-              placeholder="Ingrese el nombre de la localidad" />
-            <div *ngIf="localidadForm.get('nombre')?.invalid && localidadForm.get('nombre')?.touched"
-              class="text-danger mt-1">
-              El nombre es requerido.
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 mb-4">
-            <label for="codigo_postal" class="form-label">Código Postal:</label>
-            <input type="text" id="codigo_postal" formControlName="codigo_postal" class="form-control"
-              placeholder="Ingrese el código postal" />
-            <div *ngIf="localidadForm.get('codigo_postal')?.invalid && localidadForm.get('codigo_postal')?.touched"
-              class="text-danger mt-1">
-              El código postal es requerido.
-            </div>
-          </div>
-
-          <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary btn-lg mx-2">
-              <i class="bi bi-check-circle"></i> Aceptar
-            </button>
-            <button type="button" class="btn btn-secondary btn-lg mx-2" (click)="onCancel()">
-              <i class="bi bi-x-circle"></i> Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando…</div>
+} @else {
+<form class="panel formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate [attr.aria-label]="titulo">
+  @if (errorServidor) {
+    <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+  }
+  <fieldset>
+    <legend>Datos de la localidad</legend>
+    <div class="grid-campos">
+      <app-campo etiqueta="Nombre" para="nombre" [error]="error('nombre')">
+        <input class="form-control" type="text" id="nombre" formControlName="nombre" [class.is-invalid]="error('nombre')"
+                 [attr.aria-invalid]="!!error('nombre')" [attr.aria-describedby]="error('nombre') ? 'nombre-error' : null" placeholder="Ej. Rosario">
+      </app-campo>
+      <app-campo etiqueta="Código postal" para="codigo_postal" [error]="error('codigo_postal')" ayuda="4 dígitos (2000) o CPA (S2000ABC).">
+        <input class="form-control" type="text" id="codigo_postal" formControlName="codigo_postal" [class.is-invalid]="error('codigo_postal')"
+                 [attr.aria-invalid]="!!error('codigo_postal')" [attr.aria-describedby]="error('codigo_postal') ? 'codigo_postal-error' : null" placeholder="2000" autocomplete="postal-code">
+      </app-campo>
     </div>
+  </fieldset>
+  <div class="pie-formulario">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="guardando">
+      @if (guardando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Guardando… }
+      @else { <i class="bi bi-check-lg" aria-hidden="true"></i> {{ esEdicion ? 'Guardar cambios' : 'Crear localidad' }} }
+    </button>
   </div>
-</div>
-
+</form>
+}

@@ -1,44 +1,43 @@
+<a routerLink="/clientes" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Clientes</a>
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Detalle del Cliente</h2>
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando cliente…</div>
+} @else if (error || !cliente) {
+  <div class="panel estado-panel" role="alert"><i class="bi bi-person-x" aria-hidden="true"></i>{{ error }}</div>
+} @else {
+  <app-page-header [titulo]="cliente.nombre + ' ' + cliente.apellido" [subtitulo]="cliente.razon_social || 'Cliente particular'">
+    @if (puedeEditar) {
+      <a acciones [routerLink]="['/clientes/edit', cliente._id]" class="btn btn-outline-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+    }
+  </app-page-header>
 
-  <div *ngIf="cargando" class="text-center">Cargando...</div>
-  <div *ngIf="error" class="alert alert-warning text-center">{{ error }}</div>
-
-  <div class="card shadow-sm" *ngIf="cliente && !cargando">
-    <div class="card-body">
-      <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">{{ cliente.nombre }}</dd>
-
-        <dt class="col-sm-3">Apellido</dt>
-        <dd class="col-sm-9">{{ cliente.apellido }}</dd>
-
-        <dt class="col-sm-3">DNI</dt>
-        <dd class="col-sm-9">{{ cliente.dni }}</dd>
-
-        <dt class="col-sm-3">Mail</dt>
-        <dd class="col-sm-9">{{ cliente.mail }}</dd>
-
-        <dt class="col-sm-3">Teléfono</dt>
-        <dd class="col-sm-9">{{ cliente.telefono }}</dd>
-
-        <dt class="col-sm-3">Dirección</dt>
-        <dd class="col-sm-9">{{ cliente.direccion }}</dd>
-
-        <dt class="col-sm-3">Razón Social</dt>
-        <dd class="col-sm-9">{{ cliente.razon_social }}</dd>
+  <div class="detalle">
+    <section class="panel" aria-labelledby="t-datos">
+      <h2 id="t-datos">Datos de contacto</h2>
+      <dl class="datos">
+        <div><dt>DNI</dt><dd>{{ cliente.dni }}</dd></div>
+        <div><dt>Teléfono</dt><dd><a [href]="'tel:' + cliente.telefono">{{ cliente.telefono }}</a></dd></div>
+        <div class="ancho-completo"><dt>Mail</dt><dd><a [href]="'mailto:' + cliente.mail">{{ cliente.mail }}</a></dd></div>
+        <div class="ancho-completo"><dt>Dirección</dt><dd>{{ cliente.direccion }}</dd></div>
+        <div class="ancho-completo">
+          <dt>Localidad</dt>
+          <dd>
+            @if (cliente.localidad) { {{ cliente.localidad.nombre }} <span class="text-secondary">(CP {{ cliente.localidad.codigo_postal }})</span> }
+            @else { <span class="text-secondary">Sin localidad asignada</span> }
+          </dd>
+        </div>
       </dl>
+    </section>
 
-      <div class="d-flex justify-content-end">
-        <button class="btn btn-primary mx-2" (click)="editar()">
-          <i class="bi bi-pencil"></i> Editar
-        </button>
-        <button class="btn btn-secondary mx-2" (click)="volver()">
-          <i class="bi bi-arrow-left"></i> Volver
-        </button>
-      </div>
-    </div>
+    @if (veVentas) {
+      <section class="panel panel-relacion" aria-labelledby="t-ventas">
+        <h2 id="t-ventas">Ventas <span class="text-secondary fw-normal">({{ ventas.length }})</span></h2>
+        @if (cargandoVentas) {
+          <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando ventas…</div>
+        } @else {
+          <app-tabla-ventas [ventas]="ventas" columna="vendedor" vacio="Este cliente todavía no tiene ventas." />
+        }
+      </section>
+    }
   </div>
-</div>
-
+}

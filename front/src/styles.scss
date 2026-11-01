@@ -109,3 +109,52 @@ h1, .h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
   padding: 2.5rem 1rem; text-align: center; color: var(--pa-muted);
   i.bi { display: block; font-size: 2rem; margin-bottom: 0.5rem; color: #A9B1AB; }
 }
+
+// ---------------------------------------------------------------------------
+// Formularios y detalles
+// ---------------------------------------------------------------------------
+
+// Enlace "volver" arriba del título
+.volver {
+  display: inline-flex; align-items: center; gap: 0.25rem; margin-bottom: 0.5rem;
+  font-size: 0.875rem; font-weight: 600; text-decoration: none;
+}
+
+.formulario {
+  max-width: 880px; padding: 1.25rem;
+  @include media-breakpoint-up(md) { padding: 1.75rem; }
+  fieldset + fieldset { margin-top: 0.5rem; padding-top: 1.25rem; border-top: 1px solid $border-color; }
+  legend { font-family: $headings-font-family; font-size: 1rem; font-weight: 800; margin-bottom: 1rem; }
+}
+
+// Una columna en celular, dos desde md; .ancho-completo ocupa toda la fila
+.grid-campos {
+  display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 1.25rem;
+  @include media-breakpoint-up(md) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  > .ancho-completo { grid-column: 1 / -1; }
+}
+
+// Botones al pie; en celular ocupan todo el ancho y el principal queda arriba
+.pie-formulario {
+  display: flex; flex-direction: column-reverse; gap: 0.5rem;
+  margin-top: 0.5rem; padding-top: 1.25rem; border-top: 1px solid $border-color;
+  .btn { min-height: 44px; }
+  @include media-breakpoint-up(sm) { flex-direction: row; justify-content: flex-end; }
+}
+
+// Detalle: ficha de datos arriba y la relación (tabla) debajo, a todo el ancho
+.detalle {
+  display: grid; gap: 1.5rem; grid-template-columns: minmax(0, 1fr);
+  .panel { padding: 1.25rem; }
+  h2 { font-size: 1.125rem; font-weight: 800; margin-bottom: 1rem; }
+}
+.panel-relacion { padding: 0 !important; overflow: hidden; h2 { padding: 1.25rem 1.25rem 0; } }
+
+.datos {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 0;
+  @include media-breakpoint-up(md) { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  > div { min-width: 0; }
+  .ancho-completo { grid-column: 1 / -1; @include media-breakpoint-up(md) { grid-column: auto; } }
+  dt { font-size: 0.75rem; font-weight: 600; color: var(--pa-muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+}

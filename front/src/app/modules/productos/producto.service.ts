@@ -91,10 +91,9 @@ export class ProductosService {
     return this.http.post<Producto>(this.apiUrl, producto);
   }
 
-  // Crear producto con imagen multipart/form-data.
-  crearProductoConImagen(formData: FormData, token: string): Observable<Producto> {
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.post<Producto>(this.apiUrl, formData, { headers });
+  // Crear producto (multipart/form-data, con imagen opcional). El token lo agrega el interceptor.
+  crearProducto(formData: FormData): Observable<Producto> {
+    return this.http.post<Producto>(this.apiUrl, formData);
   }
 
   // Actualizar un producto existente, con una nueva imagen opcional.
