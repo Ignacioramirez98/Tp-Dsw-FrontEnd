@@ -2,10 +2,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { SeleccionProductosComponent } from './seleccion-productos.component.js';
-import { WarningModule } from '../../shared/components/warning/warning.module.js';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { FormsModule } from '@angular/forms';
+import { SeleccionProductosComponent } from './seleccion-productos.component';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { PaginadorComponent } from '../../shared/ui/paginador.component';
 
 // Define las rutas para el módulo
 const routes: Routes = [
@@ -19,9 +18,8 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    WarningModule,
-    NgxPaginationModule,
-    FormsModule
+    PageHeaderComponent,
+    PaginadorComponent
   ]
 })
 export class SeleccionProductosModule { }

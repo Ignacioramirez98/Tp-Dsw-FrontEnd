@@ -3,7 +3,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
-import { ProductosService } from '../../../modules/productos/producto.service';
+import { CarritoService } from '../../services/carrito.service';
 import { MENU_CLIENTE } from '../../auth/roles';
 import { FooterComponent } from '../../components/footer/footer.component';
 
@@ -21,7 +21,7 @@ import { FooterComponent } from '../../components/footer/footer.component';
 export class ClienteLayoutComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly productos = inject(ProductosService);
+  private readonly carrito = inject(CarritoService);
 
   readonly items = MENU_CLIENTE;
   readonly menuAbierto = signal(false);
@@ -34,9 +34,9 @@ export class ClienteLayoutComponent {
       .subscribe(() => this.menuAbierto.set(false));
   }
 
-  /** Cantidad total de unidades en el carrito. */
+  /** Cantidad total de unidades en el carrito (se actualiza sola al agregar o quitar productos). */
   get unidadesEnCarrito(): number {
-    return Object.values(this.productos.getCantidades()).reduce((total, cantidad) => total + cantidad, 0);
+    return this.carrito.unidades();
   }
 
   alternarMenu(): void {
@@ -44,6 +44,8 @@ export class ClienteLayoutComponent {
   }
 
   cerrarSesion(): void {
+    // Se vacía antes de salir: si no, el pedido queda en memoria para el próximo usuario de esta pestaña
+    this.carrito.vaciar();
     this.auth.logout();
     this.router.navigate(['/login']);
   }
