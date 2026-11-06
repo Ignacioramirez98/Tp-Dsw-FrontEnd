@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ServiciosListComponent } from './components/servicios-list/servicios-list.component';
 import { ServicioFormComponent } from './components/servicio-form/servicio-form.component';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
 import { rolesActivateGuard } from '../../shared/auth/role.guard';
@@ -33,7 +32,6 @@ const routes: Routes = [
     CampoComponent,
     PaginadorComponent,
     RouterModule.forChild(routes),
-    NgxPaginationModule,
     FormsModule,
     ReactiveFormsModule
 ]

@@ -1,43 +1,102 @@
+<a routerLink="/seleccion-productos" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Seguir comprando</a>
+<app-page-header titulo="Tu pedido" subtitulo="Revisá las cantidades y envialo. Un vendedor lo confirma." />
 
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <!-- Card de Confirmación de Compra -->
-    <div class="col-md-8">
-      <div class="card shadow-lg rounded">
-        <div class="card-body">
-          <h2 class="text-center mb-4">Confirmar Compra</h2>
-
-          <!-- Información del Cliente -->
-          <div *ngIf="cliente" class="mb-4">
-            <h5 class="text-dark">Cliente: <span class="text-muted">{{ cliente.nombre }} {{ cliente.apellido }}</span>
-            </h5>
-          </div>
-
-          <!-- Lista de Productos Seleccionados -->
-          <div class="mb-4">
-            <h6 class="text-info">Productos Seleccionados:</h6>
-            <ul class="list-group list-group-flush">
-              <li *ngFor="let producto of productosSeleccionados"
-                class="list-group-item d-flex justify-content-between align-items-center">
-                <span class="fw-bold">{{ producto.nombre }} (x{{ cantidades[producto._id] }})</span>
-                <span class="fw-bold">{{ (producto.importe_venta * cantidades[producto._id]) | currency }}</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Importe Total -->
-          <div class="mt-3 text-end">
-            <h5 class="text-info">Importe Total: {{ importeTotal | currency }}</h5>
-          </div>
-
-          <!-- Botones de Aceptar y Cancelar -->
-          <div class="d-flex justify-content-end mt-4">
-            <button class="btn btn-outline-danger me-3" (click)="cancelar()" style="width: 150px;">Cancelar</button>
-            <button class="btn btn-success" (click)="confirmarCompra()" style="width: 150px;">Aceptar</button>
-          </div>
-        </div>
-      </div>
-    </div>
+@if (carrito.unidades() === 0) {
+  <div class="panel estado-panel">
+    <i class="bi bi-cart3" aria-hidden="true"></i>
+    <p class="mb-3 fw-semibold">Tu pedido está vacío</p>
+    <a routerLink="/seleccion-productos" class="btn btn-primary">Ir al catálogo</a>
   </div>
-</div>
+} @else {
+  <div class="catalogo">
+    <section class="panel panel-relacion" aria-labelledby="t-productos">
+      <h2 id="t-productos">Productos</h2>
+      <table class="table tabla-adaptable">
+        <thead>
+          <tr>
+            <th scope="col">Producto</th>
+            <th scope="col">Cantidad</th>
+            <th scope="col" class="text-md-end">Subtotal</th>
+            <th scope="col"><span class="solo-lectores">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (i of carrito.items(); track i.producto._id) {
+            <tr>
+              <td class="celda-principal">
+                <strong>{{ i.producto.nombre }}</strong>
+                <span class="subtexto">{{ i.producto.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }} c/u</span>
+              </td>
+              <td data-label="Cantidad">
+                <div class="stepper">
+                  <button type="button" class="btn btn-outline-secondary" (click)="carrito.sumar(i.producto, -1)"
+                          [attr.aria-label]="'Quitar uno de ' + i.producto.nombre">
+                    <i class="bi bi-dash-lg" aria-hidden="true"></i>
+                  </button>
+                  <output aria-live="polite">{{ i.cantidad }}</output>
+                  <button type="button" class="btn btn-outline-secondary" (click)="carrito.sumar(i.producto, 1)"
+                          [disabled]="i.cantidad >= i.producto.stock"
+                          [attr.aria-label]="'Agregar uno de ' + i.producto.nombre">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </td>
+              <td data-label="Subtotal" class="text-md-end fw-semibold numero">
+                {{ i.cantidad * i.producto.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}
+              </td>
+              <td class="celda-acciones">
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="carrito.quitar(i.producto._id)"
+                        [attr.aria-label]="'Quitar ' + i.producto.nombre + ' del pedido'">
+                  <i class="bi bi-trash" aria-hidden="true"></i> Quitar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="p-3 text-end">
+        <button type="button" class="btn btn-link text-danger" (click)="vaciar()">Vaciar pedido</button>
+      </div>
+    </section>
 
+    <aside class="panel p-4 d-flex flex-column gap-3" aria-labelledby="t-resumen">
+      <h2 id="t-resumen" class="h5 mb-0">Resumen</h2>
+
+      @if (cliente) {
+        <dl class="datos mb-0">
+          <div class="ancho-completo">
+            <dt>Cliente</dt>
+            <dd>{{ cliente.nombre }} {{ cliente.apellido }}</dd>
+          </div>
+          @if (cliente.direccion) {
+            <div class="ancho-completo"><dt>Dirección</dt><dd>{{ cliente.direccion }}</dd></div>
+          }
+          @if (cliente.telefono) {
+            <div><dt>Teléfono</dt><dd>{{ cliente.telefono }}</dd></div>
+          }
+          @if (cliente.mail) {
+            <div><dt>Mail</dt><dd>{{ cliente.mail }}</dd></div>
+          }
+        </dl>
+      }
+
+      <div class="d-flex justify-content-between align-items-baseline border-top pt-3">
+        <span class="fw-semibold">Total estimado</span>
+        <span class="total-venta">{{ carrito.total() | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+      </div>
+      <p class="subtexto mb-0">El pedido queda pendiente. Un vendedor confirma stock, precio final y fecha de entrega.</p>
+
+      @if (errorServidor) {
+        <div class="alert alert-danger mb-0" role="alert">{{ errorServidor }}</div>
+      }
+
+      <button type="button" class="btn btn-primary btn-lg w-100" [disabled]="enviando" (click)="enviar()">
+        @if (enviando) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Enviando…
+        } @else {
+          Enviar pedido
+        }
+      </button>
+    </aside>
+  </div>
+}
