@@ -206,3 +206,32 @@ h1, .h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
     .btn-quitar { margin-top: 1.9rem; }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Paneles (inicio del personal y del cliente)
+// ---------------------------------------------------------------------------
+
+// Indicadores: una columna en celular, dos en tablet, tres en escritorio
+.kpis {
+  display: grid; gap: 1rem; margin-bottom: 1.5rem; grid-template-columns: minmax(0, 1fr);
+  @include media-breakpoint-up(sm) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @include media-breakpoint-up(lg) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.kpi {
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 0.25rem;
+  .kpi-etiqueta { font-size: 0.8125rem; font-weight: 600; color: var(--pa-muted); }
+  .kpi-valor { font-family: $headings-font-family; font-size: 1.75rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+}
+
+// Accesos rápidos: dos por fila en celular, cuatro desde md
+.accesos {
+  display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr));
+  @include media-breakpoint-up(md) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  a {
+    display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem; min-height: 88px;
+    border: 1px solid $border-color; border-radius: 12px; background: var(--pa-superficie);
+    color: $body-color; text-decoration: none; font-weight: 600;
+    i.bi { font-size: 1.5rem; color: $primary; }
+    &:hover, &:focus-visible { border-color: $primary; }
+  }
+}

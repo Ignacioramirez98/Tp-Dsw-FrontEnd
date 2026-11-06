@@ -1,29 +1,72 @@
+<app-page-header [titulo]="'Hola, ' + usuario" subtitulo="¿Qué necesitás hoy?" />
 
-<div class="container mt-5 cliente-dashboard">
-  <h1 class="text-center mb-4">Bienvenido!</h1>
-
-  <div class="row justify-content-center">
-    <div class="col-md-5 mb-4">
-      <div class="card shadow-sm h-100">
-        <img src="../../../assets/img/logos/logo.jpg" class="card-img-top" alt="Productos">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Nuestros Productos</h5>
-          <p class="card-text">Explora nuestra amplia gama de productos disponibles para ti.</p>
-          <a routerLink="/seleccion-productos" class="btn btn-primary mt-auto">Ver Productos</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-5 mb-4">
-      <div class="card shadow-sm h-100">
-        <img src="assets/images/servicios.jpg" class="card-img-top" alt="Servicios">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Nuestros Servicios</h5>
-          <p class="card-text">Descubre los servicios que ofrecemos para mejorar tu experiencia.</p>
-          <a routerLink="/servicios" class="btn btn-primary mt-auto">Ver Servicios</a>
-        </div>
-      </div>
-    </div>
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-6">
+    <a routerLink="/seleccion-productos" class="panel d-flex gap-3 p-4 text-decoration-none h-100">
+      <i class="bi bi-grid fs-1 text-primary" aria-hidden="true"></i>
+      <span>
+        <strong class="d-block fs-5 text-body">Catálogo</strong>
+        <span class="text-secondary">Armá tu pedido de maquinaria</span>
+      </span>
+    </a>
+  </div>
+  <div class="col-12 col-md-6">
+    <a routerLink="/servicios" class="panel d-flex gap-3 p-4 text-decoration-none h-100">
+      <i class="bi bi-tools fs-1 text-primary" aria-hidden="true"></i>
+      <span>
+        <strong class="d-block fs-5 text-body">Servicios</strong>
+        <span class="text-secondary">Service y reparaciones</span>
+      </span>
+    </a>
   </div>
 </div>
 
+<section class="panel panel-relacion" aria-labelledby="t-pedidos">
+  <h2 id="t-pedidos">Tus últimos pedidos</h2>
+
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando tus pedidos…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+      <p class="mb-3">{{ error }}</p>
+      <button type="button" class="btn btn-outline-primary" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (recientes.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-bag" aria-hidden="true"></i>
+      <p class="mb-3">Todavía no hiciste pedidos.</p>
+      <a routerLink="/seleccion-productos" class="btn btn-primary">Ir al catálogo</a>
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Productos</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-md-end">Total</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (v of recientes; track v._id) {
+          <tr>
+            <td class="celda-principal"><strong>{{ v.fechaContacto | date: 'dd/MM/yyyy' }}</strong></td>
+            <td data-label="Productos">{{ unidades(v) }} {{ unidades(v) === 1 ? 'unidad' : 'unidades' }}</td>
+            <td data-label="Estado"><app-status-chip [estado]="v.estado" /></td>
+            <td data-label="Total" class="text-md-end fw-semibold numero">{{ total(v) | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+            <td class="celda-acciones">
+              <a [routerLink]="['/ventas', v._id]" class="btn btn-sm btn-outline-secondary" [attr.aria-label]="'Ver pedido del ' + (v.fechaContacto | date: 'dd/MM/yyyy')">
+                <i class="bi bi-eye" aria-hidden="true"></i> Ver
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <div class="p-3 text-end">
+      <a routerLink="/ventas" class="btn btn-link">Ver todas mis compras</a>
+    </div>
+  }
+</section>
