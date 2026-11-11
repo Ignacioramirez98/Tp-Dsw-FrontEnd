@@ -1,53 +1,109 @@
+<app-page-header titulo="Catálogo de maquinaria" subtitulo="Armá tu pedido y un vendedor te contacta para concretarlo." />
 
-<div class="container mt-5">
-  <h2 class="text-center mb-4">Productos Disponibles</h2>
-
-  <div *ngIf="errorCarga" class="alert alert-warning text-center">
-    {{ errorCarga }}
-  </div>
-
-  <!-- Botón Nueva Compra -->
-  <div class="d-flex justify-content-end mb-3">
-    <button class="btn btn-nueva-compra" (click)="nuevaCompra()">
-      Nueva Compra
-    </button>
-  </div>
-
-  <!-- Grid de Productos en Cards -->
-  <div class="row">
-    <div class="col-md-3 mb-4" *ngFor="let producto of paginatedProductos">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ producto.nombre }}</h5>
-          <p class="card-text text-truncate">{{ producto.descripcion }}</p>
-          <p class="card-text"><strong>Precio:</strong> {{ producto.importe_venta | currency }}</p>
-          <p class="card-text"><strong>En Stock:</strong> {{ producto.stock }}</p>
-
-          <!-- Controles de cantidad centrados -->
-          <div class="mt-auto d-flex justify-content-center align-items-center">
-            <button class="btn btn-success btn-sm me-1" (click)="incrementarCantidad(obtenerProductoId(producto))"
-              [disabled]="cantidades[obtenerProductoId(producto)] >= producto.stock">
-              +
-            </button>
-            <span class="mx-2 fw-bold fs-4">{{ cantidades[obtenerProductoId(producto)] || 0 }}</span>
-            <button class="btn btn-danger btn-sm ms-1" (click)="decrementarCantidad(obtenerProductoId(producto))"
-              [disabled]="cantidades[obtenerProductoId(producto)] <= 0">
-              -</button>
-          </div>
-        </div>
+<div class="catalogo">
+  <section aria-label="Productos">
+    <div class="panel barra-filtros mb-3">
+      <div class="campo-ancho">
+        <label class="form-label" for="buscar-producto">Buscar</label>
+        <input #buscador id="buscar-producto" type="search" class="form-control"
+               placeholder="Nombre o descripción del producto" (input)="buscar(buscador.value)">
       </div>
     </div>
-  </div>
 
-  <!-- Controles de paginación -->
-  <div class="d-flex justify-content-center mt-4">
-    <button class="btn btn-outline-primary me-2" (click)="prevPage()" [disabled]="currentPage === 1">
-      <i class="bi bi-arrow-left"></i> Anterior
-    </button>
-    <span class="fs-5 align-self-center mx-3">Página {{ currentPage }} de {{ totalPages }}</span>
-    <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
-      Siguiente <i class="bi bi-arrow-right"></i>
-    </button>
-  </div>
+    @if (cargando) {
+      <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando productos…</div>
+    } @else if (error) {
+      <div class="panel estado-panel" role="alert">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+        <p class="mb-3">{{ error }}</p>
+        <button type="button" class="btn btn-outline-primary" (click)="cargar()">Reintentar</button>
+      </div>
+    } @else if (productos.length === 0) {
+      <div class="panel estado-panel"><i class="bi bi-box-seam" aria-hidden="true"></i>Todavía no hay productos.</div>
+    } @else if (filtrados.length === 0) {
+      <div class="panel estado-panel"><i class="bi bi-search" aria-hidden="true"></i>Ningún producto coincide con la búsqueda.</div>
+    } @else {
+      <div class="grilla-productos">
+        @for (p of visibles; track p._id) {
+          <article class="panel tarjeta-producto">
+            <div class="foto">
+              @if (urlImagen(p.imagenUrl); as url) {
+                <img [src]="url" [alt]="p.nombre">
+              } @else {
+                <i class="bi bi-image" aria-hidden="true"></i>
+              }
+            </div>
+            <div class="cuerpo">
+              <h2>{{ p.nombre }}</h2>
+              @if (p.descripcion) {
+                <p class="descripcion">{{ p.descripcion }}</p>
+              }
+              <span class="precio">{{ p.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+              <span class="subtexto" [class.text-danger]="p.stock <= 0">{{ etiquetaStock(p) }}</span>
+              <div class="pie">
+                @if (carrito.cantidadDe(p._id) === 0) {
+                  <button type="button" class="btn btn-primary w-100" [disabled]="p.stock <= 0" (click)="carrito.sumar(p, 1)">
+                    {{ p.stock <= 0 ? 'Sin stock' : 'Agregar' }}
+                  </button>
+                } @else {
+                  <div class="stepper">
+                    <button type="button" class="btn btn-outline-secondary" (click)="carrito.sumar(p, -1)"
+                            [attr.aria-label]="'Quitar uno de ' + p.nombre">
+                      <i class="bi bi-dash-lg" aria-hidden="true"></i>
+                    </button>
+                    <output aria-live="polite">{{ carrito.cantidadDe(p._id) }}</output>
+                    <button type="button" class="btn btn-outline-secondary" (click)="carrito.sumar(p, 1)"
+                            [disabled]="carrito.cantidadDe(p._id) >= p.stock"
+                            [attr.aria-label]="'Agregar uno de ' + p.nombre">
+                      <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+      <app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="irA($event)" />
+    }
+  </section>
+
+  <aside class="panel resumen-pedido d-none d-lg-flex" aria-labelledby="t-pedido">
+    <h2 id="t-pedido" class="h5 mb-0">Tu pedido</h2>
+
+    @if (carrito.items().length === 0) {
+      <p class="text-secondary mb-0">Todavía no agregaste productos.</p>
+    } @else {
+      <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
+        @for (i of carrito.items(); track i.producto._id) {
+          <li class="d-flex justify-content-between gap-3">
+            <span>
+              {{ i.producto.nombre }}
+              <span class="subtexto">{{ i.cantidad }} × {{ i.producto.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+            </span>
+            <span class="numero fw-semibold">{{ i.cantidad * i.producto.importe_venta | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="d-flex justify-content-between align-items-baseline border-top pt-3">
+      <span class="fw-semibold">Total estimado</span>
+      <span class="total-venta">{{ carrito.total() | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+    </div>
+    <a routerLink="/confirmar-compra" class="btn btn-primary w-100"
+       [class.disabled]="carrito.unidades() === 0" [attr.aria-disabled]="carrito.unidades() === 0 ? 'true' : null"
+       [attr.tabindex]="carrito.unidades() === 0 ? -1 : null">Revisar y enviar</a>
+    <p class="subtexto mb-0">El pedido queda pendiente. Un vendedor confirma stock, precio final y fecha de entrega.</p>
+  </aside>
 </div>
 
+@if (carrito.unidades() > 0) {
+  <div class="barra-pedido d-lg-none">
+    <span>
+      <strong>{{ carrito.unidades() }} {{ carrito.unidades() === 1 ? 'producto' : 'productos' }}</strong>
+      · {{ carrito.total() | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}
+    </span>
+    <a routerLink="/confirmar-compra" class="btn btn-primary">Ver pedido</a>
+  </div>
+}

@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../../shared/services/auth.service';
 import { Venta } from '../../../shared/models/venta.model';
 import { ordenarPorFecha, totalVenta } from '../../../shared/utils/venta';
+import { CarritoService } from '../../../shared/services/carrito.service';
 import { VentasService } from '../../ventas/ventas.service';
 
 /** Inicio del cliente: accesos al catálogo y servicios, y sus últimos pedidos. */
@@ -13,6 +14,7 @@ import { VentasService } from '../../ventas/ventas.service';
 export class ClienteDashboardComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly ventas = inject(VentasService);
+  readonly carrito = inject(CarritoService);
 
   readonly usuario = this.auth.getDecodedTokenPayload()?.['usuario'] ?? '';
   readonly total = totalVenta;

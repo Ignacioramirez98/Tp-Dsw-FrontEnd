@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { VentasService } from '../ventas/ventas.service.js';
-import { ProductosService } from '../productos/producto.service.js';
+import { CarritoService } from '../../shared/services/carrito.service';
 import { Producto } from '../../shared/models/producto.model.js';
 import { AuthService } from '../../shared/services/auth.service.js';
 import { Venta } from '../../shared/models/venta.model.js';
@@ -25,7 +25,7 @@ export class ConfirmarCompraComponent implements OnInit {
   constructor(
     private router: Router,
     private ventasService: VentasService,
-    private productosService: ProductosService,
+    private carrito: CarritoService,
     private authService: AuthService,
     private dialog: MatDialog
   ) {}
@@ -47,14 +47,13 @@ export class ConfirmarCompraComponent implements OnInit {
   }
 
   obtenerProductosSeleccionados(): void {
-    this.productosSeleccionados = this.productosService.getProductosSeleccionados();
-    this.cantidades = this.productosService.getCantidades();
+    const items = this.carrito.items();
+    this.productosSeleccionados = items.map((i) => i.producto);
+    this.cantidades = Object.fromEntries(items.map((i) => [i.producto._id, i.cantidad]));
   }
 
   calcularImporteTotal(): void {
-    this.importeTotal = this.productosSeleccionados.reduce((total, producto) => {
-      return total + (producto.importe_venta * this.cantidades[producto._id]);
-    }, 0);
+    this.importeTotal = this.carrito.total();
   }
 
   cancelar(): void {
@@ -85,7 +84,7 @@ export class ConfirmarCompraComponent implements OnInit {
     this.ventasService.crearVenta(nuevaVenta).subscribe({
       next: () => {
         const dialogRef = this.openWarningMessage('¡Su venta fue procesada exitosamente!', 'green');
-        this.productosService.limpiarProductosSeleccionados();
+        this.carrito.vaciar();
 
         setTimeout(() => {
           dialogRef.close();

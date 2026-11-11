@@ -51,8 +51,7 @@ export class AuthService {
     localStorage.removeItem('clienteId');
     localStorage.removeItem('vendedorId');
     localStorage.removeItem('operarioId');
-    localStorage.removeItem('productosSeleccionados');
-    localStorage.removeItem('cantidadesSeleccionadas');
+    localStorage.removeItem('carrito');
   }
 
   /**
