@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ProductosListComponent } from './components/productos-list/productos-list.component';
 import { ProductoFormComponent } from './components/producto-form/producto-form.component';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { FormsModule } from '@angular/forms';
 import { CampoComponent } from '../../shared/ui/campo.component';
 import { SelectorImagenComponent } from '../../shared/ui/selector-imagen.component';
@@ -32,7 +31,6 @@ const routes: Routes = [
     CampoComponent,
     PaginadorComponent,
     RouterModule.forChild(routes),
-    NgxPaginationModule,
     FormsModule,
     ReactiveFormsModule
 ]

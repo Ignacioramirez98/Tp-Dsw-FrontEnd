@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfirmarCompraComponent } from './confirmar-compra.component';
 import { RouterModule, Routes } from '@angular/router';
-import { WarningModule } from '../../shared/components/warning/warning.module.js';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 
 const routes: Routes = [
@@ -17,7 +17,7 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    WarningModule 
+    PageHeaderComponent
   ]
 })
 export class ConfirmarCompraModule {}

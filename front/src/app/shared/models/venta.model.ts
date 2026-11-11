@@ -27,28 +27,6 @@ export class Venta {
   vendedor?: Vendedor | null;
   items?: ItemVenta[];
   servicios?: Servicio[];
-
-  // Formato anterior, usado por el carrito del cliente al crear el pedido
-  clienteId?: string;
-  productoIds?: string[];
-  servicioIds?: string[];
-
-  constructor(
-    estado = 'pendiente',
-    fechaContacto: Date = new Date(),
-    _fechaDeVenta: Date | null = null,
-    _fechaEntrega: Date | null = null,
-    _fechaCancelacion: Date | null = null,
-    clienteId = '',
-    productoIds: string[] = [],
-    servicioIds: string[] = [],
-  ) {
-    this.estado = estado;
-    this.fechaContacto = fechaContacto;
-    this.clienteId = clienteId;
-    this.productoIds = productoIds;
-    this.servicioIds = servicioIds;
-  }
 }
 
 /** Datos para crear o modificar una venta. */
