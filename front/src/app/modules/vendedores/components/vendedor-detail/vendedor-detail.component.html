@@ -16,8 +16,8 @@
         <div><dt>DNI</dt><dd>{{ vendedor.dni }}</dd></div>
         <div><dt>Teléfono</dt><dd><a [href]="'tel:' + vendedor.telefono">{{ vendedor.telefono }}</a></dd></div>
         <div class="ancho-completo"><dt>Mail</dt><dd><a [href]="'mailto:' + vendedor.mail">{{ vendedor.mail }}</a></dd></div>
-        <div><dt>Ventas</dt><dd>{{ cargandoVentas ? '…' : ventas.length }}</dd></div>
-        <div><dt>Total vendido</dt><dd class="fw-semibold">{{ cargandoVentas ? '…' : (totalVendido | currency: 'ARS' : '$' : '1.0-0' : 'es-AR') }}</dd></div>
+        <div><dt>Ventas</dt><dd>{{ cargandoVentas ? '…' : errorVentas ? '—' : ventas.length }}</dd></div>
+        <div><dt>Total vendido</dt><dd class="fw-semibold">{{ cargandoVentas ? '…' : errorVentas ? '—' : (totalVendido | currency: 'ARS' : '$' : '1.0-0' : 'es-AR') }}</dd></div>
       </dl>
     </section>
 
@@ -25,6 +25,11 @@
       <h2 id="t-ventas">Ventas a su nombre</h2>
       @if (cargandoVentas) {
         <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando ventas…</div>
+      } @else if (errorVentas) {
+        <div class="estado-panel" role="alert">
+          <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ errorVentas }}
+          <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="cargarVentas()">Reintentar</button></div>
+        </div>
       } @else {
         <app-tabla-ventas [ventas]="ventas" columna="cliente" vacio="Este vendedor todavía no tiene ventas." />
       }

@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { AuthService } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { LoginComponent } from './login.component';
+import { MENSAJE_ERROR_SERVIDOR, MENSAJE_SIN_CONEXION } from '../../shared/utils/errores';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -69,6 +71,69 @@ describe('LoginComponent', () => {
     component.onLogin();
 
     expect(component.errorMessage).toBe('Usuario o contraseña incorrectos');
+  });
+
+  it('muestra el motivo que manda el back cuando las credenciales son incorrectas', () => {
+    authServiceSpy.login.and.returnValue(throwError(() => new HttpErrorResponse({ status: 401, error: { message: 'Credenciales inválidas' } })));
+
+    component.onLogin();
+
+    expect(component.errorMessage).toBe('Credenciales inválidas');
+  });
+
+  it('avisa si el usuario está desactivado (403)', () => {
+    authServiceSpy.login.and.returnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
+
+    component.onLogin();
+
+    expect(component.errorMessage).toBe('Tu usuario está desactivado. Consultá con un administrador.');
+  });
+
+  it('sin conexión avisa que no se pudo conectar, no que la clave es incorrecta', () => {
+    authServiceSpy.login.and.returnValue(throwError(() => new HttpErrorResponse({ status: 0 })));
+
+    component.onLogin();
+
+    expect(component.errorMessage).toBe(MENSAJE_SIN_CONEXION);
+  });
+
+  it('si el servidor falla (500) avisa que tuvo un problema, no que la clave es incorrecta', () => {
+    authServiceSpy.login.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+    component.onLogin();
+
+    expect(component.errorMessage).toBe(MENSAJE_ERROR_SERVIDOR);
+  });
+
+  it('si la respuesta no trae token, avisa sin jerga técnica y no guarda nada', () => {
+    authServiceSpy.login.and.returnValue(of({ message: 'Login exitoso' } as any));
+
+    component.onLogin();
+
+    expect(component.errorMessage).toBe('No pudimos iniciar tu sesión. Probá de nuevo en unos minutos.');
+    expect(authServiceSpy.saveToken).not.toHaveBeenCalled();
+    expect(component.enviando).toBeFalse();
+  });
+
+  it('no envía dos veces mientras espera la respuesta y vuelve a habilitar el botón al fallar', () => {
+    const respuesta = new Subject<any>();
+    authServiceSpy.login.and.returnValue(respuesta);
+
+    component.onLogin();
+    component.onLogin();
+    fixture.detectChanges();
+
+    const boton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+    expect(authServiceSpy.login).toHaveBeenCalledTimes(1);
+    expect(boton.disabled).toBeTrue();
+    expect(boton.textContent).toContain('Ingresando');
+
+    respuesta.error(new HttpErrorResponse({ status: 401, error: { message: 'Credenciales inválidas' } }));
+    fixture.detectChanges();
+
+    expect(boton.disabled).toBeFalse();
+    expect(boton.textContent).toContain('Iniciar sesión');
+    expect(fixture.nativeElement.querySelector('.alert-danger')?.textContent).toContain('Credenciales inválidas');
   });
 
   it('debe redirigir al vendedor a su dashboard operativo', () => {

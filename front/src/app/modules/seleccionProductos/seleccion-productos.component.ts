@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Producto } from '../../shared/models/producto.model';
 import { CarritoService } from '../../shared/services/carrito.service';
 import { NotificacionService } from '../../shared/ui/notificacion.service';
 import { urlImagen } from '../../shared/utils/imagen';
+import { mensajeDeErrorHttp } from '../../shared/utils/errores';
 import { ProductosService } from '../productos/producto.service';
 
 /** Catálogo del cliente: busca productos y arma el pedido (el carrito vive en CarritoService). */
@@ -20,11 +21,28 @@ export class SeleccionProductosComponent implements OnInit {
   readonly urlImagen = urlImagen;
   readonly porPagina = 12;
 
-  productos: Producto[] = [];
+  // El estado que cambia la pantalla vive en signals: lo derivado se recalcula solo cuando cambia algo
+  readonly productos = signal<Producto[]>([]);
+  readonly busqueda = signal('');
+  readonly pagina = signal(1);
   cargando = true;
   error = '';
-  busqueda = '';
-  pagina = 1;
+
+  /** Productos que coinciden con la búsqueda (en nombre y descripción, sin distinguir mayúsculas ni tildes). */
+  readonly filtrados = computed(() => {
+    const termino = this.normalizar(this.busqueda());
+    const todos = this.productos();
+    if (!termino) return todos;
+    return todos.filter((p) => this.normalizar(`${p.nombre} ${p.descripcion ?? ''}`).includes(termino));
+  });
+
+  readonly totalPaginas = computed(() => Math.max(1, Math.ceil(this.filtrados().length / this.porPagina)));
+
+  /** Productos de la página actual. */
+  readonly visibles = computed(() => {
+    const desde = (this.pagina() - 1) * this.porPagina;
+    return this.filtrados().slice(desde, desde + this.porPagina);
+  });
 
   ngOnInit(): void {
     this.cargar();
@@ -36,43 +54,27 @@ export class SeleccionProductosComponent implements OnInit {
     this.error = '';
     this.productosService.getProductos().subscribe({
       next: ({ data }) => {
-        this.productos = [...data].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+        const ordenados = [...data].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+        this.productos.set(ordenados);
         this.cargando = false;
-        if (this.carrito.actualizarProductos(this.productos)) {
+        if (this.carrito.actualizarProductos(ordenados)) {
           this.notificaciones.info('Actualizamos tu pedido: cambió el precio o el stock de algún producto.');
         }
       },
-      error: () => {
-        this.error = 'No se pudo cargar el catálogo de productos.';
+      error: (err) => {
+        this.error = mensajeDeErrorHttp(err, 'No se pudo cargar el catálogo de productos.');
         this.cargando = false;
       },
     });
   }
 
-  /** Productos que coinciden con la búsqueda (en nombre y descripción, sin distinguir mayúsculas ni tildes). */
-  get filtrados(): Producto[] {
-    const termino = this.normalizar(this.busqueda);
-    if (!termino) return this.productos;
-    return this.productos.filter((p) => this.normalizar(`${p.nombre} ${p.descripcion ?? ''}`).includes(termino));
-  }
-
-  get totalPaginas(): number {
-    return Math.max(1, Math.ceil(this.filtrados.length / this.porPagina));
-  }
-
-  /** Productos de la página actual. */
-  get visibles(): Producto[] {
-    const desde = (this.pagina - 1) * this.porPagina;
-    return this.filtrados.slice(desde, desde + this.porPagina);
-  }
-
   buscar(texto: string): void {
-    this.busqueda = texto;
-    this.pagina = 1;
+    this.busqueda.set(texto);
+    this.pagina.set(1);
   }
 
   irA(pagina: number): void {
-    this.pagina = pagina;
+    this.pagina.set(pagina);
   }
 
   etiquetaStock(producto: Producto): string {

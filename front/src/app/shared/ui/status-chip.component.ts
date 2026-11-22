@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 /** Estado visual de una venta (u otro registro con estado). */
 @Component({
   selector: 'app-status-chip',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<span class="chip chip-{{ clave }}">{{ etiqueta }}</span>`,
   styles: `
     .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;

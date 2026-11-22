@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 /**
  * Encabezado de pantalla: título, descripción opcional y acciones a la derecha.
@@ -9,6 +9,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-page-header',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="encabezado">
       <div class="textos">

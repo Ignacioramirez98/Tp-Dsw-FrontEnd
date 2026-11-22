@@ -7,6 +7,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { CarritoService } from '../../shared/services/carrito.service';
 import { ConfirmacionService } from '../../shared/ui/confirmacion.service';
 import { NotificacionService } from '../../shared/ui/notificacion.service';
+import { mensajeDeErrorHttp } from '../../shared/utils/errores';
 import { ProductosService } from '../productos/producto.service';
 import { VentasService } from '../ventas/ventas.service';
 
@@ -38,7 +39,7 @@ export class ConfirmarCompraComponent implements OnInit {
           this.notificaciones.info('Actualizamos tu pedido: cambió el precio o el stock de algún producto.');
         }
       },
-      // Sin conexión, el interceptor ya avisa; el pedido se muestra con lo último que se guardó
+      // Sin conexión, el pedido se muestra con lo último que se guardó
       error: () => {},
     });
 
@@ -70,10 +71,7 @@ export class ConfirmarCompraComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.enviando = false;
-        // Con status 0 el interceptor ya muestra el aviso de conexión
-        this.errorServidor = err.status === 0
-          ? 'No se pudo conectar con el servidor.'
-          : err.error?.message ?? 'No se pudo enviar el pedido. Intentá de nuevo.';
+        this.errorServidor = mensajeDeErrorHttp(err, 'No se pudo enviar el pedido. Intentá de nuevo.');
       },
     });
   }

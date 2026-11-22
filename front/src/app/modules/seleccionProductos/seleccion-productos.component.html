@@ -18,13 +18,13 @@
         <p class="mb-3">{{ error }}</p>
         <button type="button" class="btn btn-outline-primary" (click)="cargar()">Reintentar</button>
       </div>
-    } @else if (productos.length === 0) {
+    } @else if (productos().length === 0) {
       <div class="panel estado-panel"><i class="bi bi-box-seam" aria-hidden="true"></i>Todavía no hay productos.</div>
-    } @else if (filtrados.length === 0) {
+    } @else if (filtrados().length === 0) {
       <div class="panel estado-panel"><i class="bi bi-search" aria-hidden="true"></i>Ningún producto coincide con la búsqueda.</div>
     } @else {
       <div class="grilla-productos">
-        @for (p of visibles; track p._id) {
+        @for (p of visibles(); track p._id) {
           <article class="panel tarjeta-producto">
             <div class="foto">
               @if (urlImagen(p.imagenUrl); as url) {
@@ -64,7 +64,7 @@
           </article>
         }
       </div>
-      <app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="irA($event)" />
+      <app-paginador [pagina]="pagina()" [totalPaginas]="totalPaginas()" (cambioPagina)="irA($event)" />
     }
   </section>
 

@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NotificacionService } from './notificacion.service';
 
 /** Contenedor de avisos; va una sola vez en AppComponent. */
 @Component({
   selector: 'app-toasts',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="toasts" aria-live="polite" aria-atomic="false">
       @for (n of servicio.notificaciones(); track n.id) {

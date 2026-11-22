@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ServiciosService } from '../../servicio.service';
 import { OperariosService } from '../../../operarios/operario.service';
@@ -6,6 +7,7 @@ import { Servicio } from '../../../../shared/models/servicio.model';
 import { Operario } from '../../../../shared/models/operario.model';
 import { FormularioBase } from '../../../../shared/ui/formulario-base';
 import { urlImagen } from '../../../../shared/utils/imagen';
+import { mensajeDeErrorHttp } from '../../../../shared/utils/errores';
 
 @Component({
   selector: 'app-servicio-form',
@@ -23,6 +25,8 @@ export class ServicioFormComponent extends FormularioBase<Servicio> {
   };
 
   operarios: Operario[] = [];
+  /** Aviso bajo el campo si no se pudieron traer los operarios (el campo es opcional). */
+  errorOperarios = '';
   imagen: File | null = null;
   imagenActual: string | null = null;
 
@@ -30,6 +34,11 @@ export class ServicioFormComponent extends FormularioBase<Servicio> {
     super();
     inject(OperariosService).getOperarios().subscribe({
       next: ({ data }) => (this.operarios = [...data].sort((a, b) => a.apellido.localeCompare(b.apellido))),
+      error: (err: HttpErrorResponse) => {
+        this.errorOperarios = 'No se pudieron cargar los operarios. Podés guardar el servicio sin asignar uno.';
+        // El 403 ya lo avisa el interceptor
+        if (err.status !== 403) this.notificaciones.error(mensajeDeErrorHttp(err, 'No se pudieron cargar los operarios.'));
+      },
     });
   }
 

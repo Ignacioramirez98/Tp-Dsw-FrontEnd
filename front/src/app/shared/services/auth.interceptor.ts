@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { AuthService } from './auth.service.js';
+import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 import { NotificacionService } from '../ui/notificacion.service';
 
@@ -32,12 +32,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         notificaciones.info('Tu sesión venció. Volvé a iniciar sesión.');
       }
 
+      // Solo se avisa lo transversal (sesión y permisos); el resto lo muestra cada pantalla con su propio texto
       if (error.status === 403) {
         notificaciones.error(error.error?.message ?? 'No tenés permisos para realizar esta acción.');
-      }
-
-      if (error.status === 0) {
-        notificaciones.error('No se pudo conectar con el servidor. Revisá tu conexión e intentá de nuevo.');
       }
 
       return throwError(() => error);

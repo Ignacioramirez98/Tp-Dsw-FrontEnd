@@ -13,6 +13,7 @@ import { ConfirmacionService } from '../../shared/ui/confirmacion.service';
 import { NotificacionService } from '../../shared/ui/notificacion.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { Producto } from '../../shared/models/producto.model';
+import { MENSAJE_ERROR_SERVIDOR } from '../../shared/utils/errores';
 
 registerLocaleData(localeEsAr, 'es-AR');
 
@@ -103,12 +104,26 @@ describe('ConfirmarCompraComponent (Tu pedido)', () => {
 
   it('si el back no manda mensaje, usa uno genérico', () => {
     crear().fijarCantidad(tractor(), 1);
-    ventas.crearVenta.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    ventas.crearVenta.and.returnValue(throwError(() => new HttpErrorResponse({ status: 400 })));
     const { componente } = montar();
 
     componente.enviar();
 
     expect(componente.errorServidor).toBe('No se pudo enviar el pedido. Intentá de nuevo.');
+  });
+
+  it('si el servidor falla (5xx) avisa que tuvo un problema y no vacía el pedido', () => {
+    const carrito = crear();
+    carrito.fijarCantidad(tractor(), 1);
+    ventas.crearVenta.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500, error: { message: 'MongoServerError: timeout' } })),
+    );
+    const { componente } = montar();
+
+    componente.enviar();
+
+    expect(componente.errorServidor).toBe(MENSAJE_ERROR_SERVIDOR);
+    expect(carrito.unidades()).toBe(1);
   });
 
   it('sin conexión (status 0) avisa que no se pudo conectar', () => {

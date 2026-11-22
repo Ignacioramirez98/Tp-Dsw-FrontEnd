@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { AuthService, LoginResponse } from '../../shared/services/auth.service';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { rutaInicio } from '../../shared/auth/roles';
+import { mensajeDeErrorHttp } from '../../shared/utils/errores';
+
+const MENSAJE_USUARIO_DESACTIVADO = 'Tu usuario está desactivado. Consultá con un administrador.';
+const MENSAJE_SESION_FALLIDA = 'No pudimos iniciar tu sesión. Probá de nuevo en unos minutos.';
 
 @Component({
     selector: 'app-login',
@@ -14,6 +19,8 @@ export class LoginComponent {
   usuario: string = '';
   contrasena: string = '';
   errorMessage: string = '';
+  /** Mientras espera la respuesta, el botón queda deshabilitado para no enviar dos veces. */
+  enviando = false;
 
   constructor(private authService: AuthService, private router: Router) { }
 
@@ -33,14 +40,16 @@ export class LoginComponent {
   }
 
   onLogin(): void {
+    if (this.enviando) return;
     this.errorMessage = '';
+    this.enviando = true;
 
-    this.authService.login(this.usuario, this.contrasena).subscribe(
-      (response: LoginResponse | any) => {
+    this.authService.login(this.usuario, this.contrasena).pipe(finalize(() => (this.enviando = false))).subscribe({
+      next: (response: LoginResponse | any) => {
         const token = response?.token ?? response?.data?.token;
 
         if (!token) {
-          this.errorMessage = 'La respuesta de login no incluyo token. Verifica el backend.';
+          this.errorMessage = MENSAJE_SESION_FALLIDA;
           return;
         }
 
@@ -55,12 +64,12 @@ export class LoginComponent {
         const activo = data?.activo;
 
         if (!rol) {
-          this.errorMessage = 'La respuesta de login no incluyo rol. Verifica el backend.';
+          this.errorMessage = MENSAJE_SESION_FALLIDA;
           return;
         }
 
         if (activo === false) {
-          this.errorMessage = 'Usuario desactivado.';
+          this.errorMessage = MENSAJE_USUARIO_DESACTIVADO;
           return;
         }
 
@@ -81,19 +90,14 @@ export class LoginComponent {
 
         this.router.navigate([rutaInicio(rol)]);
       },
-      (error) => {
+      error: (error) => {
         if (error?.status === 403) {
-          this.errorMessage = 'Usuario desactivado.';
+          this.errorMessage = MENSAJE_USUARIO_DESACTIVADO;
           return;
         }
 
-        if (error?.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor. Verificá que el backend esté levantado.';
-          return;
-        }
-
-        this.errorMessage = error?.error?.message || 'Usuario o contraseña incorrectos';
+        this.errorMessage = mensajeDeErrorHttp(error, 'Usuario o contraseña incorrectos');
       }
-    );
+    });
   }
 }
