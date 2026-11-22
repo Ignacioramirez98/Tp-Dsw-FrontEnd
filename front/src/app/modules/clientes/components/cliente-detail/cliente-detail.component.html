@@ -31,9 +31,14 @@
 
     @if (veVentas) {
       <section class="panel panel-relacion" aria-labelledby="t-ventas">
-        <h2 id="t-ventas">Ventas <span class="text-secondary fw-normal">({{ ventas.length }})</span></h2>
+        <h2 id="t-ventas">Ventas @if (!errorVentas) {<span class="text-secondary fw-normal">({{ ventas.length }})</span>}</h2>
         @if (cargandoVentas) {
           <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando ventas…</div>
+        } @else if (errorVentas) {
+          <div class="estado-panel" role="alert">
+            <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ errorVentas }}
+            <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="cargarVentas()">Reintentar</button></div>
+          </div>
         } @else {
           <app-tabla-ventas [ventas]="ventas" columna="vendedor" vacio="Este cliente todavía no tiene ventas." />
         }

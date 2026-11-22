@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { NotificacionService } from './notificacion.service';
 import { mensajeDeError } from '../utils/validadores';
+import { mensajeDeErrorHttp } from '../utils/errores';
 
 /**
  * Comportamiento común de los formularios de alta y edición (patrón Template Method):
@@ -56,8 +57,13 @@ export abstract class FormularioBase<T> implements OnInit {
           this.cargarEnFormulario(entidad);
           this.cargando = false;
         },
-        error: () => {
-          this.notificaciones.error(`No se encontró ${this.genero === 'a' ? 'la' : 'el'} ${this.recurso}.`);
+        error: (err: HttpErrorResponse) => {
+          const articulo = this.genero === 'a' ? 'la' : 'el';
+          this.notificaciones.error(
+            err.status === 404
+              ? `No se encontró ${articulo} ${this.recurso}.`
+              : mensajeDeErrorHttp(err, `No se pudo cargar ${articulo} ${this.recurso}.`),
+          );
           this.router.navigate([this.rutaListado]);
         },
       });
@@ -105,9 +111,7 @@ export abstract class FormularioBase<T> implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.guardando = false;
         // El backend explica qué falló (ej. "Validación fallida: dni debe tener 7 u 8 dígitos")
-        this.errorServidor = err.status === 0
-          ? 'No se pudo conectar con el servidor.'
-          : err.error?.message ?? 'No se pudo guardar. Revisá los datos e intentá de nuevo.';
+        this.errorServidor = mensajeDeErrorHttp(err, 'No se pudo guardar. Revisá los datos e intentá de nuevo.');
       },
     });
   }

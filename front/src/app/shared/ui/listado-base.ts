@@ -1,8 +1,10 @@
 import { Directive, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject, catchError, map, of, switchMap } from 'rxjs';
 import { ConfirmacionService } from './confirmacion.service';
 import { NotificacionService } from './notificacion.service';
+import { mensajeDeErrorHttp } from '../utils/errores';
 
 /**
  * Comportamiento común de las pantallas de listado (patrón Template Method):
@@ -24,6 +26,9 @@ export abstract class ListadoBase<T extends { _id: string }> implements OnInit {
   totalPaginas = 1;
   eliminandoId: string | null = null;
 
+  /** Cada pedido de recarga cancela el anterior: una respuesta vieja nunca pisa a la nueva. */
+  private readonly recarga$ = new Subject<void>();
+
   /** Pide los registros al backend. */
   protected abstract cargar$(): Observable<{ data: T[] }>;
   /** Elimina un registro en el backend. */
@@ -35,6 +40,32 @@ export abstract class ListadoBase<T extends { _id: string }> implements OnInit {
   /** Nombre del recurso en plural para los mensajes, ej. "clientes". */
   protected abstract readonly recurso: string;
 
+  constructor() {
+    this.recarga$
+      .pipe(
+        // switchMap descarta el pedido anterior si llega otra recarga (ej. el usuario cambia de filtro rápido).
+        // El error se captura adentro para que un fallo no corte las recargas siguientes.
+        switchMap(() =>
+          this.cargar$().pipe(
+            map((respuesta) => ({ respuesta, fallo: null as HttpErrorResponse | null })),
+            catchError((fallo: HttpErrorResponse) => of({ respuesta: null, fallo })),
+          ),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ respuesta, fallo }) => {
+        this.cargando = false;
+        if (respuesta) {
+          this.items = respuesta.data ?? [];
+          this.aplicarFiltro();
+          return;
+        }
+        this.items = [];
+        this.aplicarFiltro();
+        this.error = mensajeDeErrorHttp(fallo, `No se pudo cargar el listado de ${this.recurso}.`);
+      });
+  }
+
   ngOnInit(): void {
     this.recargar();
   }
@@ -42,21 +73,7 @@ export abstract class ListadoBase<T extends { _id: string }> implements OnInit {
   recargar(): void {
     this.cargando = true;
     this.error = '';
-    this.cargar$().subscribe({
-      next: (respuesta) => {
-        this.items = respuesta.data ?? [];
-        this.cargando = false;
-        this.aplicarFiltro();
-      },
-      error: (err: HttpErrorResponse) => {
-        this.cargando = false;
-        this.items = [];
-        this.aplicarFiltro();
-        this.error = err.status === 0
-          ? 'No se pudo conectar con el servidor.'
-          : `No se pudo cargar el listado de ${this.recurso}.`;
-      },
-    });
+    this.recarga$.next();
   }
 
   /** Se llama al escribir en el buscador. */
@@ -96,9 +113,10 @@ export abstract class ListadoBase<T extends { _id: string }> implements OnInit {
           },
           error: (err: HttpErrorResponse) => {
             this.eliminandoId = null;
-            // El backend explica por qué no se puede (ej. 409 "tiene ventas asociadas")
+            // El backend explica por qué no se puede (ej. 409 "tiene ventas asociadas").
+            // El 403 ya lo avisa el interceptor.
             if (err.status !== 403) {
-              this.notificaciones.error(err.error?.message ?? `No se pudo eliminar ${this.descripcion(item)}.`);
+              this.notificaciones.error(mensajeDeErrorHttp(err, `No se pudo eliminar ${this.descripcion(item)}.`));
             }
           },
         });

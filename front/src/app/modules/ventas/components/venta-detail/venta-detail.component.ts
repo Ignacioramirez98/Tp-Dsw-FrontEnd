@@ -11,6 +11,7 @@ import { Vendedor } from '../../../../shared/models/vendedor.model';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { ConfirmacionService } from '../../../../shared/ui/confirmacion.service';
 import { NotificacionService } from '../../../../shared/ui/notificacion.service';
+import { mensajeDeErrorHttp } from '../../../../shared/utils/errores';
 import { totalVenta } from '../../../../shared/utils/venta';
 import { ConcretarVentaDialogComponent, ResultadoConcretar } from '../concretar-venta-dialog/concretar-venta-dialog.component';
 
@@ -97,7 +98,9 @@ export class VentaDetailComponent implements OnInit {
         this.cargando = false;
       },
       error: (err: HttpErrorResponse) => {
-        this.error = err.status === 404 ? 'La venta no existe o no tenés acceso a ella.' : 'No se pudo cargar la venta.';
+        this.error = err.status === 404
+          ? 'La venta no existe o no tenés acceso a ella.'
+          : mensajeDeErrorHttp(err, 'No se pudo cargar la venta.');
         this.cargando = false;
       },
     });
@@ -111,21 +114,30 @@ export class VentaDetailComponent implements OnInit {
       ? this.vendedores.getVendedores().pipe(map((r) => r.data))
       : of(undefined);
 
-    vendedores$.subscribe((vendedores) => {
-      this.dialog
-        .open<ConcretarVentaDialogComponent, unknown, ResultadoConcretar>(ConcretarVentaDialogComponent, {
-          data: { venta, vendedores },
-          width: '480px',
-          maxWidth: '94vw',
-          autoFocus: 'dialog',
-          ariaLabelledBy: 'concretar-titulo',
-        })
-        .afterClosed()
-        .subscribe((resultado) => {
-          if (!resultado) return;
-          this.ejecutar(this.ventas.concretar(venta._id, resultado), 'La venta fue concretada y se descontó el stock.');
-        });
+    vendedores$.subscribe({
+      next: (vendedores) => this.abrirDialogoConcretar(venta, vendedores),
+      error: (err: HttpErrorResponse) => {
+        // Sin la lista de vendedores el admin no puede elegir quién concreta: no se abre el diálogo vacío.
+        // El 403 ya lo avisa el interceptor.
+        if (err.status !== 403) this.notificaciones.error(mensajeDeErrorHttp(err, 'No se pudieron cargar los vendedores. Probá de nuevo.'));
+      },
     });
+  }
+
+  private abrirDialogoConcretar(venta: Venta, vendedores: Vendedor[] | undefined): void {
+    this.dialog
+      .open<ConcretarVentaDialogComponent, unknown, ResultadoConcretar>(ConcretarVentaDialogComponent, {
+        data: { venta, vendedores },
+        width: '480px',
+        maxWidth: '94vw',
+        autoFocus: 'dialog',
+        ariaLabelledBy: 'concretar-titulo',
+      })
+      .afterClosed()
+      .subscribe((resultado) => {
+        if (!resultado) return;
+        this.ejecutar(this.ventas.concretar(venta._id, resultado), 'La venta fue concretada y se descontó el stock.');
+      });
   }
 
   cancelar(): void {
@@ -157,8 +169,9 @@ export class VentaDetailComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.procesando = false;
-        // 409: el backend explica el motivo (ej. "Stock insuficiente: Tractor (pedido 2, disponible 1)")
-        if (err.status !== 403) this.notificaciones.error(err.error?.message ?? 'No se pudo completar la operación.');
+        // 409: el backend explica el motivo (ej. "Stock insuficiente: Tractor (pedido 2, disponible 1)").
+        // El 403 ya lo avisa el interceptor.
+        if (err.status !== 403) this.notificaciones.error(mensajeDeErrorHttp(err, 'No se pudo completar la operación.'));
         if (err.status === 409) this.cargar();
       },
     });

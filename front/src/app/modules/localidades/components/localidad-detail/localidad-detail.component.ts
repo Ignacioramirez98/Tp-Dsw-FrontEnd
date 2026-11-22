@@ -4,6 +4,7 @@ import { LocalidadesService } from '../../localidad.service';
 import { ClientesService } from '../../../clientes/cliente.service';
 import { Localidad } from '../../../../shared/models/localidad.model';
 import { Cliente } from '../../../../shared/models/cliente.model';
+import { mensajeDeErrorHttp } from '../../../../shared/utils/errores';
 
 /** Localidad con los clientes que viven en ella. */
 @Component({
@@ -21,6 +22,7 @@ export class LocalidadDetailComponent implements OnInit {
   cargando = true;
   cargandoClientes = true;
   error = '';
+  errorClientes = '';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -30,16 +32,29 @@ export class LocalidadDetailComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => {
-        this.error = err.status === 404 ? 'La localidad no existe o fue eliminada.' : 'No se pudo cargar la localidad.';
+        this.error = err.status === 404
+          ? 'La localidad no existe o fue eliminada.'
+          : mensajeDeErrorHttp(err, 'No se pudo cargar la localidad.');
         this.cargando = false;
       },
     });
+    this.cargarClientes();
+  }
+
+  /** Pide los clientes de la localidad; si falla, la tarjeta lo dice y deja reintentar. */
+  cargarClientes(): void {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.cargandoClientes = true;
+    this.errorClientes = '';
     this.clientesService.getClientes({ localidadId: id }).subscribe({
       next: ({ data }) => {
         this.clientes = [...data].sort((a, b) => a.apellido.localeCompare(b.apellido));
         this.cargandoClientes = false;
       },
-      error: () => (this.cargandoClientes = false),
+      error: (err) => {
+        this.errorClientes = mensajeDeErrorHttp(err, 'No se pudieron cargar los clientes de la localidad.');
+        this.cargandoClientes = false;
+      },
     });
   }
 }

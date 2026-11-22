@@ -19,7 +19,7 @@
         <input class="form-control" type="number" id="importe_por_hora" formControlName="importe_por_hora" [class.is-invalid]="error('importe_por_hora')"
                  [attr.aria-invalid]="!!error('importe_por_hora')" [attr.aria-describedby]="error('importe_por_hora') ? 'importe_por_hora-error' : null" min="0" step="0.01" inputmode="decimal">
       </app-campo>
-      <app-campo etiqueta="Operario responsable" para="operarioId" [error]="error('operarioId')" [opcional]="true">
+      <app-campo etiqueta="Operario responsable" para="operarioId" [error]="error('operarioId')" [ayuda]="errorOperarios" [opcional]="true">
         <select class="form-select" id="operarioId" formControlName="operarioId" [class.is-invalid]="error('operarioId')"
                  [attr.aria-invalid]="!!error('operarioId')" [attr.aria-describedby]="error('operarioId') ? 'operarioId-error' : null">
           <option value="">Sin asignar</option>

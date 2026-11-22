@@ -4,6 +4,7 @@ import { VendedoresService } from '../../vendedor.service';
 import { VentasService } from '../../../ventas/ventas.service';
 import { Vendedor } from '../../../../shared/models/vendedor.model';
 import { Venta } from '../../../../shared/models/venta.model';
+import { mensajeDeErrorHttp } from '../../../../shared/utils/errores';
 import { ordenarPorFecha, totalVenta } from '../../../../shared/utils/venta';
 
 /** Vendedor con las ventas que concretó y lo que facturó. */
@@ -22,6 +23,7 @@ export class VendedorDetailComponent implements OnInit {
   cargando = true;
   cargandoVentas = true;
   error = '';
+  errorVentas = '';
 
   /** Suma de las ventas que no fueron canceladas. */
   get totalVendido(): number {
@@ -36,16 +38,29 @@ export class VendedorDetailComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => {
-        this.error = err.status === 404 ? 'El vendedor no existe o fue eliminado.' : 'No se pudo cargar el vendedor.';
+        this.error = err.status === 404
+          ? 'El vendedor no existe o fue eliminado.'
+          : mensajeDeErrorHttp(err, 'No se pudo cargar el vendedor.');
         this.cargando = false;
       },
     });
+    this.cargarVentas();
+  }
+
+  /** Pide las ventas del vendedor; si falla, la tarjeta lo dice y deja reintentar. */
+  cargarVentas(): void {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.cargandoVentas = true;
+    this.errorVentas = '';
     this.ventasService.getVentas({ vendedorId: id }).subscribe({
       next: ({ data }) => {
         this.ventas = ordenarPorFecha(data);
         this.cargandoVentas = false;
       },
-      error: () => (this.cargandoVentas = false),
+      error: (err) => {
+        this.errorVentas = mensajeDeErrorHttp(err, 'No se pudieron cargar las ventas del vendedor.');
+        this.cargandoVentas = false;
+      },
     });
   }
 }

@@ -13,11 +13,14 @@
           required />
       </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger">
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
         {{ errorMessage }}
       </div>
 
-      <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+      <button type="submit" class="btn btn-primary w-100" [disabled]="enviando">
+        <span *ngIf="enviando" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        {{ enviando ? 'Ingresando…' : 'Iniciar sesión' }}
+      </button>
     </form>
     <div class="text-center mt-3">
       <small>¿No tienes cuenta? <a href="/registro">Regístrate</a></small>

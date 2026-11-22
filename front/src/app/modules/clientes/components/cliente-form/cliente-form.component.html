@@ -44,7 +44,7 @@
         <input class="form-control" type="text" id="direccion" formControlName="direccion" [class.is-invalid]="error('direccion')"
                  [attr.aria-invalid]="!!error('direccion')" [attr.aria-describedby]="error('direccion') ? 'direccion-error' : null" autocomplete="street-address">
       </app-campo>
-      <app-campo etiqueta="Localidad" para="localidadId" [error]="error('localidadId')" [opcional]="true">
+      <app-campo etiqueta="Localidad" para="localidadId" [error]="error('localidadId')" [ayuda]="errorLocalidades" [opcional]="true">
         <select class="form-select" id="localidadId" formControlName="localidadId" [class.is-invalid]="error('localidadId')"
                  [attr.aria-invalid]="!!error('localidadId')" [attr.aria-describedby]="error('localidadId') ? 'localidadId-error' : null">
           <option value="">Sin localidad</option>

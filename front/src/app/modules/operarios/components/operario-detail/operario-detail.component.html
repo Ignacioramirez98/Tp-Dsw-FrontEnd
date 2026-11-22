@@ -20,9 +20,14 @@
     </section>
 
     <section class="panel panel-relacion" aria-labelledby="t-servicios">
-      <h2 id="t-servicios">Servicios a cargo <span class="text-secondary fw-normal">({{ servicios.length }})</span></h2>
+      <h2 id="t-servicios">Servicios a cargo @if (!errorServicios) {<span class="text-secondary fw-normal">({{ servicios.length }})</span>}</h2>
       @if (cargandoServicios) {
         <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando servicios…</div>
+      } @else if (errorServicios) {
+        <div class="estado-panel" role="alert">
+          <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ errorServicios }}
+          <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="cargarServicios()">Reintentar</button></div>
+        </div>
       } @else if (servicios.length === 0) {
         <div class="estado-panel"><i class="bi bi-tools" aria-hidden="true"></i>Este operario no tiene servicios asignados.</div>
       } @else {
