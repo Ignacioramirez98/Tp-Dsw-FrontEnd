@@ -1,6 +1,6 @@
 # Front
 
-Proyecto Angular 18 del frontend.
+Proyecto Angular 20 del frontend.
 
 ## Requisitos previos
 
@@ -27,6 +27,8 @@ Abrir: `http://localhost:4200`
 
 - `npm run start`: servidor de desarrollo.
 - `npm run build`: build de producción.
+- `npm run build:prod`: igual, pero antes verifica que `apiUrl` de producción sea la URL https del back desplegado (falla si apunta a localhost).
+- `npm run verificar:prod`: solo la verificación anterior.
 - `npm run watch`: build en modo watch.
 - `npm run test`: tests unitarios.
 - `npm run test:e2e`: tests end-to-end (Playwright).
@@ -57,5 +59,17 @@ npx playwright show-report   # reporte HTML
 
 ## Configuración de ambientes
 
-- `src/environments/environment.ts`
-- `src/environments/environment.development.ts`
+Hay dos ambientes. La URL del back se lee siempre de `environment.apiUrl` (también para las imágenes, con `urlImagen()`); no hay URLs escritas a mano en el código.
+
+| Ambiente | Archivo | Se usa con | `apiUrl` |
+|---|---|---|---|
+| Desarrollo | `src/environments/environment.development.ts` | `npm start` | `http://localhost:3000` (el back de cada PC) |
+| Producción | `src/environments/environment.ts` | `npm run build` / `npm run build:prod` | URL https del back desplegado en Vercel |
+
+Cómo funciona: `ng build` usa por defecto la configuración `production`, que toma `environment.ts` tal cual. La configuración `development` de `angular.json` lo reemplaza por `environment.development.ts`.
+
+Para apuntar a otro back de producción hay que cambiar `apiUrl` en `environment.ts`:
+- con `https://` y **sin barra final** (por ejemplo `https://pauny-crm-api.vercel.app`);
+- sin secretos: ese archivo termina dentro del JavaScript que descarga el navegador.
+
+Del lado del back, la variable `FRONTEND_URL` tiene que ser exactamente la URL del front desplegado; si no, el navegador bloquea las peticiones por CORS (ver el README del back).
