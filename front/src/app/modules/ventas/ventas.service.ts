@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { FiltrosVenta, Venta, VentaPayload } from '../../shared/models/venta.model';
+import { FiltrosVenta, RespuestaVenta, Venta, VentaPayload } from '../../shared/models/venta.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -25,8 +25,9 @@ export class VentasService {
     return this.http.get<{ data: Venta }>(`${this.apiUrl}/${id}`);
   }
 
-  crearVenta(venta: VentaPayload | Venta): Observable<{ data: Venta }> {
-    return this.http.post<{ data: Venta }>(this.apiUrl, venta);
+  /** Si la crea un cliente, el back le manda el mail "Recibimos tu pedido" (ver `notificacion`). */
+  crearVenta(venta: VentaPayload | Venta): Observable<RespuestaVenta> {
+    return this.http.post<RespuestaVenta>(this.apiUrl, venta);
   }
 
   actualizarVenta(id: string, cambios: VentaPayload): Observable<{ data: Venta }> {
@@ -34,13 +35,16 @@ export class VentasService {
   }
 
   /** CUU Concretar Venta: descuenta stock y la deja a nombre del vendedor. */
-  concretar(id: string, datos: { vendedorId?: string; fechaEntrega?: string | null } = {}): Observable<{ data: Venta }> {
-    return this.http.post<{ data: Venta }>(`${this.apiUrl}/${id}/concretar`, datos);
+  concretar(
+    id: string,
+    datos: { vendedorId?: string; fechaEntrega?: string | null; notificarCliente?: boolean } = {},
+  ): Observable<RespuestaVenta> {
+    return this.http.post<RespuestaVenta>(`${this.apiUrl}/${id}/concretar`, datos);
   }
 
   /** Cancela la venta (si estaba concretada, el backend devuelve el stock). */
-  cancelar(id: string): Observable<{ data: Venta }> {
-    return this.http.post<{ data: Venta }>(`${this.apiUrl}/${id}/cancelar`, {});
+  cancelar(id: string, notificarCliente = true): Observable<RespuestaVenta> {
+    return this.http.post<RespuestaVenta>(`${this.apiUrl}/${id}/cancelar`, { notificarCliente });
   }
 
   deleteVenta(id: string): Observable<void> {

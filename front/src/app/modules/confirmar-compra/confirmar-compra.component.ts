@@ -64,9 +64,13 @@ export class ConfirmarCompraComponent implements OnInit {
     };
 
     this.ventas.crearVenta(pedido).subscribe({
-      next: ({ data }) => {
+      next: ({ data, notificacion }) => {
         this.carrito.vaciar();
-        this.notificaciones.exito('Enviamos tu pedido. Un vendedor se va a comunicar con vos para confirmarlo.');
+        this.notificaciones.exito(
+          notificacion?.estado === 'enviado'
+            ? `Enviamos tu pedido. Te mandamos el detalle a ${notificacion.para} y un vendedor se va a comunicar con vos para confirmarlo.`
+            : 'Enviamos tu pedido. Un vendedor se va a comunicar con vos para confirmarlo.',
+        );
         this.router.navigate(['/ventas', data._id]);
       },
       error: (err: HttpErrorResponse) => {

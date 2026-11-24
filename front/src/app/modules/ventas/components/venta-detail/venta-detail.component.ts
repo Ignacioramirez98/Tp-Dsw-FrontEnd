@@ -6,13 +6,13 @@ import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VentasService } from '../../ventas.service';
 import { VendedoresService } from '../../../vendedores/vendedor.service';
-import { Venta } from '../../../../shared/models/venta.model';
+import { RespuestaVenta, Venta } from '../../../../shared/models/venta.model';
 import { Vendedor } from '../../../../shared/models/vendedor.model';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { ConfirmacionService } from '../../../../shared/ui/confirmacion.service';
 import { NotificacionService } from '../../../../shared/ui/notificacion.service';
 import { mensajeDeErrorHttp } from '../../../../shared/utils/errores';
-import { totalVenta } from '../../../../shared/utils/venta';
+import { avisoDeMail, totalVenta } from '../../../../shared/utils/venta';
 import { ConcretarVentaDialogComponent, ResultadoConcretar } from '../concretar-venta-dialog/concretar-venta-dialog.component';
 
 interface Paso {
@@ -159,13 +159,16 @@ export class VentaDetailComponent implements OnInit {
       });
   }
 
-  private ejecutar(accion$: Observable<{ data: Venta }>, mensaje: string): void {
+  private ejecutar(accion$: Observable<RespuestaVenta>, mensaje: string): void {
     this.procesando = true;
     accion$.subscribe({
-      next: ({ data }) => {
+      next: ({ data, notificacion }) => {
         this.venta = data;
         this.procesando = false;
         this.notificaciones.exito(mensaje);
+        // Qué pasó con el mail al cliente (si no salió, quien opera tiene que avisarle por otro medio)
+        const aviso = avisoDeMail(notificacion);
+        if (aviso) this.notificaciones[aviso.tipo](aviso.texto);
       },
       error: (err: HttpErrorResponse) => {
         this.procesando = false;
