@@ -31,6 +31,7 @@ export const MENU_CLIENTE: ItemMenu[] = [
   { etiqueta: 'Inicio', icono: 'bi-house', ruta: '/cliente-dashboard', roles: ['cliente'] },
   { etiqueta: 'Catálogo', icono: 'bi-grid', ruta: '/seleccion-productos', roles: ['cliente'] },
   { etiqueta: 'Servicios', icono: 'bi-tools', ruta: '/servicios', roles: ['cliente'] },
+  { etiqueta: 'Mis solicitudes', icono: 'bi-clipboard-check', ruta: '/solicitudes-servicio', roles: ['cliente'] },
   { etiqueta: 'Mis compras', icono: 'bi-bag', ruta: '/ventas', roles: ['cliente'] },
 ];
 

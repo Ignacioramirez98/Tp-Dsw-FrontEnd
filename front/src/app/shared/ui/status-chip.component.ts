@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
-/** Estado visual de una venta (u otro registro con estado). */
+/** Estado visual de una venta o de una solicitud de servicio (u otro registro con estado). */
 @Component({
   selector: 'app-status-chip',
   standalone: true,
@@ -11,7 +11,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
             font-size: 0.75rem; font-weight: 600; line-height: 1rem; white-space: nowrap; }
     .chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     .chip-pendiente { background: #FBEFD5; color: #7A4E0A; }
-    .chip-concretada { background: #E3F0E5; color: #23562F; }
+    .chip-concretada, .chip-finalizada { background: #E3F0E5; color: #23562F; }
+    .chip-aceptada { background: #E3ECF8; color: #1E4E8C; }
     .chip-facturada { background: #E3ECF8; color: #1E4E8C; }
     .chip-cancelada { background: #F8E3E0; color: #8F2D24; }
     .chip-otro { background: #ECE8DD; color: #3E4A43; }
@@ -21,7 +22,7 @@ export class StatusChipComponent {
   /** Estado tal como viene del backend, ej. "pendiente". */
   @Input({ required: true }) estado = '';
 
-  private static readonly CONOCIDOS = ['pendiente', 'concretada', 'facturada', 'cancelada'];
+  private static readonly CONOCIDOS = ['pendiente', 'concretada', 'facturada', 'cancelada', 'aceptada', 'finalizada'];
 
   get clave(): string {
     const valor = this.estado.trim().toLowerCase();

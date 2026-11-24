@@ -1,0 +1,82 @@
+@if (esCliente) {
+  <app-page-header titulo="Mis solicitudes" subtitulo="Los servicios que pediste y cómo van. Un operario acepta cada solicitud.">
+    <a acciones routerLink="/servicios" class="btn btn-primary"><i class="bi bi-tools" aria-hidden="true"></i> Pedir un servicio</a>
+  </app-page-header>
+} @else {
+  <app-page-header titulo="Solicitudes de servicio" subtitulo="Pedidos de los clientes para los servicios técnicos." />
+}
+
+<section class="panel" [attr.aria-label]="esCliente ? 'Listado de mis solicitudes' : 'Listado de solicitudes de servicio'">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-solicitud">Buscar</label>
+      <input #buscador id="buscar-solicitud" type="search" class="form-control"
+             [placeholder]="esCliente ? 'Servicio u operario' : 'Servicio, cliente u operario'"
+             (input)="buscar(buscador.value)">
+    </div>
+    <div class="w-100 d-flex flex-wrap align-items-center gap-2">
+      <div class="filtro-chips" role="group" aria-label="Filtrar por estado">
+        @for (o of opcionesEstado; track o.valor) {
+          <button type="button" [attr.aria-pressed]="filtros.estado === o.valor" (click)="filtrarPorEstado(o.valor)">{{ o.etiqueta }}</button>
+        }
+      </div>
+      @if (hayFiltros) {
+        <button type="button" class="btn btn-link btn-sm ms-auto" (click)="limpiarFiltros(buscador)">Limpiar filtros</button>
+      }
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando solicitudes…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+      @if (hayFiltros) { Ninguna solicitud coincide con los filtros. }
+      @else if (esCliente) { Todavía no pediste ningún servicio. <a routerLink="/servicios">Ver los servicios</a> }
+      @else { Todavía no hay solicitudes. }
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
+      <thead>
+        <tr>
+          <th scope="col">Servicio</th>
+          @if (!esCliente) { <th scope="col">Cliente</th> }
+          <th scope="col">Fecha</th>
+          <th scope="col">Operario</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-md-end">Importe</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of visibles; track s._id) {
+          <tr>
+            <td class="celda-principal">
+              <strong>{{ s.servicio?.descripcion ?? 'Servicio eliminado' }}</strong>
+              <span class="subtexto">{{ s.horasEstimadas }} {{ s.horasEstimadas === 1 ? 'hora' : 'horas' }} estimadas</span>
+            </td>
+            @if (!esCliente) { <td data-label="Cliente">{{ nombreCliente(s) }}</td> }
+            <td data-label="Fecha">{{ s.fechaSolicitud | date: 'dd/MM/yyyy' }}</td>
+            <td data-label="Operario">{{ nombreOperario(s) }}</td>
+            <td data-label="Estado"><app-status-chip [estado]="s.estado" /></td>
+            <td data-label="Importe" class="text-md-end fw-semibold numero">{{ importe(s) | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/solicitudes-servicio', s._id]" class="btn btn-sm btn-outline-secondary"
+                   [attr.aria-label]="'Ver la solicitud de ' + (s.servicio?.descripcion ?? 'servicio') + ' del ' + (s.fechaSolicitud | date: 'dd/MM/yyyy')">
+                  <i class="bi bi-eye" aria-hidden="true"></i> Ver
+                </a>
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />
+  }
+</section>
