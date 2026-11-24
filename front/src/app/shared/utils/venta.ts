@@ -1,4 +1,4 @@
-import { Venta } from '../models/venta.model';
+import { Notificacion, Venta } from '../models/venta.model';
 
 /** Total de los productos de una venta (cantidad × precio de cada renglón). */
 export function totalVenta(venta: Venta): number {
@@ -31,4 +31,21 @@ export function resumirVentas(ventas: Venta[], hoy = new Date(), vendedorId?: st
     delMes: delMes.length,
     vendidoDelMes: delMes.reduce((total, v) => total + totalVenta(v), 0),
   };
+}
+
+/**
+ * Texto para avisarle a quien hizo la operación qué pasó con el mail al cliente.
+ * null cuando no hay nada que decir (no se pidió avisar, o el envío de mails está desactivado).
+ */
+export function avisoDeMail(notificacion?: Notificacion | null): { tipo: 'exito' | 'info'; texto: string } | null {
+  switch (notificacion?.estado) {
+    case 'enviado':
+      return { tipo: 'exito', texto: `Le avisamos al cliente por mail (${notificacion.para}).` };
+    case 'fallido':
+      return { tipo: 'info', texto: 'No se pudo enviar el mail al cliente. Avisale por otro medio.' };
+    case 'sin_mail':
+      return { tipo: 'info', texto: 'El cliente no tiene mail cargado: avisale por otro medio.' };
+    default:
+      return null;
+  }
 }

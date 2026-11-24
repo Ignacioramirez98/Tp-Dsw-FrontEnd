@@ -15,6 +15,7 @@ export interface DatosConcretar {
 export interface ResultadoConcretar {
   vendedorId?: string;
   fechaEntrega?: string | null;
+  notificarCliente: boolean;
 }
 
 /**
@@ -82,6 +83,16 @@ export interface ResultadoConcretar {
         }
       </div>
 
+      <div class="form-check mb-4">
+        <input class="form-check-input" type="checkbox" id="concretar-notificar" name="notificarCliente"
+               [(ngModel)]="notificarCliente" [disabled]="!mailCliente" aria-describedby="concretar-notificar-ayuda">
+        <label class="form-check-label" for="concretar-notificar">Avisar al cliente por mail</label>
+        <div id="concretar-notificar-ayuda" class="form-text">
+          @if (mailCliente) { Le llega la confirmación con el detalle y la fecha de entrega a {{ mailCliente }}. }
+          @else { El cliente no tiene mail cargado: avisale por otro medio. }
+        </div>
+      </div>
+
       <div class="d-flex justify-content-end gap-2 flex-wrap">
         <button type="button" class="btn btn-outline-secondary" (click)="ref.close()">Volver</button>
         <button type="submit" class="btn btn-primary" [disabled]="faltaStock">
@@ -99,6 +110,8 @@ export class ConcretarVentaDialogComponent {
   readonly total = totalVenta(this.datos.venta);
   vendedorId = this.datos.venta.vendedor?._id ?? '';
   fechaEntrega = '';
+  readonly mailCliente = this.datos.venta.cliente?.mail?.trim() ?? '';
+  notificarCliente = !!this.mailCliente;
   intentado = false;
 
   /** Cantidad pedida por producto (sumando renglones repetidos) contra su stock. */
@@ -123,6 +136,7 @@ export class ConcretarVentaDialogComponent {
     this.ref.close({
       ...(this.datos.vendedores && { vendedorId: this.vendedorId }),
       ...(this.fechaEntrega && { fechaEntrega: this.fechaEntrega }),
+      notificarCliente: this.notificarCliente,
     });
   }
 }

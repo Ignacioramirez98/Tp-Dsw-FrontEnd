@@ -46,3 +46,21 @@ export interface FiltrosVenta {
   desde?: string;
   hasta?: string;
 }
+
+/**
+ * Qué pasó con el aviso por mail al cliente (lo informa el back al crear, concretar o cancelar).
+ * enviado | fallido (el servidor de correo rechazó) | desactivado (sin SMTP configurado)
+ * | sin_mail (el cliente no tiene mail) | omitido (se eligió no avisar)
+ */
+export type EstadoNotificacion = 'enviado' | 'fallido' | 'desactivado' | 'sin_mail' | 'omitido';
+
+export interface Notificacion {
+  estado: EstadoNotificacion;
+  para?: string;
+}
+
+/** Respuesta de las operaciones que pueden avisar al cliente por mail. */
+export interface RespuestaVenta {
+  data: Venta;
+  notificacion?: Notificacion | null;
+}
