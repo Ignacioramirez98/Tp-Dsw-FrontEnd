@@ -27,6 +27,11 @@ describe('StatusChipComponent', () => {
     expect(render('finalizada').textContent?.trim()).toBe('Finalizada');
   });
 
+  it('reconoce el estado de una cuenta de usuario', () => {
+    expect(render('activo').classList).toContain('chip-activo');
+    expect(render('desactivado').classList).toContain('chip-desactivado');
+  });
+
   it('usa un estilo neutro para estados desconocidos', () => {
     expect(render('En proceso').classList).toContain('chip-otro');
   });

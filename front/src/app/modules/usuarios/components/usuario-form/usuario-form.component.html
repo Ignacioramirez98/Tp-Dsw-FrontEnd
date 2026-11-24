@@ -1,0 +1,69 @@
+<a [routerLink]="rutaListado" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Usuarios</a>
+<app-page-header [titulo]="titulo" subtitulo="Cuenta con la que una persona entra al sistema." />
+
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando…</div>
+} @else {
+<form class="panel formulario" [formGroup]="form" (ngSubmit)="guardar()" novalidate [attr.aria-label]="titulo">
+  @if (errorServidor) {
+    <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+  }
+  <fieldset>
+    <legend>Cuenta</legend>
+    <div class="grid-campos">
+      <app-campo etiqueta="Usuario" para="usuario" [error]="error('usuario')">
+        <input class="form-control" type="text" id="usuario" formControlName="usuario" [class.is-invalid]="error('usuario')"
+               [attr.aria-invalid]="!!error('usuario')" [attr.aria-describedby]="error('usuario') ? 'usuario-error' : null" autocomplete="off" autocapitalize="none">
+      </app-campo>
+      <app-campo etiqueta="Contraseña" para="contraseña" [error]="error('contraseña')"
+                 [ayuda]="esEdicion ? 'Dejala vacía para no cambiarla.' : 'Mínimo 6 caracteres.'">
+        <input class="form-control" type="password" id="contraseña" formControlName="contraseña" [class.is-invalid]="error('contraseña')"
+               [attr.aria-invalid]="!!error('contraseña')" [attr.aria-describedby]="error('contraseña') ? 'contraseña-error' : null" autocomplete="new-password">
+      </app-campo>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Acceso</legend>
+    @if (esAdmin) {
+      <p class="mb-0">Esta cuenta es de un <strong>administrador</strong>: su rol no se puede cambiar ni vincular a una persona.</p>
+    } @else {
+      <div class="grid-campos">
+        <app-campo etiqueta="Rol" para="rol" [error]="error('rol')">
+          <select class="form-select" id="rol" formControlName="rol" [class.is-invalid]="error('rol')">
+            @for (r of roles; track r.valor) {
+              <option [value]="r.valor">{{ r.etiqueta }}</option>
+            }
+          </select>
+        </app-campo>
+        <app-campo [etiqueta]="'Persona (' + etiquetaRolElegido + ')'" para="perfilId" [error]="error('perfilId') ?? (errorPerfiles || null)"
+                   [ayuda]="'Solo aparecen los que todavía no tienen una cuenta.'">
+          <select class="form-select" id="perfilId" formControlName="perfilId" [class.is-invalid]="error('perfilId') || errorPerfiles"
+                  [attr.aria-invalid]="!!error('perfilId')" [attr.aria-describedby]="error('perfilId') ? 'perfilId-error' : null">
+            <option value="">{{ cargandoPerfiles ? 'Cargando…' : 'Elegí ' + campoPerfil }}</option>
+            @for (p of perfiles; track p.id) {
+              <option [value]="p.id">{{ p.etiqueta }}</option>
+            }
+          </select>
+        </app-campo>
+      </div>
+    }
+
+    @if (esEdicion) {
+      <div class="form-check form-switch mt-2">
+        <input class="form-check-input" type="checkbox" role="switch" id="activo" formControlName="activo">
+        <label class="form-check-label" for="activo">Cuenta activa (si se desactiva, no puede iniciar sesión)</label>
+        @if (esPropia) { <div class="form-text">No podés desactivar tu propia cuenta.</div> }
+      </div>
+    }
+  </fieldset>
+
+  <div class="pie-formulario">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="guardando">
+      @if (guardando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Guardando… }
+      @else { <i class="bi bi-check-lg" aria-hidden="true"></i> {{ esEdicion ? 'Guardar cambios' : 'Crear usuario' }} }
+    </button>
+  </div>
+</form>
+}

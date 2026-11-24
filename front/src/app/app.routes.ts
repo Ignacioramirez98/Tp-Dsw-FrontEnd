@@ -75,6 +75,12 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/operarios/operarios.module').then((m) => m.OperariosModule),
       },
       {
+        path: 'usuarios',
+        canMatch: [rolesMatchGuard],
+        data: { roles: ['admin'] },
+        loadChildren: () => import('./modules/usuarios/usuarios.module').then((m) => m.UsuariosModule),
+      },
+      {
         path: 'localidades',
         canMatch: [rolesMatchGuard],
         data: { roles: ['admin'] },
