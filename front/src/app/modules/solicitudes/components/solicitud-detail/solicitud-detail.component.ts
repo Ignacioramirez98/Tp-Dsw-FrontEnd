@@ -1,12 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
 import { SolicitudesService } from '../../solicitud.service';
+import { OperariosService } from '../../../operarios/operario.service';
 import { SolicitudServicio } from '../../../../shared/models/solicitud-servicio.model';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { ConfirmacionService } from '../../../../shared/ui/confirmacion.service';
 import { NotificacionService } from '../../../../shared/ui/notificacion.service';
 import { mensajeDeErrorHttp } from '../../../../shared/utils/errores';
+import { AceptarSolicitudDialogComponent, ResultadoAceptar } from '../aceptar-solicitud-dialog/aceptar-solicitud-dialog.component';
+import { FinalizarSolicitudDialogComponent, ResultadoFinalizar } from '../finalizar-solicitud-dialog/finalizar-solicitud-dialog.component';
+import { CancelarSolicitudDialogComponent, ResultadoCancelarSolicitud } from '../cancelar-solicitud-dialog/cancelar-solicitud-dialog.component';
 
 interface Paso {
   titulo: string;
@@ -14,7 +20,10 @@ interface Paso {
   estado: 'hecho' | 'actual' | 'futuro';
 }
 
-/** Detalle de una solicitud de servicio. El cliente puede cancelarla mientras está pendiente. */
+/**
+ * Detalle de una solicitud de servicio y acciones del CUU Solicitar Servicio.
+ * El cliente cancela mientras está pendiente; el operario (o el admin) acepta, finaliza y cancela.
+ */
 @Component({
   selector: 'app-solicitud-detail',
   templateUrl: './solicitud-detail.component.html',
@@ -23,20 +32,32 @@ interface Paso {
 export class SolicitudDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly solicitudes = inject(SolicitudesService);
+  private readonly operarios = inject(OperariosService);
+  private readonly dialog = inject(MatDialog);
   private readonly confirmacion = inject(ConfirmacionService);
   private readonly notificaciones = inject(NotificacionService);
   private readonly rol = inject(AuthService).getRol();
 
   readonly esCliente = this.rol === 'cliente';
+  readonly esPersonal = this.rol === 'admin' || this.rol === 'operario';
 
   solicitud: SolicitudServicio | null = null;
   cargando = true;
   error = '';
   procesando = false;
 
-  /** El cliente cancela solo lo pendiente; después, la gestiona la empresa. */
+  get puedeAceptar(): boolean {
+    return this.esPersonal && this.solicitud?.estado === 'pendiente';
+  }
+
+  get puedeFinalizar(): boolean {
+    return this.esPersonal && this.solicitud?.estado === 'aceptada';
+  }
+
+  /** El cliente cancela solo lo pendiente; el personal también lo ya aceptado. */
   get puedeCancelar(): boolean {
-    return this.esCliente && this.solicitud?.estado === 'pendiente';
+    const estado = this.solicitud?.estado;
+    return this.esCliente ? estado === 'pendiente' : this.esPersonal && (estado === 'pendiente' || estado === 'aceptada');
   }
 
   get pasos(): Paso[] {
@@ -83,32 +104,111 @@ export class SolicitudDetailComponent implements OnInit {
     });
   }
 
+  aceptar(): void {
+    const solicitud = this.solicitud;
+    if (!solicitud) return;
+
+    // El admin elige el operario si la solicitud no tiene responsable; un operario acepta a su nombre
+    if (this.rol === 'admin' && !solicitud.operario) {
+      this.operarios.getOperarios().subscribe({
+        next: ({ data }) => {
+          this.dialog
+            .open<AceptarSolicitudDialogComponent, unknown, ResultadoAceptar>(AceptarSolicitudDialogComponent, {
+              data: { operarios: data },
+              width: '440px',
+              maxWidth: '94vw',
+              autoFocus: 'dialog',
+              ariaLabelledBy: 'aceptar-titulo',
+            })
+            .afterClosed()
+            .subscribe((resultado) => {
+              if (resultado) this.ejecutar(this.solicitudes.aceptar(solicitud._id, resultado.operarioId), 'La solicitud fue aceptada.');
+            });
+        },
+        error: (err: HttpErrorResponse) => {
+          // Sin la lista de operarios el admin no puede elegir: no se abre el diálogo vacío. El 403 ya lo avisa el interceptor.
+          if (err.status !== 403) this.notificaciones.error(mensajeDeErrorHttp(err, 'No se pudieron cargar los operarios. Probá de nuevo.'));
+        },
+      });
+      return;
+    }
+
+    this.confirmacion
+      .confirmar({
+        titulo: 'Aceptar solicitud',
+        mensaje: this.rol === 'operario'
+          ? 'Te hacés cargo de este trabajo. ¿Aceptar la solicitud?'
+          : '¿Aceptar la solicitud? Queda a cargo del operario del servicio.',
+        textoConfirmar: 'Aceptar solicitud',
+      })
+      .subscribe((ok) => {
+        if (ok) this.ejecutar(this.solicitudes.aceptar(solicitud._id), 'La solicitud fue aceptada.');
+      });
+  }
+
+  finalizar(): void {
+    const solicitud = this.solicitud;
+    if (!solicitud) return;
+    this.dialog
+      .open<FinalizarSolicitudDialogComponent, unknown, ResultadoFinalizar>(FinalizarSolicitudDialogComponent, {
+        data: { solicitud },
+        width: '440px',
+        maxWidth: '94vw',
+        autoFocus: 'dialog',
+        ariaLabelledBy: 'finalizar-titulo',
+      })
+      .afterClosed()
+      .subscribe((resultado) => {
+        if (resultado) this.ejecutar(this.solicitudes.finalizar(solicitud._id, resultado.horasReales), 'Trabajo finalizado.');
+      });
+  }
+
   cancelar(): void {
     const solicitud = this.solicitud;
     if (!solicitud) return;
-    this.confirmacion
-      .confirmar({
-        titulo: 'Cancelar solicitud',
-        mensaje: '¿Cancelar esta solicitud de servicio? No se puede deshacer.',
-        textoConfirmar: 'Cancelar solicitud',
-        peligro: true,
-      })
-      .subscribe((ok) => {
-        if (!ok) return;
-        this.procesando = true;
-        this.solicitudes.cancelar(solicitud._id).subscribe({
-          next: ({ data }) => {
-            this.solicitud = data;
-            this.procesando = false;
-            this.notificaciones.exito('Solicitud cancelada.');
-          },
-          error: (err: HttpErrorResponse) => {
-            this.procesando = false;
-            // 409: la solicitud ya cambió de estado (el backend lo explica). El 403 ya lo avisa el interceptor.
-            if (err.status !== 403) this.notificaciones.error(mensajeDeErrorHttp(err, 'No se pudo cancelar la solicitud.'));
-            if (err.status === 409) this.cargar();
-          },
+
+    if (this.esCliente) {
+      this.confirmacion
+        .confirmar({
+          titulo: 'Cancelar solicitud',
+          mensaje: '¿Cancelar esta solicitud de servicio? No se puede deshacer.',
+          textoConfirmar: 'Cancelar solicitud',
+          peligro: true,
+        })
+        .subscribe((ok) => {
+          if (ok) this.ejecutar(this.solicitudes.cancelar(solicitud._id), 'Solicitud cancelada.');
         });
+      return;
+    }
+
+    this.dialog
+      .open<CancelarSolicitudDialogComponent, unknown, ResultadoCancelarSolicitud>(CancelarSolicitudDialogComponent, {
+        data: { servicio: solicitud.servicio?.descripcion ?? 'Servicio' },
+        width: '440px',
+        maxWidth: '94vw',
+        autoFocus: 'dialog',
+        ariaLabelledBy: 'cancelar-solicitud-titulo',
+      })
+      .afterClosed()
+      .subscribe((resultado) => {
+        if (resultado) this.ejecutar(this.solicitudes.cancelar(solicitud._id, resultado.motivo), 'Solicitud cancelada.');
       });
+  }
+
+  private ejecutar(accion$: Observable<{ data: SolicitudServicio }>, mensaje: string): void {
+    this.procesando = true;
+    accion$.subscribe({
+      next: ({ data }) => {
+        this.solicitud = data;
+        this.procesando = false;
+        this.notificaciones.exito(mensaje);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.procesando = false;
+        // 409: la solicitud ya cambió de estado (el backend lo explica). El 403 ya lo avisa el interceptor.
+        if (err.status !== 403) this.notificaciones.error(mensajeDeErrorHttp(err, 'No se pudo completar la operación.'));
+        if (err.status === 409) this.cargar();
+      },
+    });
   }
 }
