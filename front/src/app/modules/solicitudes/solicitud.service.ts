@@ -31,6 +31,20 @@ export class SolicitudesService {
     return this.http.post<{ data: unknown }>(this.apiUrl, solicitud).pipe(map((r) => ({ data: this.normalizar(r.data) })));
   }
 
+  /** Un operario se hace cargo. Solo el admin indica `operarioId` (si no, la acepta a su nombre el operario logueado). */
+  aceptar(id: string, operarioId?: string): Observable<{ data: SolicitudServicio }> {
+    return this.http.post<{ data: unknown }>(`${this.apiUrl}/${id}/aceptar`, operarioId ? { operarioId } : {}).pipe(
+      map((r) => ({ data: this.normalizar(r.data) })),
+    );
+  }
+
+  /** Registra el trabajo hecho; sin `horasReales` el backend usa las estimadas. */
+  finalizar(id: string, horasReales?: number): Observable<{ data: SolicitudServicio }> {
+    return this.http.post<{ data: unknown }>(`${this.apiUrl}/${id}/finalizar`, horasReales ? { horasReales } : {}).pipe(
+      map((r) => ({ data: this.normalizar(r.data) })),
+    );
+  }
+
   /** Cancela la solicitud; el motivo es opcional. */
   cancelar(id: string, motivo?: string): Observable<{ data: SolicitudServicio }> {
     return this.http.post<{ data: unknown }>(`${this.apiUrl}/${id}/cancelar`, motivo ? { motivo } : {}).pipe(

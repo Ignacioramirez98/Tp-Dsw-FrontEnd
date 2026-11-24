@@ -5,6 +5,12 @@ import { join } from 'node:path';
 /** Cliente de prueba que crea `npm run e2e:server` en el back. */
 export const CLIENTE = { usuario: 'cliente', contraseña: 'cliente123' };
 
+/** Operario de prueba: responsable del servicio SERVICIO (lo crea `npm run e2e:server` en el back). */
+export const OPERARIO = { usuario: 'operario', contraseña: 'operario123' };
+
+/** Servicio de prueba que carga el back: Service general de tractor, $35.000 por hora, a cargo de OPERARIO. */
+export const SERVICIO = { descripcion: 'Service general de tractor', precioHora: 35_000, operario: 'Carlos Benítez' };
+
 /** Productos de prueba (mismos datos que carga el back). */
 export const TRACTOR = { nombre: 'Tractor 120 HP', precio: 45_000_000 };
 export const RASTRA = { nombre: 'Rastra de discos 28', precio: 7_900_000 };
@@ -21,6 +27,25 @@ export async function loginComoCliente(page: Page) {
   await page.getByLabel('Contraseña').fill(CLIENTE.contraseña);
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await expect(page).toHaveURL(/\/cliente-dashboard$/);
+}
+
+/** Inicia sesión con un usuario de prueba y espera llegar a la pantalla de inicio de su rol. */
+export async function iniciarSesion(page: Page, credenciales: { usuario: string; contraseña: string }, inicio: RegExp) {
+  await page.goto('/login');
+  await page.getByLabel('Usuario').fill(credenciales.usuario);
+  await page.getByLabel('Contraseña').fill(credenciales.contraseña);
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await expect(page).toHaveURL(inicio);
+}
+
+export const loginComoOperario = (page: Page) => iniciarSesion(page, OPERARIO, /\/vendedor-dashboard$/);
+
+/** Cierra la sesión. En móvil el botón está dentro del menú desplegable. */
+export async function cerrarSesion(page: Page) {
+  const menu = page.getByRole('button', { name: 'Abrir menú' });
+  if (await menu.isVisible()) await menu.click();
+  await page.getByRole('button', { name: /^(Salir|Cerrar sesión)$/ }).click();
+  await expect(page).toHaveURL(/\/login$/);
 }
 
 /** Tarjeta de un producto en el catálogo. */

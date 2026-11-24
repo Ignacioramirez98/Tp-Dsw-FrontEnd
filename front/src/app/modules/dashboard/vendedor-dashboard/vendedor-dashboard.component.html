@@ -72,6 +72,23 @@
     </section>
   }
 
+  @if (veSolicitudes) {
+    <a routerLink="/solicitudes-servicio" class="panel d-flex align-items-center gap-3 p-3 mb-4 text-decoration-none">
+      <i class="bi bi-clipboard-check fs-2 text-primary" aria-hidden="true"></i>
+      <span class="flex-grow-1">
+        <strong class="d-block text-body">Solicitudes de servicio pendientes</strong>
+        <span class="text-secondary">
+          @if (solicitudesPendientes === null) { Revisá las solicitudes de los clientes. }
+          @else if (solicitudesPendientes === 0) { No hay solicitudes esperando. }
+          @else { {{ solicitudesPendientes }} {{ solicitudesPendientes === 1 ? 'solicitud espera' : 'solicitudes esperan' }} que alguien la acepte. }
+        </span>
+      </span>
+      @if (solicitudesPendientes) {
+        <span class="kpi-valor" aria-hidden="true">{{ solicitudesPendientes }}</span>
+      }
+    </a>
+  }
+
   @if (rol === 'operario') {
     <section class="kpis" aria-label="Indicadores">
       <div class="panel kpi">

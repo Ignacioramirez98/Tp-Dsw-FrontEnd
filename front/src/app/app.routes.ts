@@ -38,6 +38,13 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/ventas/ventas.module').then((m) => m.VentasModule),
       },
       {
+        // Solicitudes de servicio: el operario ve las de sus servicios y las sin responsable (lo resuelve el backend)
+        path: 'solicitudes-servicio',
+        canMatch: [rolesMatchGuard],
+        data: { roles: ['admin', 'operario'] },
+        loadChildren: () => import('./modules/solicitudes/solicitudes.module').then((m) => m.SolicitudesModule),
+      },
+      {
         path: 'clientes',
         canMatch: [rolesMatchGuard],
         data: { roles: ['admin', 'vendedor', 'operario'] },

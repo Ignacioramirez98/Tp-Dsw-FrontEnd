@@ -9,6 +9,7 @@ import { ResumenVentas, resumirVentas } from '../../../shared/utils/venta';
 import { VentasService } from '../../ventas/ventas.service';
 import { ProductosService } from '../../productos/producto.service';
 import { ServiciosService } from '../../servicios/servicio.service';
+import { SolicitudesService } from '../../solicitudes/solicitud.service';
 
 /** Panel de inicio del personal (admin, vendedor y operario). Cada rol ve sus propios indicadores. */
 @Component({
@@ -21,6 +22,7 @@ export class VendedorDashboardComponent implements OnInit {
   private readonly ventas = inject(VentasService);
   private readonly productos = inject(ProductosService);
   private readonly servicios = inject(ServiciosService);
+  private readonly solicitudes = inject(SolicitudesService);
 
   /** Cuántos pedidos pendientes se muestran en el panel (el resto está en Ventas). */
   private static readonly PEDIDOS_VISIBLES = 5;
@@ -32,6 +34,7 @@ export class VendedorDashboardComponent implements OnInit {
   readonly hoy = new Date();
   readonly fecha = formatDate(this.hoy, "EEEE d 'de' MMMM", 'es-AR');
   readonly veVentas = this.rol === 'admin' || this.rol === 'vendedor';
+  readonly veSolicitudes = this.rol === 'admin' || this.rol === 'operario';
   readonly accesos = MENU_PERSONAL.filter((i) => i.roles.includes(this.rol as Rol) && i.ruta !== '/vendedor-dashboard');
 
   resumen: ResumenVentas | null = null;
@@ -39,6 +42,8 @@ export class VendedorDashboardComponent implements OnInit {
   pedidosParaConcretar: Venta[] = [];
   stockBajo: Producto[] = [];
   misServicios: Servicio[] = [];
+  /** Solicitudes de servicio pendientes (null mientras carga o si no se pudieron traer). */
+  solicitudesPendientes: number | null = null;
   cargando = true;
   error = '';
 
@@ -50,6 +55,14 @@ export class VendedorDashboardComponent implements OnInit {
   cargar(): void {
     this.cargando = true;
     this.error = '';
+
+    if (this.veSolicitudes) {
+      // Es un indicador accesorio: si falla, el panel sigue funcionando y no se muestra el número
+      this.solicitudes.getSolicitudes({ estado: 'pendiente' }).subscribe({
+        next: ({ data }) => (this.solicitudesPendientes = data.length),
+        error: () => (this.solicitudesPendientes = null),
+      });
+    }
 
     if (this.veVentas) {
       const vendedorId = this.rol === 'vendedor' ? this.auth.getVendedorId() : null;

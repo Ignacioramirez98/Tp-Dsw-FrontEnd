@@ -14,6 +14,20 @@
       @if (puedeCancelar) {
         <button type="button" class="btn btn-outline-danger" [disabled]="procesando" (click)="cancelar()">Cancelar solicitud</button>
       }
+      @if (puedeAceptar) {
+        <button type="button" class="btn btn-primary" [disabled]="procesando" (click)="aceptar()">
+          @if (procesando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> }
+          @else { <i class="bi bi-check-lg" aria-hidden="true"></i> }
+          Aceptar solicitud
+        </button>
+      }
+      @if (puedeFinalizar) {
+        <button type="button" class="btn btn-primary" [disabled]="procesando" (click)="finalizar()">
+          @if (procesando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> }
+          @else { <i class="bi bi-flag" aria-hidden="true"></i> }
+          Finalizar trabajo
+        </button>
+      }
     </div>
   </header>
 
