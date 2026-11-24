@@ -47,7 +47,17 @@ describe('ConcretarVentaDialogComponent', () => {
     componente.vendedorId = 'v9';
     componente.fechaEntrega = '2999-01-01';
     componente.confirmar();
-    expect(cerrar).toHaveBeenCalledWith({ vendedorId: 'v9', fechaEntrega: '2999-01-01' });
+    expect(cerrar).toHaveBeenCalledWith({ vendedorId: 'v9', fechaEntrega: '2999-01-01', notificarCliente: false });
+  });
+
+  it('si el cliente tiene mail, por defecto se le avisa y se puede desmarcar', () => {
+    const conMail = Object.assign(venta([1]), { cliente: { mail: 'juan@campo.com' } });
+    const { componente, cerrar } = crear({ venta: conMail });
+    expect(componente.notificarCliente).toBeTrue();
+
+    componente.notificarCliente = false;
+    componente.confirmar();
+    expect(cerrar).toHaveBeenCalledWith({ notificarCliente: false });
   });
 
   it('rechaza una fecha de entrega pasada', () => {

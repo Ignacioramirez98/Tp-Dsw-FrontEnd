@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "node scripts/verificar-produccion.mjs && ng build",
+    "verificar:prod": "node scripts/verificar-produccion.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:e2e": "playwright test",
