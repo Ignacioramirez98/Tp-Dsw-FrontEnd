@@ -21,6 +21,12 @@ describe('StatusChipComponent', () => {
     expect(render('FACTURADA').classList).toContain('chip-facturada');
   });
 
+  it('reconoce los estados de las solicitudes de servicio', () => {
+    expect(render('aceptada').classList).toContain('chip-aceptada');
+    expect(render('finalizada').classList).toContain('chip-finalizada');
+    expect(render('finalizada').textContent?.trim()).toBe('Finalizada');
+  });
+
   it('usa un estilo neutro para estados desconocidos', () => {
     expect(render('En proceso').classList).toContain('chip-otro');
   });

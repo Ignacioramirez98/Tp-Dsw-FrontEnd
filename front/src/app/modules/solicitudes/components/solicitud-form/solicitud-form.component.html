@@ -1,0 +1,65 @@
+<a routerLink="/servicios" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> Servicios</a>
+<app-page-header titulo="Pedir un servicio" subtitulo="Contanos cuánto trabajo estimás y cuándo lo necesitás. Un operario acepta la solicitud." />
+
+@if (cargando) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando servicio…</div>
+} @else if (error || !servicio) {
+  <div class="panel estado-panel" role="alert">
+    <i class="bi bi-tools" aria-hidden="true"></i>{{ error }}
+    <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="cargar()">Reintentar</button></div>
+  </div>
+} @else {
+  <div class="catalogo">
+    <form class="panel formulario" [formGroup]="form" (ngSubmit)="enviar()" novalidate aria-label="Solicitud de servicio">
+      @if (errorServidor) {
+        <div class="alert alert-danger d-flex gap-2" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><span>{{ errorServidor }}</span></div>
+      }
+      <fieldset>
+        <legend>Tu pedido</legend>
+        <div class="grid-campos">
+          <app-campo etiqueta="Horas estimadas" para="horasEstimadas" [error]="errorDe('horasEstimadas')"
+                     ayuda="Una estimación alcanza: el importe final se calcula con las horas reales.">
+            <input class="form-control" type="number" id="horasEstimadas" formControlName="horasEstimadas"
+                   [class.is-invalid]="errorDe('horasEstimadas')" [attr.aria-invalid]="!!errorDe('horasEstimadas')"
+                   [attr.aria-describedby]="errorDe('horasEstimadas') ? 'horasEstimadas-error' : null"
+                   min="0.5" step="0.5" inputmode="decimal">
+          </app-campo>
+          <app-campo etiqueta="Fecha preferida" para="fechaPreferida" [opcional]="true"
+                     [error]="form.controls.fechaPreferida.errors?.['pasada'] ? 'La fecha no puede ser anterior a hoy.' : null">
+            <input class="form-control" type="date" id="fechaPreferida" formControlName="fechaPreferida" [min]="hoy"
+                   [class.is-invalid]="form.controls.fechaPreferida.errors?.['pasada']"
+                   [attr.aria-invalid]="!!form.controls.fechaPreferida.errors?.['pasada']"
+                   [attr.aria-describedby]="form.controls.fechaPreferida.errors?.['pasada'] ? 'fechaPreferida-error' : null">
+          </app-campo>
+          <app-campo class="ancho-completo" etiqueta="Observaciones" para="observaciones" [opcional]="true" [error]="errorDe('observaciones')">
+            <textarea class="form-control" rows="3" id="observaciones" formControlName="observaciones"
+                      [class.is-invalid]="errorDe('observaciones')" [attr.aria-invalid]="!!errorDe('observaciones')"
+                      [attr.aria-describedby]="errorDe('observaciones') ? 'observaciones-error' : null"
+                      placeholder="Ej. Tractor en el campo, ruta 33 km 12"></textarea>
+          </app-campo>
+        </div>
+      </fieldset>
+      <div class="pie-formulario">
+        <a routerLink="/servicios" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary" [disabled]="enviando">
+          @if (enviando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Enviando… }
+          @else { <i class="bi bi-send" aria-hidden="true"></i> Enviar solicitud }
+        </button>
+      </div>
+    </form>
+
+    <aside class="panel resumen-pedido" aria-labelledby="t-servicio">
+      <h2 id="t-servicio" class="h5 mb-0">{{ servicio.descripcion }}</h2>
+      @if (servicio.operario; as op) {
+        <p class="subtexto mb-0">A cargo de {{ op.nombre }} {{ op.apellido }}</p>
+      }
+      <div class="d-flex justify-content-between"><span>Precio por hora</span>
+        <span class="numero fw-semibold">{{ servicio.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span></div>
+      <div class="d-flex justify-content-between align-items-baseline border-top pt-3">
+        <span class="fw-semibold">Importe estimado</span>
+        <span class="total-venta" aria-live="polite">{{ importeEstimado | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</span>
+      </div>
+      <p class="subtexto mb-0">Es una estimación: el importe final depende de las horas que lleve el trabajo.</p>
+    </aside>
+  </div>
+}

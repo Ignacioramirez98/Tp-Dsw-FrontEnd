@@ -99,6 +99,11 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/servicios/servicio.module').then((m) => m.ServiciosModule),
       },
       {
+        // "Mis solicitudes": el backend devuelve solo las solicitudes del cliente logueado
+        path: 'solicitudes-servicio',
+        loadChildren: () => import('./modules/solicitudes/solicitudes.module').then((m) => m.SolicitudesModule),
+      },
+      {
         // "Mis compras": el backend devuelve solo las ventas del cliente logueado
         path: 'ventas',
         loadChildren: () => import('./modules/ventas/ventas.module').then((m) => m.VentasModule),

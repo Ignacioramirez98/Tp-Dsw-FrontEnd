@@ -1,0 +1,90 @@
+<a routerLink="/solicitudes-servicio" class="volver"><i class="bi bi-arrow-left" aria-hidden="true"></i> {{ esCliente ? 'Mis solicitudes' : 'Solicitudes' }}</a>
+
+@if (cargando && !solicitud) {
+  <div class="panel estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando solicitud…</div>
+} @else if (error || !solicitud) {
+  <div class="panel estado-panel" role="alert"><i class="bi bi-clipboard-check" aria-hidden="true"></i>{{ error }}</div>
+} @else {
+  <header class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <h1 class="mb-0">{{ solicitud.servicio?.descripcion ?? 'Servicio eliminado' }}</h1>
+      <app-status-chip [estado]="solicitud.estado" />
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      @if (puedeCancelar) {
+        <button type="button" class="btn btn-outline-danger" [disabled]="procesando" (click)="cancelar()">Cancelar solicitud</button>
+      }
+    </div>
+  </header>
+
+  @if (solicitud.estado === 'cancelada') {
+    <div class="alert alert-secondary d-flex gap-2 align-items-center" role="status">
+      <i class="bi bi-x-circle" aria-hidden="true"></i>
+      <span>Cancelada el {{ solicitud.fechaCancelacion | date: 'dd/MM/yyyy' }}.@if (solicitud.motivoCancelacion) { Motivo: {{ solicitud.motivoCancelacion }} }</span>
+    </div>
+  } @else {
+    <ol class="panel pasos-venta" aria-label="Estado de la solicitud">
+      @for (p of pasos; track p.titulo; let i = $index) {
+        <li [class]="p.estado" [attr.aria-current]="p.estado === 'actual' ? 'step' : null">
+          <span class="marca" aria-hidden="true">
+            @if (p.estado === 'hecho') { <i class="bi bi-check-lg"></i> } @else { {{ i + 1 }} }
+          </span>
+          <span><strong>{{ p.titulo }}</strong>@if (p.detalle) { <span class="subtexto">{{ p.detalle }}</span> }</span>
+          <span class="solo-lectores">{{ p.estado === 'hecho' ? '(completado)' : p.estado === 'actual' ? '(paso actual)' : '' }}</span>
+        </li>
+      }
+    </ol>
+  }
+
+  <div class="detalle">
+    <section class="panel" aria-labelledby="t-trabajo">
+      <h2 id="t-trabajo">Trabajo y importe</h2>
+      <dl class="datos">
+        <div><dt>Horas estimadas</dt><dd>{{ solicitud.horasEstimadas }}</dd></div>
+        <div><dt>Horas reales</dt><dd>{{ solicitud.horasReales ?? '—' }}</dd></div>
+        <div><dt>Precio por hora</dt><dd class="numero">{{ solicitud.importePorHora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</dd></div>
+        <div><dt>Importe estimado</dt><dd class="numero">{{ solicitud.importeEstimado | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</dd></div>
+        @if (solicitud.estado === 'finalizada' && solicitud.importeFinal != null) {
+          <div class="ancho-completo"><dt>Importe final</dt><dd class="total-venta">{{ solicitud.importeFinal | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</dd></div>
+        }
+        @if (solicitud.observaciones) {
+          <div class="ancho-completo"><dt>Observaciones</dt><dd>{{ solicitud.observaciones }}</dd></div>
+        }
+      </dl>
+    </section>
+
+    <div class="grid-campos" style="row-gap: 1.5rem">
+      <section class="panel" aria-labelledby="t-operario">
+        <h2 id="t-operario">Operario y fechas</h2>
+        <dl class="datos">
+          <div class="ancho-completo">
+            <dt>Operario</dt>
+            <dd>
+              @if (solicitud.operario; as op) { <span class="fw-semibold">{{ op.nombre }} {{ op.apellido }}</span> }
+              @else { <span class="text-secondary">Sin asignar. Lo toma el primer operario que la acepte.</span> }
+            </dd>
+          </div>
+          <div><dt>Solicitud</dt><dd>{{ solicitud.fechaSolicitud | date: 'dd/MM/yyyy' }}</dd></div>
+          <div><dt>Fecha preferida</dt><dd>{{ (solicitud.fechaPreferida | date: 'dd/MM/yyyy') ?? 'A coordinar' }}</dd></div>
+          @if (solicitud.fechaAceptacion) { <div><dt>Aceptada</dt><dd>{{ solicitud.fechaAceptacion | date: 'dd/MM/yyyy' }}</dd></div> }
+          @if (solicitud.fechaFinalizacion) { <div><dt>Finalizada</dt><dd>{{ solicitud.fechaFinalizacion | date: 'dd/MM/yyyy' }}</dd></div> }
+        </dl>
+      </section>
+
+      @if (!esCliente) {
+        <section class="panel" aria-labelledby="t-cliente">
+          <h2 id="t-cliente">Cliente</h2>
+          @if (solicitud.cliente; as c) {
+            <dl class="datos">
+              <div class="ancho-completo"><dt>Nombre</dt><dd class="fw-semibold">{{ c.nombre }} {{ c.apellido }}</dd></div>
+              <div><dt>Teléfono</dt><dd><a [href]="'tel:' + c.telefono">{{ c.telefono }}</a></dd></div>
+              <div><dt>Mail</dt><dd><a [href]="'mailto:' + c.mail">{{ c.mail }}</a></dd></div>
+            </dl>
+          } @else {
+            <p class="mb-0 text-secondary">El cliente fue eliminado.</p>
+          }
+        </section>
+      }
+    </div>
+  </div>
+}

@@ -42,6 +42,8 @@
             <div class="p-3 d-flex flex-column gap-2 flex-grow-1">
               <h2 class="h6 mb-0">{{ s.descripcion }}</h2>
               <p class="mb-0 mt-auto"><strong>{{ s.importe_por_hora | currency: 'ARS' : '$' : '1.0-0' : 'es-AR' }}</strong> <span class="text-secondary ms-1">por hora</span></p>
+              <a [routerLink]="['/solicitudes-servicio/nueva', s._id]" class="btn btn-primary w-100"
+                 [attr.aria-label]="'Solicitar ' + s.descripcion">Solicitar</a>
             </div>
           </article>
         </div>
