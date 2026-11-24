@@ -24,6 +24,7 @@ export const MENU_PERSONAL: ItemMenu[] = [
   { etiqueta: 'Servicios', icono: 'bi-tools', ruta: '/servicios', roles: ['admin', 'operario'] },
   { etiqueta: 'Vendedores', icono: 'bi-person-badge', ruta: '/vendedores', roles: ['admin'] },
   { etiqueta: 'Operarios', icono: 'bi-person-gear', ruta: '/operarios', roles: ['admin'] },
+  { etiqueta: 'Usuarios', icono: 'bi-key', ruta: '/usuarios', roles: ['admin'] },
   { etiqueta: 'Localidades', icono: 'bi-geo-alt', ruta: '/localidades', roles: ['admin'] },
 ];
 

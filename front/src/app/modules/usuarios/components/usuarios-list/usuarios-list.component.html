@@ -1,0 +1,67 @@
+<app-page-header titulo="Usuarios" subtitulo="Cuentas de acceso al sistema y su rol.">
+  <a acciones routerLink="/usuarios/nuevo" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo usuario</a>
+</app-page-header>
+
+<section class="panel" aria-label="Listado de usuarios">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar">Buscar</label>
+      <input id="buscar" type="search" class="form-control" placeholder="Usuario, rol o persona"
+             (input)="buscar($any($event.target).value)">
+    </div>
+  </div>
+
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando usuarios…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-key" aria-hidden="true"></i>
+      {{ busqueda ? 'Nadie coincide con la búsqueda.' : 'Todavía no hay usuarios cargados.' }}
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
+      <thead>
+        <tr>
+          <th scope="col">Usuario</th><th scope="col">Rol</th><th scope="col">Persona</th><th scope="col">Estado</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of visibles; track u._id) {
+          <tr>
+            <td class="celda-principal">
+              <strong>{{ u.usuario }}</strong>
+              @if (esPropio(u)) { <span class="text-secondary"> (vos)</span> }
+            </td>
+            <td data-label="Rol">{{ etiquetaRol[u.rol] }}</td>
+            <td data-label="Persona">{{ u.perfil || '—' }}</td>
+            <td data-label="Estado"><app-status-chip [estado]="u.activo ? 'activo' : 'desactivado'" /></td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/usuarios/edit', u._id]" class="btn btn-sm btn-outline-primary" [attr.aria-label]="'Editar a ' + u.usuario"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cambiarEstado(u)"
+                        [disabled]="esPropio(u) || cambiandoId === u._id"
+                        [attr.title]="esPropio(u) ? 'No podés desactivar tu propio usuario' : null"
+                        [attr.aria-label]="(u.activo ? 'Desactivar a ' : 'Activar a ') + u.usuario">
+                  <i class="bi" [class.bi-slash-circle]="u.activo" [class.bi-check-circle]="!u.activo" aria-hidden="true"></i> {{ u.activo ? 'Desactivar' : 'Activar' }}
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="confirmarEliminar(u)"
+                        [disabled]="!!motivoNoEliminar(u) || eliminandoId === u._id"
+                        [attr.title]="motivoNoEliminar(u)" [attr.aria-label]="'Eliminar a ' + u.usuario">
+                  <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                </button>
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+<app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />
