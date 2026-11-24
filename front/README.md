@@ -36,7 +36,12 @@ Abrir: `http://localhost:4200`
 
 ## E2E (Playwright)
 
-Prueba el flujo real del cliente: **login → catálogo → agregar productos → "Tu pedido" → enviar → detalle del pedido pendiente**, en dos tamaños de pantalla (móvil 390 px y escritorio 1280 px). Usa el front real y el back real con una **base MongoDB efímera** (nunca toca Atlas ni el `.env`).
+Prueba dos flujos reales:
+
+- **Compra** (cliente): login → catálogo → agregar productos → "Tu pedido" → enviar → detalle del pedido pendiente.
+- **Solicitar Servicio** (cliente y operario): el cliente pide un servicio → el operario lo acepta y lo finaliza con las horas reales → el cliente ve su solicitud finalizada con el importe final.
+
+Ambos corren en dos tamaños de pantalla (móvil 390 px y escritorio 1280 px). Usa el front real y el back real con una **base MongoDB efímera** (nunca toca Atlas ni el `.env`).
 
 Requisitos: el repo del back (`Tp-Dsw-BackEnd`) con `npm install` hecho, como carpeta hermana de este repo. Si está en otro lugar, definir `E2E_BACK_DIR` con su ruta.
 
@@ -56,6 +61,18 @@ npx playwright show-report   # reporte HTML
 - El puerto 3000 tiene que estar libre: si tenés el back de desarrollo corriendo, cortalo antes (si no, el test falla en vez de usar tu base real).
 - La primera vez `mongodb-memory-server` descarga MongoDB y puede tardar unos minutos.
 - Para dejar capturas de evidencia: `npm run test:e2e:evidencia`.
+
+## Solicitar Servicio
+
+Caso de uso en el que el cliente pide un servicio técnico y un operario lo realiza:
+
+1. **Cliente**: en *Servicios* toca **Solicitar**, indica las horas estimadas, una fecha preferida y observaciones (opcionales). Ve el importe estimado (horas × precio por hora). La solicitud queda `pendiente`.
+2. **Operario**: la ve en su panel y en *Solicitudes*. La **acepta** (queda a su nombre) y, al terminar el trabajo, la **finaliza** con las horas reales; el importe final se calcula con ellas.
+3. **Cancelación**: el cliente cancela solo sus solicitudes pendientes; el operario (o el admin) también las aceptadas, con un motivo opcional que el cliente ve.
+
+Cada rol ve solo lo suyo: el cliente, sus solicitudes; el operario, las de sus servicios y las que no tienen responsable; el admin, todas. El admin puede elegir el operario al aceptar una solicitud sin responsable. Los estados y permisos los define el backend (ver su README, sección "Solicitudes de servicio").
+
+Pantallas: `/servicios` (tarjetas con **Solicitar**), `/solicitudes-servicio` (*Mis solicitudes* para el cliente, *Solicitudes de servicio* para el personal) y `/solicitudes-servicio/:id` (detalle y acciones).
 
 ## Configuración de ambientes
 
