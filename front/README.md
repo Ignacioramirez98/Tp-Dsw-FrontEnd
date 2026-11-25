@@ -118,3 +118,14 @@ Para apuntar a otro back de producción hay que cambiar `apiUrl` en `environment
 - sin secretos: ese archivo termina dentro del JavaScript que descarga el navegador.
 
 Del lado del back, la variable `FRONTEND_URL` tiene que ser exactamente la URL del front desplegado; si no, el navegador bloquea las peticiones por CORS (ver el README del back).
+
+### Deploy en Vercel
+
+Producción: front en `https://pauny-crm.vercel.app` y back en `https://pauny-crm-api.vercel.app`.
+
+En Vercel: importar el repo y poner **Root Directory** = `front`. El resto lo define `front/vercel.json`:
+- build con `npm run build:prod` (verifica que `apiUrl` no apunte a localhost);
+- salida en `dist/front/browser`;
+- todas las rutas devuelven `index.html`, así recargar `/ventas/123` no da 404 (Angular resuelve la ruta en el navegador).
+
+No necesita variables de entorno. Cada push a `main` publica una versión nueva.
