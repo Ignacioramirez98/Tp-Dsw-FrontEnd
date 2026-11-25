@@ -3,11 +3,10 @@
  *
  * Nunca poner acá secretos: este archivo queda dentro del JavaScript que descarga el navegador.
  *
- * TODO(deploy): reemplazar apiUrl por la URL del back desplegado en Vercel,
- * con https:// y SIN barra final. Ejemplo: 'https://pauny-crm-api.vercel.app'.
- * `npm run build:prod` falla mientras apunte a localhost (ver scripts/verificar-produccion.mjs).
+ * apiUrl = URL del back desplegado en Vercel (proyecto "pauny-crm-api"), con https:// y SIN barra final.
+ * `npm run build:prod` falla si apunta a localhost (ver scripts/verificar-produccion.mjs).
  */
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:3000'
+  apiUrl: 'https://pauny-crm-api.vercel.app'
 };
