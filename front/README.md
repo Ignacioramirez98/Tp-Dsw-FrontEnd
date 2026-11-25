@@ -36,13 +36,14 @@ Abrir: `http://localhost:4200`
 
 ## E2E (Playwright)
 
-Prueba tres flujos reales:
+Prueba cuatro flujos reales:
 
 - **Compra** (cliente): login → catálogo → agregar productos → "Tu pedido" → enviar → detalle del pedido pendiente.
 - **Solicitar Servicio** (cliente y operario): el cliente pide un servicio → el operario lo acepta y lo finaliza con las horas reales → el cliente ve su solicitud finalizada con el importe final.
 - **ABM de Usuarios** (admin): crea la cuenta de una persona, la edita (contraseña), la desactiva y la reactiva, comprobando en cada paso qué pasa al iniciar sesión; al eliminar a la persona su cuenta queda desactivada y sin vínculo, y recién ahí se puede eliminar. Además comprueba que un operario no ve ni abre *Usuarios*.
+- **Facturación** (cliente y admin): el cliente pide una rastra → el admin concreta la venta (eligiendo vendedor) y la factura → el comprobante muestra el neto, el IVA 21% y el total → una segunda facturación de la misma venta es rechazada (409) → el cliente ve la factura en *Mis facturas* y no puede facturar ni cancelar.
 
-Los tres corren en dos tamaños de pantalla (móvil 390 px y escritorio 1280 px). Usa el front real y el back real con una **base MongoDB efímera** (nunca toca Atlas ni el `.env`).
+Los cuatro corren en dos tamaños de pantalla (móvil 390 px y escritorio 1280 px). Usa el front real y el back real con una **base MongoDB efímera** (nunca toca Atlas ni el `.env`).
 
 Usuarios de prueba que carga el back (`npm run e2e:server`): `admin / admin123`, `cliente / cliente123` y `operario / operario123`.
 
@@ -76,6 +77,18 @@ Caso de uso en el que el cliente pide un servicio técnico y un operario lo real
 Cada rol ve solo lo suyo: el cliente, sus solicitudes; el operario, las de sus servicios y las que no tienen responsable; el admin, todas. El admin puede elegir el operario al aceptar una solicitud sin responsable. Los estados y permisos los define el backend (ver su README, sección "Solicitudes de servicio").
 
 Pantallas: `/servicios` (tarjetas con **Solicitar**), `/solicitudes-servicio` (*Mis solicitudes* para el cliente, *Solicitudes de servicio* para el personal) y `/solicitudes-servicio/:id` (detalle y acciones).
+
+## Facturación
+
+Caso de uso que toma como entrada una venta ya **concretada**:
+
+1. **Vendedor o admin**: en el detalle de una venta concretada toca **Facturar venta** y confirma. Se emite la factura con numeración correlativa (`0001-00000001`) y la venta pasa a `facturada`.
+2. **Comprobante**: muestra los datos del cliente tal como estaban al emitir, un renglón por producto, subtotal, **IVA 21% discriminado** y total. Los precios de los productos se toman como netos de IVA. Se puede imprimir o guardar como PDF con **Imprimir / guardar PDF**.
+3. **Reglas**: la factura no se modifica ni se anula, y una venta facturada ya no se puede cancelar. Los servicios no se facturan (se cotizan por hora): una venta con solo servicios no se puede facturar.
+
+Cada rol ve lo suyo: el personal, todas las facturas; el cliente, solo las de sus compras (*Mis facturas*), y no puede emitirlas. Las reglas las define el backend (ver su README, sección "Facturas").
+
+Pantallas: `/facturas` (listado con búsqueda y filtro por fecha), `/facturas/:id` (comprobante) y el botón **Facturar venta** / **Ver factura** en `/ventas/:id`.
 
 ## ABM de Usuarios
 
