@@ -1,0 +1,84 @@
+@if (esCliente) {
+  <app-page-header titulo="Mis facturas" subtitulo="Los comprobantes de tus compras facturadas." />
+} @else {
+  <app-page-header titulo="Facturas" subtitulo="Comprobantes de las ventas facturadas. Se emiten desde el detalle de una venta concretada." />
+}
+
+<section class="panel" [attr.aria-label]="esCliente ? 'Listado de mis facturas' : 'Listado de facturas'">
+  <div class="barra-filtros">
+    <div class="campo-ancho">
+      <label class="form-label" for="buscar-factura">Buscar</label>
+      <input #buscador id="buscar-factura" type="search" class="form-control"
+             [placeholder]="esCliente ? 'Número de factura' : 'Número, cliente, razón social o DNI'"
+             (input)="buscar(buscador.value)">
+    </div>
+    <div class="campo">
+      <label class="form-label" for="factura-desde">Emitida desde</label>
+      <input #desde id="factura-desde" type="date" class="form-control" [class.is-invalid]="errorFechas"
+             (change)="filtrarPorFecha('desde', desde.value)">
+    </div>
+    <div class="campo">
+      <label class="form-label" for="factura-hasta">Hasta</label>
+      <input #hasta id="factura-hasta" type="date" class="form-control" [class.is-invalid]="errorFechas"
+             [attr.aria-describedby]="errorFechas ? 'error-fechas' : null" (change)="filtrarPorFecha('hasta', hasta.value)">
+    </div>
+    @if (hayFiltros) {
+      <div class="w-100 d-flex">
+        <button type="button" class="btn btn-link btn-sm ms-auto" (click)="limpiarFiltros(buscador, desde, hasta)">Limpiar filtros</button>
+      </div>
+    }
+    @if (errorFechas) {
+      <div id="error-fechas" class="invalid-feedback d-block w-100 mt-0" role="alert">{{ errorFechas }}</div>
+    }
+  </div>
+
+  @if (cargando) {
+    <div class="estado-panel" role="status"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Cargando facturas…</div>
+  } @else if (error) {
+    <div class="estado-panel" role="alert">
+      <i class="bi bi-wifi-off" aria-hidden="true"></i>{{ error }}
+      <div class="mt-3"><button type="button" class="btn btn-outline-secondary btn-sm" (click)="recargar()">Reintentar</button></div>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="estado-panel">
+      <i class="bi bi-receipt" aria-hidden="true"></i>
+      @if (hayFiltros) { Ninguna factura coincide con los filtros. }
+      @else if (esCliente) { Todavía no tenés facturas. Aparecen cuando se factura una de tus compras. }
+      @else { Todavía no hay facturas emitidas. }
+    </div>
+  } @else {
+    <table class="table tabla-adaptable">
+      <thead>
+        <tr>
+          <th scope="col">Factura</th>
+          <th scope="col">Emisión</th>
+          @if (!esCliente) { <th scope="col">Emitida por</th> }
+          <th scope="col" class="text-md-end">Total</th>
+          <th scope="col"><span class="solo-lectores">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of visibles; track f._id) {
+          <tr>
+            <td class="celda-principal">
+              <strong class="numero">{{ f.numero }}</strong>
+              @if (!esCliente) { <span class="subtexto">{{ f.receptor.nombre }}@if (f.receptor.razonSocial) { · {{ f.receptor.razonSocial }} }</span> }
+            </td>
+            <td data-label="Emisión">{{ f.fechaEmision | date: 'dd/MM/yyyy' }}</td>
+            @if (!esCliente) { <td data-label="Emitida por">{{ f.emitidaPor }}</td> }
+            <td data-label="Total" class="text-md-end fw-semibold numero">{{ f.total | currency: 'ARS' : '$' : '1.2-2' : 'es-AR' }}</td>
+            <td class="celda-acciones">
+              <span class="acciones-fila">
+                <a [routerLink]="['/facturas', f._id]" class="btn btn-sm btn-outline-secondary"
+                   [attr.aria-label]="'Ver la factura ' + f.numero">
+                  <i class="bi bi-eye" aria-hidden="true"></i> Ver
+                </a>
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="pagina" [totalPaginas]="totalPaginas" (cambioPagina)="cambiarPagina($event)" />
+  }
+</section>

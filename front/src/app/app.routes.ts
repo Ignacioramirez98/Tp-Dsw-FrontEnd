@@ -38,6 +38,12 @@ export const routes: Routes = [
         loadChildren: () => import('./modules/ventas/ventas.module').then((m) => m.VentasModule),
       },
       {
+        path: 'facturas',
+        canMatch: [rolesMatchGuard],
+        data: { roles: ['admin', 'vendedor'] },
+        loadChildren: () => import('./modules/facturas/facturas.module').then((m) => m.FacturasModule),
+      },
+      {
         // Solicitudes de servicio: el operario ve las de sus servicios y las sin responsable (lo resuelve el backend)
         path: 'solicitudes-servicio',
         canMatch: [rolesMatchGuard],
@@ -120,6 +126,11 @@ export const routes: Routes = [
         // "Mis compras": el backend devuelve solo las ventas del cliente logueado
         path: 'ventas',
         loadChildren: () => import('./modules/ventas/ventas.module').then((m) => m.VentasModule),
+      },
+      {
+        // "Mis facturas": el backend devuelve solo las facturas del cliente logueado
+        path: 'facturas',
+        loadChildren: () => import('./modules/facturas/facturas.module').then((m) => m.FacturasModule),
       },
     ],
   },

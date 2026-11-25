@@ -18,6 +18,7 @@ export interface ItemMenu {
 export const MENU_PERSONAL: ItemMenu[] = [
   { etiqueta: 'Panel', icono: 'bi-house', ruta: '/vendedor-dashboard', roles: ['admin', 'vendedor', 'operario'] },
   { etiqueta: 'Ventas', icono: 'bi-bag-check', ruta: '/ventas', roles: ['admin', 'vendedor'] },
+  { etiqueta: 'Facturas', icono: 'bi-receipt', ruta: '/facturas', roles: ['admin', 'vendedor'] },
   { etiqueta: 'Solicitudes', icono: 'bi-clipboard-check', ruta: '/solicitudes-servicio', roles: ['admin', 'operario'] },
   { etiqueta: 'Clientes', icono: 'bi-people', ruta: '/clientes', roles: ['admin', 'vendedor', 'operario'] },
   { etiqueta: 'Productos', icono: 'bi-truck', ruta: '/productos', roles: ['admin'] },
@@ -35,6 +36,7 @@ export const MENU_CLIENTE: ItemMenu[] = [
   { etiqueta: 'Servicios', icono: 'bi-tools', ruta: '/servicios', roles: ['cliente'] },
   { etiqueta: 'Mis solicitudes', icono: 'bi-clipboard-check', ruta: '/solicitudes-servicio', roles: ['cliente'] },
   { etiqueta: 'Mis compras', icono: 'bi-bag', ruta: '/ventas', roles: ['cliente'] },
+  { etiqueta: 'Facturas', icono: 'bi-receipt', ruta: '/facturas', roles: ['cliente'] },
 ];
 
 /** Pantalla de inicio de cada rol después del login. */

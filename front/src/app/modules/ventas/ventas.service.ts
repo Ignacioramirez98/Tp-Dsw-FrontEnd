@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Factura } from '../../shared/models/factura.model';
 import { FiltrosVenta, RespuestaVenta, Venta, VentaPayload } from '../../shared/models/venta.model';
 import { environment } from '../../../environments/environment';
 
@@ -45,6 +46,14 @@ export class VentasService {
   /** Cancela la venta (si estaba concretada, el backend devuelve el stock). */
   cancelar(id: string, notificarCliente = true): Observable<RespuestaVenta> {
     return this.http.post<RespuestaVenta>(`${this.apiUrl}/${id}/cancelar`, { notificarCliente });
+  }
+
+  /**
+   * CUU Realizar facturación: emite la factura de una venta concretada (la venta pasa a facturada
+   * y ya no se puede cancelar). Responde 409 si no está concretada o ya tiene factura.
+   */
+  facturar(id: string): Observable<{ data: Factura }> {
+    return this.http.post<{ data: Factura }>(`${this.apiUrl}/${id}/facturar`, {});
   }
 
   deleteVenta(id: string): Observable<void> {
