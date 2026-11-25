@@ -19,6 +19,18 @@
           {{ esCliente ? 'Cancelar pedido' : 'Cancelar venta' }}
         </button>
       }
+      @if (factura) {
+        <a [routerLink]="['/facturas', factura._id]" class="btn btn-outline-primary">
+          <i class="bi bi-receipt" aria-hidden="true"></i> Ver factura
+        </a>
+      }
+      @if (puedeFacturar) {
+        <button type="button" class="btn btn-primary" [disabled]="procesando" (click)="facturar()">
+          @if (procesando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> }
+          @else { <i class="bi bi-receipt" aria-hidden="true"></i> }
+          Facturar venta
+        </button>
+      }
       @if (puedeConcretar) {
         <button type="button" class="btn btn-primary" [disabled]="procesando" (click)="concretar()">
           @if (procesando) { <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> }

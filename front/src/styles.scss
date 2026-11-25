@@ -270,3 +270,46 @@ h1, .h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   background: var(--pa-superficie); border-top: 1px solid $border-color; box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
 }
+
+// ---------------------------------------------------------------------------
+// Facturas: comprobante en pantalla y para imprimir / guardar como PDF
+// ---------------------------------------------------------------------------
+.comprobante {
+  max-width: 880px; padding: 1.25rem;
+  @include media-breakpoint-up(md) { padding: 2rem; }
+}
+.comprobante-cabecera {
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  padding-bottom: 1.25rem; border-bottom: 2px solid $body-color;
+}
+.logo-comprobante { height: 48px; border-radius: 6px; }
+.identificacion {
+  .tipo { margin: 0; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pa-muted); }
+  .numero-factura { margin: 0; font-family: $headings-font-family; font-size: 1.5rem; font-weight: 800; }
+  @include media-breakpoint-up(md) { text-align: right; }
+}
+.comprobante-bloque {
+  padding: 1.25rem 0; border-bottom: 1px solid $border-color;
+  h2 { font-size: 1.125rem; font-weight: 800; margin-bottom: 1rem; }
+}
+.totales {
+  display: grid; gap: 0.5rem; margin: 1.25rem 0 0 auto; max-width: 340px;
+  > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+  dt { font-weight: 600; color: var(--pa-muted); }
+  dd { margin: 0; }
+  .total { padding-top: 0.75rem; border-top: 2px solid $body-color; dt { color: $body-color; } }
+}
+.comprobante-pie {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem;
+  margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid $border-color; font-size: 0.8125rem; color: var(--pa-muted);
+}
+
+// Al imprimir solo sale el comprobante: sin menús, botones ni pie de página del sitio
+@media print {
+  .no-imprimir, .barra-movil, .lateral, .fondo, .barra, app-footer, .toasts { display: none !important; }
+  .shell { display: block !important; }
+  .contenido { padding: 0 !important; max-width: none !important; margin: 0 !important; }
+  body { background: #fff !important; }
+  .comprobante { border: 0 !important; padding: 0 !important; max-width: none !important; }
+  .comprobante-cabecera, .comprobante-bloque, .totales, .comprobante-pie { break-inside: avoid; }
+}
